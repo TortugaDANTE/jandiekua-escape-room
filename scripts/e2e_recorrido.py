@@ -33,10 +33,37 @@ SALA2 = {
 SALA3 = [("p1-a", "t-pares-1"), ("p2-a", "t-pares-2")]
 SALA4 = [("e1-a", "t-et-1"), ("e2-a", "t-et-2"), ("e3-a", "t-et-3")]
 
-def soltar(page, nodo, tanque):
-    page.locator(f"#{nodo}").click(force=True, timeout=8000)
+def soltar(page, nodo, tanque, debe_aceptar=True):
+    page.wait_for_selector(f"#{nodo}", timeout=8000)
+    page.wait_for_function(
+        f"() => {{ const e = document.getElementById('{nodo}'); return e && parseFloat(getComputedStyle(e).opacity || 0) >= 0.4; }}",
+        timeout=10000,
+    )
+    # Las tarjetas se apilan: un click en el centro de #id puede golpear otra
+    # tarjeta. Despachamos el puntero en el elemento mismo.
+    page.evaluate(f"""() => {{
+      const el = document.getElementById('{nodo}');
+      const r = el.getBoundingClientRect();
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      const ev = (type) => el.dispatchEvent(new PointerEvent(type, {{
+        bubbles: true, cancelable: true, pointerId: 1, pointerType: 'mouse',
+        clientX: x, clientY: y, view: window
+      }}));
+      ev('pointerdown'); ev('pointerup');
+    }}""")
+    page.wait_for_function(
+        f"() => window.estado && estado.elegido && estado.elegido.data && estado.elegido.data.id === '{nodo}'",
+        timeout=5000,
+    )
     page.locator(f"#{tanque}").click(force=True, timeout=8000)
-    page.wait_for_timeout(250)
+    if debe_aceptar:
+        page.wait_for_function(
+            f"() => !document.getElementById('{nodo}') || document.getElementById('{nodo}').classList.contains('colocado')",
+            timeout=5000,
+        )
+        page.wait_for_timeout(200)
+    else:
+        page.wait_for_timeout(400)
 
 def main():
     httpd = ReuseServer(("127.0.0.1", PORT), Handler)
@@ -49,16 +76,20 @@ def main():
             args=["--headless=new", "--no-sandbox", "--disable-gpu"],
         )
         page = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page.goto(f"http://127.0.0.1:{PORT}/index.html?v=20261112f", wait_until="networkidle")
+        page.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&v=20261112h", wait_until="networkidle")
         page.evaluate("localStorage.clear()")
         page.reload(wait_until="networkidle")
         page.wait_for_timeout(400)
 
         page.locator("#btn-entrar").click()
-        page.wait_for_selector("#tanque-originalidad")
+        page.wait_for_selector("#tema")
+        page.fill("#tema", "PRUEBA título e2e local 2026-11-12")
+        page.locator("#btn-registrar-titulo").click()
+        page.wait_for_function("() => !document.querySelector('.zona-tanques.bloqueado')")
+        page.wait_for_selector("#mar[data-listo='1'] #s1-a", timeout=20000)
         print("sala 1")
 
-        soltar(page, "s1-e", "tanque-originalidad")
+        soltar(page, "s1-e", "tanque-originalidad", debe_aceptar=False)
         lleno = page.locator("#tanque-originalidad").evaluate("el => el.classList.contains('lleno')")
         nivel = page.locator("#tanque-originalidad").evaluate("el => el.style.getPropertyValue('--nivel')")
         if lleno or (nivel not in ("", "0")):
@@ -125,7 +156,7 @@ def main():
         page.fill("input[name=institucion]", "Institución de prueba")
         page.fill("input[name=correo]", "prueba@example.com")
         page.fill("input[name=telefono]", "0000000000")
-        page.fill("input[name=tema]", "Tema de prueba")
+        page.fill("input[name=titulo]", "PRUEBA título e2e local 2026-11-12")
         page.check("input[name=aviso]")
         page.locator("#form-registro button[type=submit]").click()
 
@@ -141,35 +172,54 @@ def main():
 
         print("estres 200 ideas")
         page2 = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page2.goto(f"http://127.0.0.1:{PORT}/index.html?vista=sala1&v=20261112f", wait_until="networkidle")
-        page2.wait_for_selector("#s1-a")
+        page2.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&vista=sala1&v=20261112h", wait_until="networkidle")
+        page2.wait_for_selector("#mar[data-listo='1'] #s1-a", timeout=20000)
         page2.wait_for_timeout(400)
-        page2.evaluate("""() => {
+        page2.evaluate("""async () => {
           const textos = Array.from({length: 200}, (_, i) => "Aporte del consorcio número " + (i + 1));
-          agregarIdeasLote(textos);
+          await agregarIdeasLote(textos);
         }""")
-        page2.wait_for_timeout(2500)
+        page2.wait_for_function("() => document.querySelectorAll('#mar .nodo').length >= 200", timeout=30000)
         info = page2.evaluate("""() => {
           const nodos = [...document.querySelectorAll('#mar .nodo')];
           const font = nodos[0] ? parseFloat(getComputedStyle(nodos[0]).fontSize) : 0;
           return { n: nodos.length, font, total: totalIdeasSesion() };
         }""")
         print("  ", info)
+        antes = info["n"]
+        page2.evaluate("() => agregarIdea('Identificar un vacío de conocimiento', { local: true })")
+        page2.wait_for_timeout(600)
+        despues = page2.evaluate("() => document.querySelectorAll('#mar .nodo').length")
+        print("  dedup", antes, "->", despues)
+        if despues != antes:
+            ok = False
+            errores.append(f"dedup: se creó una tarjeta extra ({antes} -> {despues})")
         if info["n"] < 200:
             ok = False
             errores.append(f"estres: solo {info['n']} nodos en el mar")
         if info["font"] > 20:
             ok = False
             errores.append(f"estres: fuente {info['font']} px, debería ser muy pequeña")
-        # idea libre se rechaza; una predefinida válida se acepta por arrastre
-        box = page2.locator("#s1-a").bounding_box()
-        tank = page2.locator("#tanque-originalidad").bounding_box()
-        if box and tank:
-            page2.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
-            page2.mouse.down()
-            page2.mouse.move(tank["x"] + tank["width"] / 2, tank["y"] + tank["height"] / 2, steps=12)
-            page2.mouse.up()
-            page2.wait_for_timeout(400)
+        # Arrastre programático sobre #s1-a (el montón cubre el centro visual).
+        page2.evaluate("""() => {
+          const el = document.getElementById('s1-a');
+          const tank = document.getElementById('tanque-originalidad');
+          if (!el || !tank) return;
+          const r = el.getBoundingClientRect();
+          const t = tank.getBoundingClientRect();
+          const ev = (type, x, y) => el.dispatchEvent(new PointerEvent(type, {
+            bubbles: true, cancelable: true, pointerId: 1, pointerType: 'mouse',
+            clientX: x, clientY: y, view: window
+          }));
+          ev('pointerdown', r.left + r.width / 2, r.top + r.height / 2);
+          const x0 = r.left + r.width / 2, y0 = r.top + r.height / 2;
+          const x1 = t.left + t.width / 2, y1 = t.top + t.height / 2;
+          for (let i = 1; i <= 16; i++) {
+            ev('pointermove', x0 + (x1 - x0) * i / 16, y0 + (y1 - y0) * i / 16);
+          }
+          ev('pointerup', x1, y1);
+        }""")
+        page2.wait_for_function("() => !!document.querySelector('#tanque-originalidad .ficha')", timeout=5000)
         hay = page2.evaluate("() => !!document.querySelector('#tanque-originalidad .ficha')")
         print("  arrastre predefinida", hay)
         if not hay:

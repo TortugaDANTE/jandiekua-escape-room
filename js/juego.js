@@ -1,9 +1,14 @@
+import * as DatosMod from './datos.js?v=20261112h';
+const Datos = Object.assign({}, DatosMod.default || {}, DatosMod, { normalizar: DatosMod.claveDe });
+window.Datos = Datos;
+
 /* Escape room virtual Mar de las Ideas — Revista Jandiekua
    Agenda Ambiental UASLP. Sin dependencias externas. */
 
 const ANCHO = 1080;
 const ALTO = 2022;
-const VERSION = "20261112f";
+const ACUARIO_SVG = '<svg class="acuario-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 605" preserveAspectRatio="none" aria-hidden="true">\n  <defs>\n    <linearGradient id="arena" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#C59B27" stop-opacity=".0"/>\n      <stop offset=".45" stop-color="#8A6A12" stop-opacity=".18"/>\n      <stop offset="1" stop-color="#5C4A18" stop-opacity=".45"/>\n    </linearGradient>\n    <linearGradient id="rayo" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#D8E8DF" stop-opacity=".16"/>\n      <stop offset="1" stop-color="#D8E8DF" stop-opacity="0"/>\n    </linearGradient>\n    <linearGradient id="alga" x1="0" y1="1" x2="0" y2="0">\n      <stop offset="0" stop-color="#2E6B4E"/>\n      <stop offset="1" stop-color="#4A8B68" stop-opacity=".85"/>\n    </linearGradient>\n  </defs>\n  <!-- caustics / refraction bands -->\n  <g opacity=".22" fill="none" stroke="#D8E8DF" stroke-width="1.2">\n    <path d="M0 90 Q180 70 360 100 T720 90 T1080 110" opacity=".7"/>\n    <path d="M0 130 Q200 150 400 120 T800 140 T1080 125" opacity=".45"/>\n    <path d="M0 170 Q160 155 320 180 T640 165 T1080 185" opacity=".35"/>\n  </g>\n  <!-- light rays -->\n  <g fill="url(#rayo)">\n    <polygon points="220,-10 310,-10 260,400 170,400" opacity=".8"/>\n    <polygon points="520,-10 590,-10 560,360 490,360" opacity=".55"/>\n    <polygon points="820,-10 900,-10 870,420 790,420" opacity=".65"/>\n  </g>\n  <!-- sand bottom -->\n  <path fill="url(#arena)" d="M0 500 C80 488 160 520 260 505 C360 488 470 525 580 508 C700 490 820 528 930 510 C1000 500 1040 518 1080 508 L1080 605 L0 605 Z"/>\n  <g fill="#C59B27" opacity=".2">\n    <circle cx="90" cy="560" r="4"/><circle cx="140" cy="575" r="3"/><circle cx="320" cy="568" r="3.5"/>\n    <circle cx="510" cy="580" r="4"/><circle cx="700" cy="565" r="3"/><circle cx="880" cy="578" r="4"/>\n    <circle cx="990" cy="555" r="2.5"/>\n  </g>\n  <!-- seaweed / coral, left -->\n  <g fill="url(#alga)" opacity=".85">\n    <path d="M70 605 C60 540 90 520 70 460 C50 400 95 390 80 330 C88 400 55 420 85 480 C100 530 55 550 70 605Z"/>\n    <path d="M110 605 C125 530 95 510 120 440 C140 380 100 370 115 320 C108 380 145 400 108 470 C90 530 130 560 110 605Z"/>\n    <path d="M40 605 C30 550 55 530 38 480 C22 430 58 425 48 390 C52 440 20 455 50 510 C62 545 28 565 40 605Z"/>\n  </g>\n  <!-- right -->\n  <g fill="url(#alga)" opacity=".8">\n    <path d="M1010 605 C1022 540 990 520 1015 455 C1038 400 990 390 1008 335 C1000 400 1040 420 1000 485 C985 535 1028 555 1010 605Z"/>\n    <path d="M1050 605 C1062 550 1038 535 1055 485 C1072 435 1038 428 1050 390 C1045 440 1078 455 1048 510 C1036 545 1068 565 1050 605Z"/>\n    <path d="M970 605 C955 545 990 525 968 470 C948 415 990 410 975 360 C980 420 945 435 985 500 C1000 545 958 560 970 605Z"/>\n  </g>\n  <!-- small coral clusters -->\n  <g fill="#C59B27" opacity=".35">\n    <path d="M200 600 l8-28 8 14 7-22 7 22 8-14 8 28z"/>\n    <path d="M860 600 l6-22 7 11 6-18 6 18 7-11 6 22z"/>\n  </g>\n  <!-- two slow fish silhouettes (animated via CSS on groups) -->\n  <g class="pez pez-a" fill="#102438" opacity=".28">\n    <ellipse cx="0" cy="0" rx="22" ry="10"/>\n    <polygon points="18,0 34,-9 34,9"/>\n    <circle cx="-8" cy="-2" r="1.4" fill="#D8E8DF" opacity=".8"/>\n  </g>\n  <g class="pez pez-b" fill="#102438" opacity=".2">\n    <ellipse cx="0" cy="0" rx="16" ry="7"/>\n    <polygon points="-14,0 -26,-7 -26,7"/>\n    <circle cx="6" cy="-1.5" r="1.1" fill="#D8E8DF" opacity=".8"/>\n  </g>\n</svg>\n';
+const VERSION = "20261112h";
 
 const NOM_LLAVE = ["pertinencia", "estructura", "validacion", "definitiva"];
 
@@ -177,7 +182,11 @@ const estado = {
   elegido: null,
   ideasJugador: [],
   predefIds: [],
-  ideaSeq: 0
+  ideaSeq: 0,
+  sesion: "",
+  aportados: [],
+  tituloListo: false,
+  conceptosUnicos: 0
 };
 
 const nodosVivos = [];
@@ -190,6 +199,32 @@ let relojMar = 0;
 let ultimoFrame = 0;
 let semillaRnd = 20261112;
 let ideasPreview = 0;
+
+function salaApi() {
+  return (Number(estado.sala) || 0) + 1;
+}
+function asegurarSesion() {
+  if (estado.sesion && /^[A-Za-z0-9_-]{8,128}$/.test(estado.sesion)) return estado.sesion;
+  estado.sesion = (typeof crypto !== "undefined" && crypto.randomUUID)
+    ? crypto.randomUUID()
+    : ("ses-" + Date.now() + "-jandiekua");
+  return estado.sesion;
+}
+function debePersistir() {
+  try { return new URLSearchParams(location.search).get("sinred") !== "1"; }
+  catch (_) { return true; }
+}
+async function cargarConceptosLista() {
+  if (!window.Datos || !Datos.cargarConceptos) return [];
+  try {
+    const r = await Datos.cargarConceptos();
+    if (Array.isArray(r)) return r;
+    return (r && r.conceptos) || [];
+  } catch (err) {
+    console.warn("cargarConceptos", err);
+    return [];
+  }
+}
 
 const $ = (sel, raiz = document) => raiz.querySelector(sel);
 const lienzo = $("#lienzo");
@@ -246,7 +281,10 @@ function guardar() {
       registro: estado.registro,
       ideasJugador: estado.ideasJugador,
       predefIds: estado.predefIds,
-      ideaSeq: estado.ideaSeq
+      ideaSeq: estado.ideaSeq,
+      sesion: estado.sesion,
+      aportados: estado.aportados,
+      tituloListo: estado.tituloListo
     }));
   } catch (err) { /* almacenamiento no disponible */ }
 }
@@ -258,6 +296,7 @@ function cargar() {
     Object.assign(estado, d, { colocado: {}, elegido: null, colocados: estado.colocados || {} });
     if (!Array.isArray(estado.ideasJugador)) estado.ideasJugador = [];
     if (!Array.isArray(estado.predefIds)) estado.predefIds = [];
+    if (!Array.isArray(estado.aportados)) estado.aportados = [];
     if (!estado.ideaSeq) estado.ideaSeq = estado.ideasJugador.length;
     estado.colocados = {};
   } catch (err) { /* ignorar */ }
@@ -290,13 +329,12 @@ function pasoActual() {
 }
 
 function render() {
+  if (window.MarIdeas) MarIdeas.detener();
   cancelAnimationFrame(raf);
   raf = 0;
   nodosVivos.length = 0;
   estado.elegido = null;
   arrastre = null;
-  relojMar = 0;
-  ultimoFrame = 0;
   const capa = $("#capa-arrastre");
   if (capa) capa.innerHTML = "";
   lienzo.classList.remove("arrastrando");
@@ -308,7 +346,7 @@ function render() {
   }
   franja.hidden = false;
   svgLlaves();
-  if (estado.vista === "sala") renderSala();
+  if (estado.vista === "sala") return renderSala();
   else if (estado.vista === "cierre-form") renderFormulario();
   else if (estado.vista === "cierre-diploma") renderDiploma();
 }
@@ -322,6 +360,7 @@ function renderPortada() {
       <p class="subtitulo">Revista Mexicana de Educación Ambiental<br>Agenda Ambiental · UASLP</p>
       <div class="logo-pendiente">[LOGO JANDIEKUA]<br>[POR DEFINIR]</div>
       <p class="entradilla">Cuatro salas para comprender la originalidad, el formato, la revisión por pares y la ética científica antes de postular un manuscrito.</p>
+      <p class="aviso-juego">Mar de las Ideas es un juego formativo. No sustituye el proceso formal de envío y dictaminación de la Revista Jandiekua.</p>
       <button type="button" class="btn-entrar" id="btn-entrar">Entrar al consorcio</button>
     </section>`;
   $("#btn-entrar").addEventListener("click", () => {
@@ -332,12 +371,18 @@ function renderPortada() {
     estado.ideasJugador = [];
     estado.predefIds = [];
     estado.ideaSeq = 0;
+    estado.sesion = "";
+    asegurarSesion();
+    estado.aportados = [];
+    estado.tituloListo = false;
+    estado.tema = "";
+    estado.conceptosUnicos = 0;
     guardar();
     render();
   });
 }
 
-function renderSala() {
+async function renderSala() {
   const s = salaActual();
   const p = pasoActual();
   const tanques = p.tanques;
@@ -350,11 +395,15 @@ function renderSala() {
         <div class="carta-reto">
           <p class="etiqueta">${s.etiqueta}</p>
           <p>${p.reto}</p>
-          ${s.tema ? `<div class="campo-tema"><label for="tema">Tema tentativo de tu investigación (opcional)</label>
-            <input id="tema" type="text" maxlength="180" value="${escapeAttr(estado.tema)}" placeholder="Escríbelo aquí. Se usará en el reconocimiento."></div>` : ""}
+          ${s.tema ? `<div class="campo-tema">
+            <label for="tema">Título de tu investigación</label>
+            <input id="tema" type="text" required maxlength="180" value="${escapeAttr(estado.tema)}" placeholder="Escríbelo para habilitar el tanque y el Mar de Ideas.">
+            <p class="ayuda-titulo">Es el primer paso del juego y aparecerá en tu reconocimiento con la etiqueta «Título».</p>
+            ${estado.tituloListo ? "" : `<button type="button" class="btn-principal" id="btn-registrar-titulo">Registrar título</button>`}
+          </div>` : ""}
         </div>
       </div>
-      <div class="zona zona-tanques" id="zona-tanques">
+      <div class="zona zona-tanques${s.tema && !estado.tituloListo ? " bloqueado" : ""}" id="zona-tanques">
         ${tanques.map((t) => `
           <div class="${claseTanque}" data-tanque="${t.id}" id="${t.id}">
             ${s.modo !== "orden" ? `<div class="agua"><img src="assets/disenografico/tanque_agua.svg" alt=""></div>` : ""}
@@ -362,7 +411,10 @@ function renderSala() {
             <div class="tanque-cuerpo"><span class="pista-tanque">Suelta aquí</span></div>
           </div>`).join("")}
       </div>
-      <div class="zona zona-mar">
+      <div class="zona zona-mar${s.tema && !estado.tituloListo ? " bloqueado" : ""}">
+        <div class="acuario" aria-hidden="true">${ACUARIO_SVG}
+          <div class="acuario-burbujas"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
         <p class="instruccion">${s.instruccion}</p>
         <form class="form-idea" id="form-idea">
           <label class="visually-hidden" for="nueva-idea">Escribe una idea</label>
@@ -381,6 +433,12 @@ function renderSala() {
       estado.tema = e.target.value;
       guardar();
     });
+    $("#tema").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") { e.preventDefault(); registrarTitulo(); }
+    });
+    const btnT = $("#btn-registrar-titulo");
+    if (btnT) btnT.addEventListener("click", registrarTitulo);
+    if (!estado.tituloListo) setTimeout(() => $("#tema") && $("#tema").focus(), 200);
   }
 
   $("#form-idea").addEventListener("submit", (e) => {
@@ -389,30 +447,17 @@ function renderSala() {
     const texto = (input.value || "").trim();
     if (!texto) return;
     input.value = "";
-    agregarIdea(texto, { hundir: true });
+    agregarIdea(texto);
   });
 
-  const pNodos = p.nodos.filter((n) => !estado.colocados[n.id]);
   const colocados = p.nodos.filter((n) => estado.colocados[n.id]);
   colocados.forEach((n) => ponerFicha(n, estado.colocados[n.id]));
   tanques.forEach((tk) => actualizarTanque(tk.id));
 
-  p.nodos.forEach((n) => {
-    if (!estado.predefIds.includes(n.id)) estado.predefIds.push(n.id);
-  });
-
-  aplicarEscalaIdeas(true);
-  pNodos.forEach((n) => nacerIdea(n, { predef: true, hundir: true }));
-  estado.ideasJugador.filter((idea) => !idea.usada).forEach((idea) => {
-    nacerIdea({ id: idea.id, texto: idea.texto, libre: true, valido: false }, { hundir: true });
-  });
-  aplicarEscalaIdeas(true);
-  prepararHundimiento();
-
   tanques.forEach((t) => {
     const caja = document.getElementById(t.id);
     const soltarElegido = (e) => {
-      if (estado.elegido && !arrastre) {
+      if (estado.elegido && !MarIdeas.arrastrando()) {
         e.stopPropagation();
         intentarSoltar(estado.elegido, t.id);
       }
@@ -421,9 +466,42 @@ function renderSala() {
     caja.addEventListener("click", soltarElegido);
   });
 
+  await poblarMar(s, p);
   revisarMeta();
-  if (movimientoReducido()) asentarMar();
-  else arrancarMar();
+}
+
+function tituloListoAhora() {
+  return !salaActual().tema || !!estado.tituloListo;
+}
+function registrarTitulo() {
+  const input = $("#tema");
+  const v = ((input && input.value) || estado.tema || "").trim();
+  if (v.length < 3) {
+    mostrarToast("Escribe el título de tu investigación (al menos 3 caracteres).", true);
+    if (input) input.focus();
+    return false;
+  }
+  estado.tema = v;
+  estado.tituloListo = true;
+  guardar();
+  if (debePersistir() && window.Datos && Datos.aportarConcepto) {
+    Datos.aportarConcepto({
+      texto: v,
+      sala: 1,
+      salaNombre: (salaActual() && salaActual().nombre) || "Túnel de la Originalidad",
+      tipo: "titulo",
+      sesion: asegurarSesion(),
+      tituloInvestigacion: v
+    }).catch((err) => console.warn("titulo", err));
+  }
+  const zt = document.querySelector(".zona-tanques");
+  const zm = document.querySelector(".zona-mar");
+  if (zt) zt.classList.remove("bloqueado");
+  if (zm) zm.classList.remove("bloqueado");
+  const btn = $("#btn-registrar-titulo");
+  if (btn) btn.remove();
+  mostrarToast("Título registrado. Ya puedes usar el tanque y el Mar de Ideas.");
+  return true;
 }
 
 function escapeAttr(s) {
@@ -431,27 +509,26 @@ function escapeAttr(s) {
 }
 
 function normalizarTexto(s) {
-  return String(s || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
+  return (window.Datos && Datos.normalizar) ? Datos.normalizar(s) : String(s || "").trim();
 }
 
 function totalIdeasSesion() {
-  return (estado.ideasJugador ? estado.ideasJugador.length : 0) + (estado.predefIds ? estado.predefIds.length : 0);
+  const vivos = nodosVivos.filter((v) => v.estado !== "fuera").length;
+  return Math.max(vivos, estado.conceptosUnicos || 0);
 }
 
 function medidaIdeas(n) {
+  const r = lienzo.getBoundingClientRect();
+  const sL = (r.width / ANCHO) || 1;
+  const minFont = Math.ceil(12 / Math.max(sL, 0.15));
   const t = Math.max(0, Math.min(1, (n - 6) / (200 - 6)));
   const e = t * t * (3 - 2 * t);
   return {
-    font: Math.round(64 - e * 53),
-    lado: Math.round(220 - e * 168),
-    max: Math.round(280 - e * 200),
-    min: Math.round(120 - e * 68),
-    pad: Math.round(18 - e * 12)
+    font: Math.max(minFont, Math.round(64 - e * (64 - minFont))),
+    lado: Math.round(240 - e * 140),
+    max: Math.round(300 - e * 160),
+    min: Math.round(140 - e * 70),
+    pad: Math.round(18 - e * 10)
   };
 }
 
@@ -481,6 +558,9 @@ function aplicarEscalaIdeas(inmediato) {
       v.quietoT = 0;
     }
   });
+  const marEl = $("#mar");
+  if (marEl) marEl.style.overflowY = totalIdeasSesion() > 40 ? "auto" : "visible";
+  if (!inmediato && window.MarIdeas && MarIdeas.recalcular) MarIdeas.recalcular();
 }
 
 function medirIdea(v) {
@@ -489,325 +569,156 @@ function medirIdea(v) {
   v.h = Math.max(8, el.offsetHeight);
 }
 
-function nacerIdea(data, op = {}) {
+function insigniaPersonas(el, n) {
+  let badge = el.querySelector(".insignia-personas");
+  if (!badge) {
+    badge = document.createElement("span");
+    badge.className = "insignia-personas";
+    el.appendChild(badge);
+  }
+  badge.textContent = "×" + n + " personas";
+  badge.hidden = !(n >= 2);
+}
+
+function crearNodoMar(data, concepto) {
   const mar = $("#mar");
-  if (!mar) return null;
   const el = document.createElement("button");
   el.type = "button";
   el.className = "nodo";
   el.id = data.id;
-  el.textContent = data.texto;
+  el.appendChild(document.createTextNode(data.texto));
   el.setAttribute("aria-label", "Idea: " + data.texto);
+  const personas = concepto && concepto.personas ? concepto.personas : 1;
+  insigniaPersonas(el, personas);
   mar.appendChild(el);
-  const vivo = {
+  return {
     data,
     el,
-    x: 0,
-    y: 0,
-    w: 0,
-    h: 0,
-    vx: 0,
-    vy: 40 + rnd() * 50,
-    a: (rnd() * 2 - 1) * 12,
-    rest: (rnd() * 2 - 1) * 9,
-    tilt: (rnd() * 2 - 1) * 12,
-    fase: rnd() * Math.PI * 2,
-    omega: 0.9 + rnd() * 0.7,
-    amp: 14 + rnd() * 20,
-    vt: 120 + rnd() * 60,
-    sway: 1,
-    estado: "cae",
-    contacto: false,
-    dormido: false,
-    quietoT: 0,
-    padre: "mar",
-    delay: op.delay != null ? op.delay : 0
+    clave: (concepto && concepto.clave) || normalizarTexto(data.texto),
+    personas
   };
-  medirIdea(vivo);
-  const W = mar.clientWidth || 1000;
-  const hw = vivo.w;
-  vivo.x = Math.max(0, Math.min(W - hw, (rnd() + rnd()) / 2 * (W - hw)));
-  vivo.y = op.hundir && !movimientoReducido() ? -vivo.h - 8 - rnd() * 40 : 0;
-  habilitarArrastre(vivo);
-  nodosVivos.push(vivo);
-  dibujarIdea(vivo);
-  return vivo;
 }
 
-function agregarIdea(texto, op = {}) {
-  const t = String(texto || "").trim();
-  if (!t) return null;
-  const dup = estado.ideasJugador.some((i) => !i.usada && normalizarTexto(i.texto) === normalizarTexto(t));
-  if (dup) {
-    mostrarToast("Esa idea ya está en el mar.", true);
-    return null;
-  }
-  estado.ideaSeq += 1;
-  const idea = { id: "idea-j-" + estado.ideaSeq, texto: t, usada: false };
-  estado.ideasJugador.push(idea);
-  guardar();
-  const vivo = nacerIdea({ id: idea.id, texto: t, libre: true, valido: false }, { hundir: op.hundir !== false, delay: 0 });
-  aplicarEscalaIdeas(false);
-  if (movimientoReducido()) asentarMar();
-  else arrancarMar();
-  return vivo;
-}
-
-function agregarIdeasLote(textos) {
-  const lista = Array.isArray(textos) ? textos : [];
-  lista.forEach((texto, i) => {
-    const t = String(texto || "").trim() || ("Idea " + (estado.ideaSeq + 1));
-    estado.ideaSeq += 1;
-    const idea = { id: "idea-j-" + estado.ideaSeq, texto: t, usada: false };
-    estado.ideasJugador.push(idea);
-    nacerIdea({ id: idea.id, texto: t, libre: true, valido: false }, { hundir: true, delay: 0 });
-  });
-  aplicarEscalaIdeas(false);
-  if (movimientoReducido()) asentarMar();
-  else arrancarMar();
-  guardar();
-}
-
-function prepararHundimiento() {
-  const n = nodosVivos.length;
-  const paso = Math.max(40, Math.min(280, 2200 / Math.max(n, 1)));
-  const orden = nodosVivos.map((_, i) => i).sort(() => rnd() - 0.5);
-  orden.forEach((idx, k) => {
-    nodosVivos[idx].delay = k * paso * (0.6 + rnd() * 0.6);
-    // Permanecen visibles y se pueden tocar desde el primer instante (caen desde arriba).
-  });
-}
-
-function dibujarIdea(v) {
-  const o = v.padre === "capa" ? origenMar() : { x: 0, y: 0 };
-  v.el.style.transform = `translate(${(v.x + o.x).toFixed(1)}px, ${(v.y + o.y).toFixed(1)}px) rotate(${v.a.toFixed(2)}deg)`;
-}
-
-function hw(v) { return v.w * 0.48; }
-function hh(v) { return v.h * 0.46; }
-
-function pasoFisica(dt) {
+async function poblarMar(s, p) {
   const mar = $("#mar");
-  if (!mar) return 0;
-  const W = mar.clientWidth, H = mar.clientHeight;
-  relojMar += dt;
-  let despiertos = 0;
-  for (const v of nodosVivos) {
-    if (v.estado === "fuera") continue;
-    if (relojMar * 1000 < v.delay) { despiertos++; continue; }
-    if (v.estado === "agarrado") { despiertos++; continue; }
-    if (v.dormido) continue;
-    despiertos++;
-    v.contacto = false;
-    v.vy += (v.vt - v.vy) * 2.2 * dt;
-    v.fase += v.omega * dt;
-    const vaiven = v.amp * v.omega * Math.cos(v.fase) * v.sway;
-    v.x += (vaiven + v.vx) * dt;
-    v.y += v.vy * dt;
-    v.vx *= Math.max(0, 1 - 1.6 * dt);
-    const w = hw(v), h = hh(v);
-    if (v.x + v.w / 2 < w) { v.x = w - v.w / 2; v.vx = Math.abs(v.vx); }
-    if (v.x + v.w / 2 > W - w) { v.x = W - w - v.w / 2; v.vx = -Math.abs(v.vx); }
-    if (v.x < 0) v.x = 0;
-    if (v.x > W - v.w) v.x = W - v.w;
-    if (v.y + v.h > H - 2) { v.y = H - v.h - 2; v.contacto = true; }
-    if (v.y < -v.h) { /* todavía entrando */ }
+  if (!mar) return;
+  const conceptos = await cargarConceptosLista();
+  estado.conceptosUnicos = conceptos.length;
+  const usados = new Set();
+  p.nodos.filter((n) => !estado.colocados[n.id]).forEach((n) => {
+    const clave = normalizarTexto(n.texto);
+    usados.add(clave);
+    const c = conceptos.find((x) => x.clave === clave);
+    nodosVivos.push(crearNodoMar(n, c));
+  });
+  conceptos.forEach((c) => {
+    if (!c || !c.clave || usados.has(c.clave)) return;
+    usados.add(c.clave);
+    nodosVivos.push(crearNodoMar({
+      id: "concepto-" + String(c.clave).replace(/\s+/g, "-").slice(0, 48),
+      texto: c.texto || c.clave,
+      libre: true,
+      valido: false
+    }, c));
+  });
+  if (ideasPreview > 0) {
+    for (let i = 0; i < ideasPreview; i++) {
+      nodosVivos.push(crearNodoMar({
+        id: "senuelo-" + (i + 1),
+        texto: "Idea " + (i + 1) + " del consorcio",
+        libre: true,
+        valido: false
+      }, { clave: "senuelo-" + (i + 1), personas: 1 }));
+    }
+    ideasPreview = 0;
   }
-  for (let it = 0; it < 3; it++) {
-    for (let i = 0; i < nodosVivos.length; i++) {
-      const a = nodosVivos[i];
-      if (a.estado !== "cae" || relojMar * 1000 < a.delay) continue;
-      for (let j = i + 1; j < nodosVivos.length; j++) {
-        const b = nodosVivos[j];
-        if (b.estado !== "cae" || relojMar * 1000 < b.delay) continue;
-        if (a.dormido && b.dormido) continue;
-        const ax = a.x + a.w / 2, ay = a.y + a.h / 2;
-        const bx = b.x + b.w / 2, by = b.y + b.h / 2;
-        const dx = ax - bx, dy = ay - by;
-        const px = hw(a) + hw(b) - Math.abs(dx);
-        const py = hh(a) + hh(b) - Math.abs(dy);
-        if (px <= 0 || py <= 0) continue;
-        if (py <= px * 1.35) {
-          const arriba = dy < 0 ? a : b, abajo = dy < 0 ? b : a;
-          if (abajo.dormido) arriba.y -= py;
-          else if (arriba.dormido) abajo.y += py;
-          else { arriba.y -= py * 0.55; abajo.y += py * 0.45; }
-          if (!arriba.dormido) arriba.contacto = true;
-        } else {
-          const dir = dx === 0 ? (rnd() < 0.5 ? -1 : 1) : Math.sign(dx);
-          if (a.dormido) b.x -= dir * px;
-          else if (b.dormido) a.x += dir * px;
-          else { a.x += dir * px * 0.5; b.x -= dir * px * 0.5; }
-        }
-      }
-    }
-  }
-  for (const v of nodosVivos) {
-    if (v.estado !== "cae" || v.dormido || relojMar * 1000 < v.delay) continue;
-    if (v.x < 0) v.x = 0;
-    if (v.x > W - v.w) v.x = Math.max(0, W - v.w);
-    if (v.y + v.h > H) v.y = H - v.h;
-    if (v.contacto) {
-      v.vy = 0;
-      v.sway = Math.max(0, v.sway - 1.8 * dt);
-      v.quietoT += dt;
-      if (v.quietoT > 0.55 && v.sway === 0) v.dormido = true;
-    } else {
-      v.quietoT = 0;
-      v.sway = Math.min(1, v.sway + 0.4 * dt);
-    }
-    const asent = 1 - v.sway;
-    const objetivo = (v.tilt * (1 - asent) + v.rest * asent) + Math.sin(v.fase * 0.9 + 1) * 7 * v.sway;
-    v.a += (objetivo - v.a) * Math.min(1, 5 * dt);
-  }
-  return despiertos;
-}
-
-function bucleMar(ahora) {
-  if (movimientoReducido()) return;
-  const dt = Math.min((ahora - (ultimoFrame || ahora)) / 1000, 1 / 30);
-  ultimoFrame = ahora;
-  const n = pasoFisica(dt);
-  nodosVivos.forEach((v) => {
-    if (v.estado === "fuera") return;
-    if (v.padre === "capa" && v.estado === "cae") {
-      const o = origenMar();
-      if (v.y > 8) {
-        $("#mar").appendChild(v.el);
-        v.padre = "mar";
-      }
-    }
-    if (!v.dormido || v.estado === "agarrado") dibujarIdea(v);
-  });
-  if (n > 0 || arrastre) raf = requestAnimationFrame(bucleMar);
-  else { raf = 0; ultimoFrame = 0; }
-}
-
-function arrancarMar() {
-  if (!raf && !movimientoReducido()) {
-    ultimoFrame = 0;
-    raf = requestAnimationFrame(bucleMar);
-  }
-}
-
-function despertarMar(excepto) {
-  nodosVivos.forEach((v) => {
-    if (v === excepto || v.estado === "fuera" || v.estado === "agarrado") return;
-    v.dormido = false;
-    v.quietoT = 0;
-  });
-  arrancarMar();
-}
-
-function asentarMar() {
-  cancelAnimationFrame(raf);
-  raf = 0;
-  relojMar = 10;
-  nodosVivos.forEach((v) => { v.delay = 0; v.el.style.visibility = ""; });
-  const pasos = nodosVivos.length > 80 ? 60 * 8 : 60 * 16;
-  for (let i = 0; i < pasos; i++) pasoFisica(1 / 60);
-  nodosVivos.forEach((v) => {
-    if (v.estado === "fuera") return;
-    v.dormido = true;
-    v.sway = 0;
-    v.vy = 0;
-    v.a = v.rest;
-    if (v.padre === "capa") {
-      $("#mar").appendChild(v.el);
-      v.padre = "mar";
-    }
-    dibujarIdea(v);
-  });
-}
-
-function aCapa(v) {
-  const capa = $("#capa-arrastre");
-  if (!capa || v.padre === "capa") return;
-  capa.appendChild(v.el);
-  v.padre = "capa";
-  dibujarIdea(v);
-}
-
-function volverAlMar(v) {
-  const mar = $("#mar");
-  if (!mar || v.padre !== "capa") return;
-  mar.appendChild(v.el);
-  v.padre = "mar";
-  dibujarIdea(v);
-}
-
-function habilitarArrastre(vivo) {
-  const el = vivo.el;
-  el.addEventListener("pointerdown", (e) => {
-    e.preventDefault();
-    el.setPointerCapture(e.pointerId);
-    const p = puntoLocal(e);
-    const o = origenMar();
-    vivo.estado = "agarrado";
-    vivo.dormido = false;
-    arrastre = {
-      vivo,
-      id: e.pointerId,
-      dx: p.x - (o.x + vivo.x),
-      dy: p.y - (o.y + vivo.y),
-      x0: p.x,
-      y0: p.y,
-      moved: false
-    };
-    el.classList.add("arrastre");
-    estado.elegido = null;
-    document.querySelectorAll(".nodo.elegido").forEach((n) => n.classList.remove("elegido"));
-    escenario.style.overflowY = "hidden";
-  });
-  el.addEventListener("pointermove", (e) => {
-    if (!arrastre || arrastre.vivo !== vivo || e.pointerId !== arrastre.id) return;
-    const p = puntoLocal(e);
-    if (!arrastre.moved && Math.hypot(p.x - arrastre.x0, p.y - arrastre.y0) > 8) {
-      arrastre.moved = true;
-      aCapa(vivo);
-      lienzo.classList.add("arrastrando");
-      despertarMar(vivo);
-    }
-    if (!arrastre.moved) return;
-    const o = origenMar();
-    vivo.x = p.x - arrastre.dx - o.x;
-    vivo.y = p.y - arrastre.dy - o.y;
-    vivo.a += (0 - vivo.a) * 0.25;
-    dibujarIdea(vivo);
-    resaltarTanques(p);
-  });
-  const soltar = (e, cancel) => {
-    if (!arrastre || arrastre.vivo !== vivo || (e.pointerId != null && e.pointerId !== arrastre.id)) return;
-    try { el.releasePointerCapture(e.pointerId); } catch (err) { /* ya liberado */ }
-    el.classList.remove("arrastre");
-    const p = puntoLocal(e);
-    const moved = arrastre.moved;
-    arrastre = null;
-    escenario.style.overflowY = "";
-    lienzo.classList.remove("arrastrando");
-    document.querySelectorAll(".tanque.aceptando").forEach((tk) => tk.classList.remove("aceptando"));
-    const tanque = !cancel && moved ? tanqueBajoPunto(p) : null;
-    if (tanque) {
-      const ok = intentarSoltar(vivo, tanque);
-      if (ok) return;
-    }
-    volverAlMar(vivo);
-    vivo.estado = "cae";
-    vivo.vy = moved ? 40 : 0;
-    vivo.sway = moved ? 1 : 0;
-    vivo.dormido = !moved;
-    vivo.quietoT = 0;
-    if (!moved && !cancel) {
-      document.querySelectorAll(".nodo.elegido").forEach((n) => n.classList.remove("elegido"));
-      el.classList.add("elegido");
+  aplicarEscalaIdeas(true);
+  MarIdeas.montar({
+    mar, vivos: nodosVivos, lienzo, ANCHO, foto, puntoLocal,
+    resaltar: resaltarTanques,
+    destinoEn: tanqueBajoPunto,
+    soltar: intentarSoltar,
+    alAgarrar: () => {
+      estado.elegido = null;
+      document.querySelectorAll(".nodo.elegido").forEach((x) => x.classList.remove("elegido"));
+    },
+    alSeleccionar: (vivo) => {
+      document.querySelectorAll(".nodo.elegido").forEach((x) => x.classList.remove("elegido"));
+      vivo.el.classList.add("elegido");
       estado.elegido = vivo;
       mostrarToast("Toca el tanque para colocar esta idea.");
     }
-    arrancarMar();
-  };
-  el.addEventListener("pointerup", (e) => soltar(e, false));
-  el.addEventListener("pointercancel", (e) => soltar(e, true));
+  });
+  mar.dataset.listo = '1';
 }
+
+async function agregarIdea(texto, op = {}) {
+  const t = String(texto || "").trim();
+  if (!t) return null;
+  if (!tituloListoAhora()) {
+    mostrarToast("Primero registra el título de tu investigación.", true);
+    return null;
+  }
+  const s = salaActual();
+  const claveLocal = normalizarTexto(t);
+  let res = { ok: false, clave: claveLocal, personas: 1, nuevo: true };
+  if (!op.local && debePersistir() && window.Datos && Datos.aportarConcepto) {
+    res = await Datos.aportarConcepto({
+      texto: t,
+      sala: salaApi(),
+      salaNombre: s.nombre,
+      tipo: op.tipo || "jugador",
+      sesion: asegurarSesion(),
+      tituloInvestigacion: estado.tema
+    });
+    if (res && res.ok === false) {
+      console.warn("aportarConcepto", res.error);
+      res = { ok: false, clave: claveLocal, personas: 1, nuevo: true };
+    }
+  } else if (op.local) {
+    res = { ok: true, clave: claveLocal, personas: 1, nuevo: true };
+  }
+  if (res && res.clave && estado.aportados && !estado.aportados.includes(res.clave)) {
+    estado.aportados.push(res.clave);
+  }
+  const vivo = nodosVivos.find((v) => v.clave === (res.clave || claveLocal) && v.estado !== "fuera");
+  if (vivo && res.nuevo === false) {
+    vivo.personas = res.personas || (vivo.personas || 1);
+    insigniaPersonas(vivo.el, vivo.personas);
+    estado.conceptosUnicos = Math.max(estado.conceptosUnicos || 0, 1);
+    aplicarEscalaIdeas(false);
+    if (window.MarIdeas) MarIdeas.resaltar(vivo);
+    mostrarToast("Esa idea ya estaba en el mar. ×" + vivo.personas + " personas.");
+    return vivo;
+  }
+  if (vivo && res.nuevo !== false) {
+    // ya visible (p. ej. pieza de la sala): solo actualizar insignia si creció
+    if (res.personas) {
+      vivo.personas = res.personas;
+      insigniaPersonas(vivo.el, vivo.personas);
+      if (window.MarIdeas) MarIdeas.resaltar(vivo);
+    }
+    return vivo;
+  }
+  const paso = pasoActual();
+  const clave = res.clave || claveLocal;
+  const match = paso.nodos.find((x) => normalizarTexto(x.texto) === clave);
+  const data = match || { id: "concepto-" + String(clave).replace(/\s+/g, "-").slice(0, 48), texto: t, libre: true, valido: false };
+  const v = crearNodoMar(data, { clave, personas: res.personas || 1, texto: t });
+  nodosVivos.push(v);
+  estado.conceptosUnicos = Math.max(estado.conceptosUnicos || 0, nodosVivos.filter((n) => n.estado !== "fuera").length);
+  aplicarEscalaIdeas(false);
+  if (window.MarIdeas) MarIdeas.agregar(v);
+  return v;
+}
+
+async function agregarIdeasLote(textos, op = {}) {
+  const lista = Array.isArray(textos) ? textos : [];
+  for (const texto of lista) {
+    await agregarIdea(texto, { local: op.local !== false });
+  }
+}
+
 
 function resaltarTanques(p) {
   document.querySelectorAll(".tanque").forEach((t) => {
@@ -862,26 +773,19 @@ function intentarSoltar(vivo, tanqueId) {
     return false;
   }
   estado.colocados[n.id] = tanqueId;
-  const propia = estado.ideasJugador.find((i) => i.id === vivo.data.id);
-  if (propia) propia.usada = true;
-  // si se usó el texto de una idea predefinida que aún flota, retirarla
-  nodosVivos.forEach((otro) => {
-    if (otro === vivo || otro.estado === "fuera") return;
-    if (otro.data && otro.data.id === n.id) {
-      otro.estado = "fuera";
-      otro.el.classList.add("colocado");
-    }
-  });
+  const clave = vivo.clave || normalizarTexto(n.texto);
+  if (debePersistir() && window.Datos) {
+    Datos.guardarColocacion({ clave, sesion: asegurarSesion(), sala: salaApi(), tanque: tanqueId });
+  }
+  if (window.MarIdeas) MarIdeas.absorber(vivo, tanqueId);
+  else vivo.el.classList.add("colocado");
   vivo.estado = "fuera";
-  vivo.el.classList.add("colocado");
   const idx = nodosVivos.indexOf(vivo);
   if (idx >= 0) nodosVivos.splice(idx, 1);
-  if (vivo.el.parentNode) vivo.el.remove();
   ponerFicha(n, tanqueId);
   estado.elegido = null;
   mostrarToast(n.ok || "Bien. La pieza encaja.");
   aplicarEscalaIdeas(false);
-  despertarMar();
   revisarMeta();
   guardar();
   return true;
@@ -939,6 +843,10 @@ function revisarMeta() {
       return;
     }
   }
+  if (completo && s.tema && !estado.tituloListo) {
+    mostrarToast("Registra el título de tu investigación para obtener la Llave de Pertinencia.", true);
+    return;
+  }
   if (completo && !estado.llaves[estado.sala]) {
     estado.llaves[estado.sala] = true;
     guardar();
@@ -975,6 +883,7 @@ function renderFormulario() {
   escena.innerHTML = `
     <section class="cierre">
       <h2>Registro de interés</h2>
+      <p class="aviso-termino">¡Terminaste el juego!</p>
       <p class="lead">Completaste las cuatro salas. Para emitir el reconocimiento, registra tus datos en este dispositivo. El envío al equipo editorial está [POR DEFINIR].</p>
       <form class="registro" id="form-registro">
         <label>Nombre completo
@@ -989,12 +898,12 @@ function renderFormulario() {
         <label>Teléfono o WhatsApp
           <input name="telefono" type="tel" required maxlength="40" value="${escapeAttr(estado.registro.telefono)}">
         </label>
-        <label>Tema de investigación
-          <input name="tema" type="text" maxlength="180" value="${escapeAttr(estado.tema)}" placeholder="El que registraste en la primera sala, si lo escribiste">
+        <label>Título
+          <input name="titulo" type="text" required maxlength="180" value="${escapeAttr(estado.tema)}" placeholder="El título que registraste en la primera sala">
         </label>
         <label class="aviso">
           <input name="aviso" type="checkbox" ${estado.registro.aviso ? "checked" : ""} required>
-          <span>Aviso de privacidad: tus datos personales (nombre, correo electrónico, teléfono y tema de investigación) serían recabados por la Revista Jandiekua (Agenda Ambiental – UASLP) con la única finalidad de brindar seguimiento editorial y enviarte convocatorias académicas. El aviso integral está [POR DEFINIR]. En esta versión del juego los datos solo se guardan en este dispositivo y no se envían a ningún servidor.</span>
+          <span>Aviso de privacidad: tus datos personales (nombre, correo electrónico, teléfono y título de investigación) serían recabados por la Revista Jandiekua (Agenda Ambiental – UASLP) con la única finalidad de brindar seguimiento editorial y enviarte convocatorias académicas. El aviso integral está [POR DEFINIR]. En esta versión del juego los datos solo se guardan en este dispositivo y no se envían a ningún servidor.</span>
         </label>
         <button type="submit" class="btn-principal">Generar reconocimiento</button>
         <p class="nota-local">El envío real está [POR DEFINIR].</p>
@@ -1010,9 +919,18 @@ function renderFormulario() {
       telefono: fd.get("telefono").trim(),
       aviso: true
     };
-    estado.tema = (fd.get("tema") || "").trim();
+    estado.tema = (fd.get("titulo") || fd.get("tema") || "").trim();
     estado.vista = "cierre-diploma";
     guardar();
+    if (debePersistir() && window.Datos && Datos.registrarParticipante) {
+      Datos.registrarParticipante({
+        sesion: asegurarSesion(),
+        nombre: estado.registro.nombre,
+        procedencia: estado.registro.institucion,
+        tituloInvestigacion: estado.tema,
+        claves: estado.aportados
+      }).catch((err) => console.warn("registrarParticipante", err));
+    }
     render();
   });
 }
@@ -1118,19 +1036,22 @@ async function dibujarCertificado() {
   ctx.font = "italic 34px Fraunces";
   ctx.fillStyle = "#003B71";
   ctx.fillText("Revista Jandiekua", W / 2, 430);
+  ctx.font = "700 20px Montserrat";
+  ctx.fillStyle = "#2E6B4E";
+  ctx.fillText("Juego formativo", W / 2, 462);
   ctx.font = "500 20px Montserrat";
   ctx.fillStyle = "#102438";
-  ctx.fillText("Revista Mexicana de Educación Ambiental", W / 2, 464);
-  ctx.fillText("Agenda Ambiental · Universidad Autónoma de San Luis Potosí", W / 2, 492);
+  ctx.fillText("Revista Mexicana de Educación Ambiental", W / 2, 492);
+  ctx.fillText("Agenda Ambiental · Universidad Autónoma de San Luis Potosí", W / 2, 520);
 
   // logo revista pendiente
   ctx.setLineDash([6, 6]);
   ctx.strokeStyle = "#4A8B68";
-  ctx.strokeRect(W / 2 - 150, 516, 300, 90);
+  ctx.strokeRect(W / 2 - 150, 540, 300, 80);
   ctx.setLineDash([]);
   ctx.font = "650 16px Montserrat";
   ctx.fillStyle = "#4A8B68";
-  ctx.fillText("[LOGO JANDIEKUA]  [POR DEFINIR]", W / 2, 568);
+  ctx.fillText("[LOGO JANDIEKUA]  [POR DEFINIR]", W / 2, 586);
 
   ctx.font = "500 22px Montserrat";
   ctx.fillStyle = "#102438";
@@ -1153,14 +1074,14 @@ async function dibujarCertificado() {
   if (estado.tema) {
     ctx.font = "500 20px Montserrat";
     ctx.fillStyle = "#2E6B4E";
-    wrapText(ctx, "Tema de investigación: " + estado.tema, W / 2, 970, W - 200, 28);
+    wrapText(ctx, "Título: " + estado.tema, W / 2, 970, W - 200, 28);
   }
 
-  ctx.font = "400 18px Montserrat";
+  ctx.font = "400 17px Montserrat";
   ctx.fillStyle = "#102438";
   wrapText(ctx,
-    "Este reconocimiento acredita que quien participa comprendió las directrices clave del proceso editorial y puede iniciar una postulación. No garantiza la aceptación del manuscrito, sujeta a la dictaminación por pares.",
-    W / 2, 1050, W - 200, 26);
+    "Mar de las Ideas es un juego; este reconocimiento es un aliento formativo; no constituye aceptación ni autorización de publicación, que depende de la dictaminación académica por pares.",
+    W / 2, 1050, W - 200, 24);
 
   ctx.font = "500 18px Montserrat";
   ctx.fillStyle = "#003B71";
@@ -1230,16 +1151,9 @@ function aplicarVistaDesdeURL() {
     estado.ideasJugador = [];
     estado.predefIds = [];
     estado.ideaSeq = 0;
-    if (ideasPreview > 0) {
-      for (let i = 0; i < ideasPreview; i++) {
-        estado.ideaSeq += 1;
-        estado.ideasJugador.push({
-          id: "idea-j-" + estado.ideaSeq,
-          texto: "Idea " + (i + 1) + " del consorcio",
-          usada: false
-        });
-      }
-    }
+    estado.aportados = [];
+    estado.tituloListo = true;
+    estado.sesion = "preview-jandiekua";
     return true;
   }
   if (v === "cierre") {
@@ -1277,6 +1191,13 @@ function cargarFondoIlustrado() {
     .catch(() => { /* se conserva la imagen estática */ });
 }
 
+
+Object.assign(window, {
+  estado, agregarIdea, agregarIdeasLote, totalIdeasSesion, render, aplicarVistaDesdeURL,
+  ANCHO, ALTO, VERSION, Datos
+});
+if (typeof dibujarCertificado === "function") window.dibujarCertificado = dibujarCertificado;
+
 function iniciar() {
   escalaLienzo();
   window.addEventListener("resize", escalaLienzo);
@@ -1285,6 +1206,7 @@ function iniciar() {
   }
   cargarFondoIlustrado();
   if (!aplicarVistaDesdeURL()) cargar();
+  asegurarSesion();
   if (!["portada", "sala", "cierre-form", "cierre-diploma"].includes(estado.vista)) {
     estado.vista = "portada";
   }

@@ -1,0 +1,286 @@
+--- a/index.html
++++ b/index.html
+@@ -10,6 +10,7 @@
+   <title>Mar de las Ideas · Escape room virtual · Revista Jandiekua</title>
+   <meta name="description" content="Escape room virtual de inducción a la publicación científica de la Revista Jandiekua, Agenda Ambiental UASLP.">
+   <link rel="stylesheet" href="css/juego.css?v=20261112f">
++  <link rel="stylesheet" href="css/mar_ideas.css">
+ </head>
+ <body>
+   <div id="escenario">
+@@ -46,6 +47,7 @@
+   </div>
+ 
+   <div id="toast" class="toast" hidden role="status"></div>
++  <script src="js/mar_ideas.js"></script>
+   <script src="js/juego.js?v=20261112f"></script>
+ </body>
+ </html>
+--- a/js/juego.js
++++ b/js/juego.js
+@@ -178,8 +178,6 @@
+ };
+ 
+ const nodosVivos = [];
+-let arrastre = null;
+-let raf = 0;
+ let foto = false;
+ let toastTimer = 0;
+ let certificadoUrl = "";
+@@ -246,10 +244,9 @@
+ }
+ 
+ function render() {
+-  cancelAnimationFrame(raf);
++  MarIdeas.detener();
+   nodosVivos.length = 0;
+   estado.elegido = null;
+-  arrastre = null;
+   const franja = $("#franja-llaves");
+   if (estado.vista === "portada") {
+     franja.hidden = true;
+@@ -331,40 +328,37 @@
+   colocados.forEach((n) => ponerFicha(n, estado.colocados[n.id]));
+   tanques.forEach((tk) => actualizarTanque(tk.id));
+ 
+-  const layout = distribuirNodos(nodos, mar);
+-  nodos.forEach((n, i) => {
++  nodos.forEach((n) => {
+     const el = document.createElement("button");
+     el.type = "button";
+     el.className = "nodo";
+     el.id = n.id;
+     el.textContent = n.texto;
+-    const pos = layout[i];
+     el.style.width = "max-content";
+     mar.appendChild(el);
+-    // measure after insert
+-    const w = Math.min(el.offsetWidth, 320);
+-    const h = el.offsetHeight;
+-    const vivo = {
+-      data: n,
+-      el,
+-      x: pos.x,
+-      y: pos.y,
+-      w, h,
+-      vx: (Math.random() * 0.4 - 0.2),
+-      vy: (Math.random() * 0.3 - 0.15),
+-      fase: Math.random() * Math.PI * 2,
+-      t0: performance.now()
+-    };
+-    el.style.transform = `translate(${vivo.x}px, ${vivo.y}px)`;
+-    habilitarArrastre(vivo);
+-    nodosVivos.push(vivo);
+-  });
+-  acomodarNodos(foto);
++    nodosVivos.push({ data: n, el });
++  });
++  MarIdeas.montar({
++    mar, vivos: nodosVivos, lienzo, ANCHO, foto, puntoLocal,
++    resaltar: resaltarTanques,
++    destinoEn: tanqueBajoPunto,
++    soltar: intentarSoltar,
++    alAgarrar: () => {
++      estado.elegido = null;
++      document.querySelectorAll(".nodo.elegido").forEach((x) => x.classList.remove("elegido"));
++    },
++    alSeleccionar: (vivo) => {
++      document.querySelectorAll(".nodo.elegido").forEach((x) => x.classList.remove("elegido"));
++      vivo.el.classList.add("elegido");
++      estado.elegido = vivo;
++      mostrarToast("Toca el tanque para colocar esta idea.");
++    }
++  });
+ 
+   tanques.forEach((t) => {
+     const caja = document.getElementById(t.id);
+     caja.addEventListener("pointerup", (e) => {
+-      if (estado.elegido && !arrastre) {
++      if (estado.elegido && !MarIdeas.arrastrando()) {
+         e.stopPropagation();
+         intentarSoltar(estado.elegido, t.id);
+       }
+@@ -372,158 +366,10 @@
+   });
+ 
+   revisarMeta();
+-  if (!foto) raf = requestAnimationFrame(animar);
+-  else congelarFoto();
+ }
+ 
+ function escapeAttr(s) {
+   return String(s || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+-}
+-
+-function columnasPara(n, maxCols) {
+-  let cols;
+-  if (n <= 3) cols = n || 1;
+-  else if (n === 4) cols = 2;
+-  else if (n <= 6) cols = 3;
+-  else if (n <= 8) cols = 4;
+-  else cols = 5;
+-  return Math.max(1, Math.min(cols, maxCols || cols));
+-}
+-
+-function distribuirNodos(nodos, mar) {
+-  const W = mar.clientWidth || 1000;
+-  const H = mar.clientHeight || 500;
+-  const cols = columnasPara(nodos.length, 3);
+-  const filas = Math.ceil(nodos.length / cols);
+-  const layout = [];
+-  nodos.forEach((_, i) => {
+-    const c = i % cols;
+-    const f = Math.floor(i / cols);
+-    const enFila = (f === filas - 1) ? (nodos.length - f * cols) : cols;
+-    const cellW = (W - 24) / enFila;
+-    const cellH = (H - 20) / filas;
+-    const jitterX = foto ? 0 : (Math.random() * 24 - 12);
+-    const jitterY = foto ? 0 : (Math.random() * 18 - 9);
+-    layout.push({
+-      x: 12 + c * cellW + jitterX,
+-      y: 10 + f * cellH + jitterY
+-    });
+-  });
+-  return layout;
+-}
+-
+-function acomodarNodos(congelar) {
+-  const mar = $("#mar");
+-  if (!mar || !nodosVivos.length) return;
+-  const W = mar.clientWidth, H = mar.clientHeight;
+-  const n = nodosVivos.length;
+-  const gapX = 20;
+-  const maxW = Math.max(...nodosVivos.map((nodo) => nodo.w));
+-  const maxCols = Math.max(1, Math.floor((W + gapX) / (maxW + gapX)));
+-  const cols = columnasPara(n, maxCols);
+-  const filas = Math.ceil(n / cols);
+-  const rows = [];
+-  for (let f = 0; f < filas; f++) rows.push(nodosVivos.slice(f * cols, f * cols + cols));
+-  const rowH = rows.map((row) => Math.max(...row.map((nodo) => nodo.h)));
+-  const gapY = 22;
+-  const totalH = rowH.reduce((a, b) => a + b, 0) + (filas - 1) * gapY;
+-  let y0 = Math.max(8, (H - totalH) / 2);
+-  rows.forEach((row, fi) => {
+-    const rowW = row.reduce((a, nodo) => a + nodo.w, 0) + (row.length - 1) * gapX;
+-    let x = Math.max(8, (W - rowW) / 2);
+-    row.forEach((nodo) => {
+-      const jx = congelar ? 0 : (Math.random() * 16 - 8);
+-      const jy = congelar ? 0 : (Math.random() * 12 - 6);
+-      nodo.x = Math.min(W - nodo.w, Math.max(0, x + jx));
+-      nodo.y = Math.min(H - nodo.h, Math.max(0, y0 + jy));
+-      nodo.el.style.transform = `translate(${nodo.x}px, ${nodo.y}px)`;
+-      x += nodo.w + gapX;
+-    });
+-    y0 += rowH[fi] + gapY;
+-  });
+-}
+-
+-function congelarFoto() {
+-  acomodarNodos(true);
+-}
+-
+-function animar(now) {
+-  const mar = $("#mar");
+-  if (!mar || foto) return;
+-  const W = mar.clientWidth, H = mar.clientHeight;
+-  nodosVivos.forEach((n) => {
+-    if (arrastre && arrastre.vivo === n) return;
+-    n.fase += 0.012;
+-    n.x += n.vx + Math.sin(n.fase) * 0.15;
+-    n.y += n.vy + Math.cos(n.fase * 0.8) * 0.12;
+-    if (n.x < 0) { n.x = 0; n.vx *= -1; }
+-    if (n.y < 0) { n.y = 0; n.vy *= -1; }
+-    if (n.x > W - n.w) { n.x = W - n.w; n.vx *= -1; }
+-    if (n.y > H - n.h) { n.y = H - n.h; n.vy *= -1; }
+-    n.el.style.transform = `translate(${n.x}px, ${n.y}px)`;
+-  });
+-  raf = requestAnimationFrame(animar);
+-}
+-
+-function habilitarArrastre(vivo) {
+-  const el = vivo.el;
+-  el.addEventListener("pointerdown", (e) => {
+-    e.preventDefault();
+-    el.setPointerCapture(e.pointerId);
+-    const p = puntoLocal(e);
+-    const marR = $("#mar").getBoundingClientRect();
+-    const lienzoR = lienzo.getBoundingClientRect();
+-    const s = lienzoR.width / ANCHO;
+-    const origenMar = { x: (marR.left - lienzoR.left) / s, y: (marR.top - lienzoR.top) / s };
+-    arrastre = {
+-      vivo,
+-      dx: p.x - origenMar.x - vivo.x,
+-      dy: p.y - origenMar.y - vivo.y,
+-      x0: p.x,
+-      y0: p.y,
+-      moved: false
+-    };
+-    el.classList.add("arrastre");
+-    estado.elegido = null;
+-    document.querySelectorAll(".nodo.elegido").forEach((n) => n.classList.remove("elegido"));
+-  });
+-  el.addEventListener("pointermove", (e) => {
+-    if (!arrastre || arrastre.vivo !== vivo) return;
+-    const p = puntoLocal(e);
+-    if (Math.hypot(p.x - arrastre.x0, p.y - arrastre.y0) > 8) arrastre.moved = true;
+-    const marR = $("#mar").getBoundingClientRect();
+-    const lienzoR = lienzo.getBoundingClientRect();
+-    const s = lienzoR.width / ANCHO;
+-    const origenMar = { x: (marR.left - lienzoR.left) / s, y: (marR.top - lienzoR.top) / s };
+-    vivo.x = p.x - origenMar.x - arrastre.dx;
+-    vivo.y = p.y - origenMar.y - arrastre.dy;
+-    el.style.transform = `translate(${vivo.x}px, ${vivo.y}px)`;
+-    resaltarTanques(p);
+-  });
+-  el.addEventListener("pointerup", (e) => {
+-    if (!arrastre || arrastre.vivo !== vivo) return;
+-    el.releasePointerCapture(e.pointerId);
+-    el.classList.remove("arrastre");
+-    const p = puntoLocal(e);
+-    const tanque = tanqueBajoPunto(p);
+-    const moved = arrastre.moved;
+-    arrastre = null;
+-    document.querySelectorAll(".tanque.aceptando").forEach((t) => t.classList.remove("aceptando"));
+-    if (moved && tanque) {
+-      intentarSoltar(vivo, tanque);
+-    } else if (!moved) {
+-      document.querySelectorAll(".nodo.elegido").forEach((n) => n.classList.remove("elegido"));
+-      el.classList.add("elegido");
+-      estado.elegido = vivo;
+-      mostrarToast("Toca el tanque para colocar esta idea.");
+-    }
+-  });
+-  el.addEventListener("pointercancel", () => {
+-    if (arrastre && arrastre.vivo === vivo) {
+-      arrastre = null;
+-      el.classList.remove("arrastre");
+-    }
+-  });
+ }
+ 
+ function resaltarTanques(p) {
+@@ -557,20 +403,21 @@
+     caja.classList.add("rechazando");
+     setTimeout(() => caja.classList.remove("rechazando"), 450);
+     mostrarToast(n.error || "Esa idea no corresponde a este compartimento.", true);
+-    return;
++    return false;
+   }
+   if (s.modo === "orden" && estado.colocados && Object.values(estado.colocados).includes(tanqueId)) {
+     mostrarToast("Ese compartimento ya está ocupado.", true);
+-    return;
++    return false;
+   }
+   estado.colocados[n.id] = tanqueId;
+-  vivo.el.classList.add("colocado");
++  MarIdeas.absorber(vivo, tanqueId);
+   const idx = nodosVivos.indexOf(vivo);
+   if (idx >= 0) nodosVivos.splice(idx, 1);
+   ponerFicha(n, tanqueId);
+   estado.elegido = null;
+   mostrarToast(n.ok || "Bien. La pieza encaja.");
+   revisarMeta();
++  return true;
+ }
+ 
+ function ponerFicha(n, tanqueId) {

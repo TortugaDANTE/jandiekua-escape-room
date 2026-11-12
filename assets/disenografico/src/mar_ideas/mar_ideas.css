@@ -1,0 +1,41 @@
+/* Mar de ideas: hundimiento, tamaño y arrastre. Se carga después de css/juego.css. */
+#mar { overflow: visible; }
+.nodo { transform-origin: 50% 50%; will-change: transform; }
+.nodo:focus-visible { outline: 3px solid var(--oro-2); outline-offset: 6px; border-radius: 28px; }
+
+/* profundidad: lo que está más hondo se ve más oscuro y verdoso (una sola capa, sin filtros por idea) */
+#mar::after {
+  content: ""; position: absolute; left: -16px; right: -16px; bottom: -8px; height: 62%;
+  z-index: 4; pointer-events: none;
+  background: linear-gradient(to top, rgba(6, 26, 22, .5), rgba(6, 26, 22, .22) 45%, rgba(6, 26, 22, 0));
+}
+
+/* capa libre (sin recorte) para la idea agarrada, sobre los tanques y bajo la barra */
+#capa-arrastre { position: absolute; inset: 0; z-index: 15; pointer-events: none; }
+#capa-arrastre .nodo { pointer-events: auto; position: absolute; left: 0; top: 0; z-index: 3; }
+
+/* idea agarrada: se eleva con sombra larga */
+.nodo.arrastre { cursor: grabbing; z-index: 8; filter: drop-shadow(0 26px 22px rgba(0, 0, 0, .5)); }
+.nodo.elegido { filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .35)); }
+
+/* estela de burbujas y onda de agarre */
+.est-burbuja {
+  display: none; position: absolute; border-radius: 50%; pointer-events: none; z-index: 2;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, .85), rgba(216, 232, 223, .25) 55%, rgba(216, 232, 223, .08));
+  border: 1.5px solid rgba(216, 232, 223, .75);
+}
+.est-burbuja.onda { background: none; border: 3px solid rgba(224, 180, 60, .85); }
+
+/* destinos: mientras se arrastra, los tanques latén (opacidad: barato en móvil) y el elegido se enciende */
+#lienzo.arrastrando .tanque:not(.lleno)::after {
+  content: ""; position: absolute; inset: 2px; border-radius: 34px; pointer-events: none; z-index: 2;
+  border: 3px dashed rgba(224, 180, 60, .95);
+  animation: latido-destino 1.1s ease-in-out infinite;
+}
+#lienzo.arrastrando .tanque.orden:not(.lleno)::after { border-radius: 22px; }
+#lienzo.arrastrando .tanque.aceptando::after { animation: none; opacity: 1; border-style: solid; }
+@keyframes latido-destino { 0%, 100% { opacity: .25; } 50% { opacity: .95; } }
+
+@media (prefers-reduced-motion: reduce) {
+  #lienzo.arrastrando .tanque:not(.lleno)::after { animation: none; opacity: .8; }
+}

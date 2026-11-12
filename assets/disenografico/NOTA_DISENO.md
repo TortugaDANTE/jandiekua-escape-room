@@ -218,3 +218,68 @@ Mientras tanto, el `const logo` y su `onload` del banner se eliminan. La pantall
 **Pendientes.** Logo de la Revista Jandiekua (el recuadro `[LOGO JANDIEKUA]` de la portada y del certificado sigue como placeholder, no se inventó isotipo). Nota: el repo ya incluye la v2 de Académico (fondo, tanques, llaves; commit `82b8600`); las líneas que cito de `index.html`, `css/juego.css` y `js/juego.js` son las de ese estado y pueden moverse. Las líneas de las secciones 2 a 4 de esta nota corresponden al código original.
 
 **Regenerar.** `python3 src/generar_barra.py` (crea `barra_institucional.svg` a partir de `logos/`) y `python3 src/montar_mock_institucional.py --screens` (copia el árbol actual a `/tmp/jmock`, aplica solo estos cambios y renderiza las tres capturas).
+
+
+## 11. Mar de ideas: hundimiento, tamaño y arrastre
+
+Nueva dirección visual para las ideas ("nodos") de la zona del mar: más desordenadas y naturales, más chicas cuantas más haya, se hunden y se amontonan en el fondo, y se recuperan **arrastrándolas desde el fondo hasta el tanque**. Todo es JS/CSS sin librerías (≈17 KB y ≈2 KB sin minificar). Probado en una copia del juego a partir de la rama `imagen-institucional` (HEAD `e5ed5a8`, que ya trae la sección 10); no se tocó ningún archivo fuera de `assets/disenografico/`, sin commit ni push.
+
+**Previews** (1080×2022, en `preview/`): `mar_ideas_hundimiento_{1,2,3}.png` (≈1.5 s, ≈4 s y ≈11 s), `mar_ideas_tamano_pocas.png` (8 ideas, las del juego) y `mar_ideas_tamano_muchas.png` (30 ideas), `mar_ideas_arrastre_{1,2,3}.png` (agarrar, a medio camino con estela, sobre el tanque resaltado), `mar_ideas_resumen.png` y `mar_ideas_demo.webm` (15 s, 360×674, 1.4 MB: caída, agarrar, arrastrar y soltar).
+
+### 11.1 Comportamiento
+
+- **Desorden natural.** Cada idea nace en una x aleatoria (dos tiradas promediadas: se agrupan un poco y dejan huecos), entra por arriba en orden y a ritmo irregular, con inclinación propia (±12°) y tamaño con variación de ±10 %. Al asentarse se acomoda en un ángulo de reposo (±9°). Nada queda en rejilla.
+- **Hundimiento.** Caen a velocidad terminal propia (110–175 px/s, con arrastre de agua), con vaivén horizontal (14–34 px) y balanceo (±7°) que se apagan al tocar fondo. Se apilan por colisión rectangular entre pares; si una descansa sobre otra rueda hacia un lado, así el montón se abre en lugar de formar una torre. Las ideas quietas se "duermen" (no cuestan nada) y el bucle `requestAnimationFrame` se detiene solo cuando todas duermen.
+- **Tamaño según cantidad.** Escala común `s = √(llenado · W · H / Σ(wᵢ · hᵢ · holgura))`, acotada a `[0.42, 1]`, con `llenado = 0.34` (las ideas ocupan ≈1/3 del mar). Medido en el mock: 8 ideas (sala 1) ≈ 0.85; 10 ideas (sala 2) ≈ 1.0; 20 ideas ≈ 0.52; desde ≈ 28 ideas se topa en el mínimo 0.42. La escala se recalcula cuando se retira una idea (las demás crecen suavemente).
+- **Profundidad.** Un solo degradado oscuro/verdoso sobre la mitad inferior del mar (`#mar::after`); no hay `filter`/blur por idea (caro en móvil).
+- **Arrastre (mouse y táctil, con *pointer events* y captura).** Al agarrar: la idea se endereza, crece a ≥1.12×, recibe sombra larga, se dibuja una onda dorada en el punto de agarre; en táctil se eleva 56 px sobre el dedo para que no la tape. Mientras se arrastra: estela de burbujas (2 cada 14 px, pool de 40 elementos animados con WAAPI) y los tanques que aún aceptan ideas laten con borde punteado dorado; el tanque bajo el dedo se enciende (borde sólido). Al soltar sobre un destino válido la idea vuela al centro del tanque y se disuelve (clon fantasma); si no, **vuelve a hundirse** (la sacudida y el toast de error siguen siendo los del juego).
+- **Toque + toque** (el flujo original: tocar una idea y luego el tanque) sigue funcionando; teclado: `Enter`/`Espacio` selecciona la idea.
+- **Capa sin recorte.** `.zona { overflow: hidden }` recortaba la idea agarrada al salir del mar (el error actual: desaparece al subir). Mientras está agarrada, o suelta fuera del mar, vive en `#capa-arrastre` (hija de `#lienzo`, `z-index: 15`) y vuelve a `#mar` al hundirse hasta él.
+- **`prefers-reduced-motion` y `?foto=1`.** Sin animación: el montón se calcula de golpe (simulación previa de 16 s), sin estela ni onda, destino resaltado sin pulso. Una idea soltada fuera se asienta de inmediato.
+- **Determinista para pruebas:** `?semilla=N` fija el azar (con `foto=1` y sin semilla se usa 20261112).
+
+### 11.2 Integración (contra `imagen-institucional` @ `e5ed5a8`)
+
+Parche completo y verificado (`git apply --check` limpio sobre esa rama): `src/mar_ideas/integracion_mar_ideas.patch`. Resumen, con números de línea **de la rama antes del parche**:
+
+1. **Copiar** `src/mar_ideas/mar_ideas.js` → `js/mar_ideas.js` y `src/mar_ideas/mar_ideas.css` → `css/mar_ideas.css`.
+2. **`index.html`**: tras la línea 12 (`<link … css/juego.css?v=…>`) agregar `<link rel="stylesheet" href="css/mar_ideas.css">`; antes de la línea 49 (`<script src="js/juego.js?v=…">`) agregar `<script src="js/mar_ideas.js"></script>` (debe cargar **antes** que `juego.js`). Subir el cache-buster de los tres.
+3. **`js/juego.js`**:
+   - l. 181–182: borrar `let arrastre = null;` y `let raf = 0;`.
+   - l. 249: `cancelAnimationFrame(raf);` → `MarIdeas.detener();` y l. 252: borrar `arrastre = null;`.
+   - l. 334–362 (`const layout = distribuirNodos(…)` … `acomodarNodos(foto);`): sustituir por un bucle que solo crea los botones `.nodo` (sin medir ni posicionar) y empuja `{ data: n, el }` a `nodosVivos`, seguido de la llamada `MarIdeas.montar({ mar, vivos: nodosVivos, lienzo, ANCHO, foto, puntoLocal, resaltar: resaltarTanques, destinoEn: tanqueBajoPunto, soltar: intentarSoltar, alAgarrar, alSeleccionar })`. `alAgarrar` quita la selección; `alSeleccionar(vivo)` marca `.elegido`, fija `estado.elegido` y muestra el toast "Toca el tanque para colocar esta idea.". Código exacto en el parche.
+   - l. 367: `estado.elegido && !arrastre` → `estado.elegido && !MarIdeas.arrastrando()`.
+   - l. 375–376: borrar `if (!foto) raf = requestAnimationFrame(animar); else congelarFoto();`.
+   - l. 383–527: borrar `columnasPara`, `distribuirNodos`, `acomodarNodos`, `congelarFoto`, `animar` y `habilitarArrastre` (toda esa lógica pasa a `mar_ideas.js`). `resaltarTanques` (l. 529) y `tanqueBajoPunto` (l. 534) **se quedan igual**.
+   - `intentarSoltar` (l. 549–575): los dos `return;` de rechazo (l. 560 y 564) pasan a `return false;`; la línea 567 `vivo.el.classList.add("colocado");` pasa a `MarIdeas.absorber(vivo, tanqueId);`; al final de la función agregar `return true;`. **Contrato nuevo:** `soltar()` devuelve `true` solo si la idea se aceptó; el módulo lo usa para decidir si absorbe o hunde.
+4. **`css/juego.css`**: nada obligatorio (`mar_ideas.css` carga después y gana). Reglas ya sin efecto que pueden borrarse: `.nodo.colocado { display: none }` (l. 537) y el `transform` de `.nodo.arrastre`/`:active` si existieran.
+
+Tras el parche el juego queda en 3 hooks: `montar` (cada vez que se pinta una sala), `detener` (al re-renderizar) y `absorber` (idea aceptada). Los destinos se consultan por callback, así que el módulo no conoce tanques ni reglas.
+
+### 11.3 Parámetros clave (objeto `P` al inicio de `mar_ideas.js`, expuesto como `MarIdeas.parametros`)
+
+| Parámetro | Valor | Efecto |
+|---|---|---|
+| `llenado` | 0.34 | fracción del mar que ocupan las ideas: más alto = ideas más grandes |
+| `sMin` | 0.42 | escala mínima (texto ≈ 11 px de lienzo) |
+| `vCaida` | 110–175 px/s | velocidad de hundimiento |
+| `oscilacion` / `omega` | 14–34 px / 0.9–1.6 rad/s | vaivén al caer |
+| `inclinacion` / `descanso` | ±12° / ±9° | desorden al caer y en reposo |
+| `jitterTam` | 0.9–1.1 | variación de tamaño entre ideas |
+| `rueda` | 170 px/s² | qué tanto se abre el montón |
+| `levantar`, `elevarDedo` | 1.12×, 56 px | afordancia de agarre (la elevación solo en táctil) |
+| `estelaPx` | 14 px | densidad de burbujas |
+
+### 11.4 Pruebas hechas (Chrome headless, 1080×2022, 0 errores de página)
+
+Hundimiento y montón con 8, 30 y 40 ideas; arrastre con mouse y con eventos táctiles (CDP); soltar sobre tanque válido (se acepta), soltar fuera (vuelve a hundirse, en modo animado y estático), toque + toque en tanque, `foto=1`, `prefers-reduced-motion: reduce` (sin bucle activo). El mock-only `js/demo_ideas.js` (`?ideas=N` agrega ideas señuelo a la sala 1) **no** forma parte de la integración; solo sirve para la vista de "muchas".
+
+### 11.5 Cuidados y pendientes
+
+- **Texto muy chico con muchas ideas** (escala 0.42 ⇒ ≈11 px). El juego real tiene ≤ 10 ideas por sala (escala ≥ 0.85), así que solo aparece si se agregan más; al agarrarlas suben a ≥ 1.12×. Si se espera más, subir `sMin` o permitir que el montón crezca.
+- **Zona táctil.** El área de toque se encoge con la escala; con ≥ 20 ideas en un teléfono conviene `sMin ≥ 0.55`. No se probó en un teléfono físico ni se midió el consumo; el diseño evita lo caro (un solo bucle que se apaga, `transform` por idea, sin filtros por idea, sombra solo en la idea agarrada).
+- **Idea soltada lejos del mar** (p. ej. sobre el texto del reto): cae por encima de la interfaz hasta volver al mar (≈6 s desde arriba). Si estorba, subir `vCaida` solo para ideas en `#capa-arrastre`.
+- Las ideas nacen sobre el borde superior del mar y se recortan ahí (entran "desde la superficie"); el texto de instrucción del mar queda por debajo de ellas mientras caen.
+- Lo que no cambia: logos y barra institucional (sección 10), paleta, tanques y reglas del juego.
+
+**Regenerar.** `python3 src/mar_ideas/montar_mock_mar.py` (arma `/tmp/jmock2` desde la rama, aplica los cambios y reescribe el parche), luego `python3 src/mar_ideas/capturas_mar.py` (previews), `python3 src/mar_ideas/demo_y_pruebas.py` (pruebas + `mar_ideas_demo.webm`; requiere `playwright install ffmpeg`) y `python3 src/mar_ideas/resumen_mar.py` (composite).
