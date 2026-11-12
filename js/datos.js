@@ -82,9 +82,12 @@ function recortar(valor, max) {
 }
 
 function pathDoc(segments) {
+  // En el cuerpo de :commit el id va literal. encodeURIComponent convierte
+  // espacios en %20 y entonces las reglas (clave == key) rechazan el alta.
+  // En las URL (GET) sí se sigue escapando, ver leerConcepto.
   return (
     `projects/${PROJECT}/databases/(default)/documents/` +
-    segments.map((s) => encodeURIComponent(s)).join('/')
+    segments.map((s) => String(s).replace(/\//g, '')).join('/')
   );
 }
 
