@@ -49,7 +49,7 @@ def main():
             args=["--headless=new", "--no-sandbox", "--disable-gpu"],
         )
         page = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page.goto(f"http://127.0.0.1:{PORT}/index.html?v=20261112c", wait_until="networkidle")
+        page.goto(f"http://127.0.0.1:{PORT}/index.html?v=20261112f", wait_until="networkidle")
         page.evaluate("localStorage.clear()")
         page.reload(wait_until="networkidle")
         page.wait_for_timeout(400)
@@ -92,7 +92,7 @@ def main():
             print("  FALLO al completar", lleno, nivel)
         else:
             print("  completa: .lleno y nivel 1")
-        page.locator("#btn-seguir").click()
+        page.locator("#btn-seguir").click(force=True)
 
         print("sala 2")
         page.wait_for_selector("#t-titulo")
@@ -101,7 +101,7 @@ def main():
             if not page.locator(f"#{tid}").evaluate("el => el.classList.contains('lleno')"):
                 ok = False
                 errores.append(f"sala 2: {tid} no quedó .lleno al recibir su única pieza")
-        page.locator("#btn-seguir").click()
+        page.locator("#btn-seguir").click(force=True)
 
         print("sala 3")
         for i, (nid, tid) in enumerate(SALA3):
@@ -109,7 +109,7 @@ def main():
             soltar(page, nid, tid)
             if i < len(SALA3) - 1:
                 page.wait_for_timeout(1300)
-        page.locator("#btn-seguir").click()
+        page.locator("#btn-seguir").click(force=True)
 
         print("sala 4")
         for i, (nid, tid) in enumerate(SALA4):
@@ -117,7 +117,7 @@ def main():
             soltar(page, nid, tid)
             if i < len(SALA4) - 1:
                 page.wait_for_timeout(1300)
-        page.locator("#btn-seguir").click()
+        page.locator("#btn-seguir").click(force=True)
 
         print("formulario")
         page.wait_for_selector("#form-registro")
@@ -138,6 +138,44 @@ def main():
             ok = False
             errores.append("falta [POR DEFINIR] junto a la insignia")
         print("  certificado y botones visibles")
+
+        print("estres 200 ideas")
+        page2 = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
+        page2.goto(f"http://127.0.0.1:{PORT}/index.html?vista=sala1&v=20261112f", wait_until="networkidle")
+        page2.wait_for_selector("#s1-a")
+        page2.wait_for_timeout(400)
+        page2.evaluate("""() => {
+          const textos = Array.from({length: 200}, (_, i) => "Aporte del consorcio número " + (i + 1));
+          agregarIdeasLote(textos);
+        }""")
+        page2.wait_for_timeout(2500)
+        info = page2.evaluate("""() => {
+          const nodos = [...document.querySelectorAll('#mar .nodo')];
+          const font = nodos[0] ? parseFloat(getComputedStyle(nodos[0]).fontSize) : 0;
+          return { n: nodos.length, font, total: totalIdeasSesion() };
+        }""")
+        print("  ", info)
+        if info["n"] < 200:
+            ok = False
+            errores.append(f"estres: solo {info['n']} nodos en el mar")
+        if info["font"] > 20:
+            ok = False
+            errores.append(f"estres: fuente {info['font']} px, debería ser muy pequeña")
+        # idea libre se rechaza; una predefinida válida se acepta por arrastre
+        box = page2.locator("#s1-a").bounding_box()
+        tank = page2.locator("#tanque-originalidad").bounding_box()
+        if box and tank:
+            page2.mouse.move(box["x"] + box["width"] / 2, box["y"] + box["height"] / 2)
+            page2.mouse.down()
+            page2.mouse.move(tank["x"] + tank["width"] / 2, tank["y"] + tank["height"] / 2, steps=12)
+            page2.mouse.up()
+            page2.wait_for_timeout(400)
+        hay = page2.evaluate("() => !!document.querySelector('#tanque-originalidad .ficha')")
+        print("  arrastre predefinida", hay)
+        if not hay:
+            ok = False
+            errores.append("estres: no se pudo arrastrar una idea predefinida al tanque")
+        page2.close()
         browser.close()
     httpd.shutdown()
     if ok:

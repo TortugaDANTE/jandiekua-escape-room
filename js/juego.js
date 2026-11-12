@@ -3,7 +3,7 @@
 
 const ANCHO = 1080;
 const ALTO = 2022;
-const VERSION = "20261112b";
+const VERSION = "20261112f";
 
 const NOM_LLAVE = ["pertinencia", "estructura", "validacion", "definitiva"];
 
@@ -174,7 +174,10 @@ const estado = {
   tema: "",
   registro: { nombre: "", institucion: "", correo: "", telefono: "", aviso: false },
   colocados: {},
-  elegido: null
+  elegido: null,
+  ideasJugador: [],
+  predefIds: [],
+  ideaSeq: 0
 };
 
 const nodosVivos = [];
@@ -183,19 +186,53 @@ let raf = 0;
 let foto = false;
 let toastTimer = 0;
 let certificadoUrl = "";
+let relojMar = 0;
+let ultimoFrame = 0;
+let semillaRnd = 20261112;
+let ideasPreview = 0;
 
 const $ = (sel, raiz = document) => raiz.querySelector(sel);
 const lienzo = $("#lienzo");
 const escena = $("#escena");
+const escenario = $("#escenario");
 
+function esPortraitEstrecho() {
+  const w = window.innerWidth, h = window.innerHeight;
+  return w < h && w <= 900;
+}
 function escalaLienzo() {
-  const s = Math.min(window.innerWidth / ANCHO, window.innerHeight / ALTO);
-  lienzo.style.transform = `translate(-50%, -50%) scale(${s})`;
+  const w = window.innerWidth, h = window.innerHeight;
+  // En retrato estrecho se llena el ancho y, si el lienzo queda más alto, se desplaza #escenario.
+  // En escritorio se mantiene el encuadre completo.
+  const s = esPortraitEstrecho() ? (w / ANCHO) : Math.min(w / ANCHO, h / ALTO);
+  lienzo.style.transform = `translate(-50%, 0) scale(${s})`;
+  escenario.style.setProperty("--escala", String(s));
+  return s;
 }
 function puntoLocal(e) {
   const r = lienzo.getBoundingClientRect();
   const s = r.width / ANCHO;
   return { x: (e.clientX - r.left) / s, y: (e.clientY - r.top) / s };
+}
+function origenMar() {
+  const mar = $("#mar");
+  if (!mar) return { x: 0, y: 0 };
+  const mr = mar.getBoundingClientRect();
+  const lr = lienzo.getBoundingClientRect();
+  const s = lr.width / ANCHO;
+  return { x: (mr.left - lr.left) / s, y: (mr.top - lr.top) / s };
+}
+function mulberry32(a) {
+  return () => {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+let rnd = mulberry32(semillaRnd);
+function movimientoReducido() {
+  return foto || (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 }
 
 function guardar() {
@@ -206,7 +243,10 @@ function guardar() {
       paso: estado.paso,
       llaves: estado.llaves,
       tema: estado.tema,
-      registro: estado.registro
+      registro: estado.registro,
+      ideasJugador: estado.ideasJugador,
+      predefIds: estado.predefIds,
+      ideaSeq: estado.ideaSeq
     }));
   } catch (err) { /* almacenamiento no disponible */ }
 }
@@ -215,7 +255,11 @@ function cargar() {
     const raw = localStorage.getItem("jandiekua-mar-" + VERSION);
     if (!raw) return;
     const d = JSON.parse(raw);
-    Object.assign(estado, d, { colocado: {}, elegido: null, colocados: {} });
+    Object.assign(estado, d, { colocado: {}, elegido: null, colocados: estado.colocados || {} });
+    if (!Array.isArray(estado.ideasJugador)) estado.ideasJugador = [];
+    if (!Array.isArray(estado.predefIds)) estado.predefIds = [];
+    if (!estado.ideaSeq) estado.ideaSeq = estado.ideasJugador.length;
+    estado.colocados = {};
   } catch (err) { /* ignorar */ }
 }
 
@@ -247,9 +291,15 @@ function pasoActual() {
 
 function render() {
   cancelAnimationFrame(raf);
+  raf = 0;
   nodosVivos.length = 0;
   estado.elegido = null;
   arrastre = null;
+  relojMar = 0;
+  ultimoFrame = 0;
+  const capa = $("#capa-arrastre");
+  if (capa) capa.innerHTML = "";
+  lienzo.classList.remove("arrastrando");
   const franja = $("#franja-llaves");
   if (estado.vista === "portada") {
     franja.hidden = true;
@@ -279,6 +329,9 @@ function renderPortada() {
     estado.sala = 0;
     estado.paso = 0;
     estado.colocados = {};
+    estado.ideasJugador = [];
+    estado.predefIds = [];
+    estado.ideaSeq = 0;
     guardar();
     render();
   });
@@ -311,6 +364,11 @@ function renderSala() {
       </div>
       <div class="zona zona-mar">
         <p class="instruccion">${s.instruccion}</p>
+        <form class="form-idea" id="form-idea">
+          <label class="visually-hidden" for="nueva-idea">Escribe una idea</label>
+          <input id="nueva-idea" name="idea" type="text" maxlength="180" autocomplete="off" placeholder="Escribe una idea y suéltala al mar">
+          <button type="submit" class="btn-idea">Enviar al mar</button>
+        </form>
         <div id="mar"></div>
         <div class="acciones-sala" id="acciones-sala" hidden>
           <button type="button" class="btn-seguir" id="btn-seguir">Continuar</button>
@@ -325,144 +383,357 @@ function renderSala() {
     });
   }
 
-  const mar = $("#mar");
-  const nodos = p.nodos.filter((n) => !estado.colocados[n.id]);
+  $("#form-idea").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = $("#nueva-idea");
+    const texto = (input.value || "").trim();
+    if (!texto) return;
+    input.value = "";
+    agregarIdea(texto, { hundir: true });
+  });
+
+  const pNodos = p.nodos.filter((n) => !estado.colocados[n.id]);
   const colocados = p.nodos.filter((n) => estado.colocados[n.id]);
   colocados.forEach((n) => ponerFicha(n, estado.colocados[n.id]));
   tanques.forEach((tk) => actualizarTanque(tk.id));
 
-  const layout = distribuirNodos(nodos, mar);
-  nodos.forEach((n, i) => {
-    const el = document.createElement("button");
-    el.type = "button";
-    el.className = "nodo";
-    el.id = n.id;
-    el.textContent = n.texto;
-    const pos = layout[i];
-    el.style.width = "max-content";
-    mar.appendChild(el);
-    // measure after insert
-    const w = Math.min(el.offsetWidth, 320);
-    const h = el.offsetHeight;
-    const vivo = {
-      data: n,
-      el,
-      x: pos.x,
-      y: pos.y,
-      w, h,
-      vx: (Math.random() * 0.4 - 0.2),
-      vy: (Math.random() * 0.3 - 0.15),
-      fase: Math.random() * Math.PI * 2,
-      t0: performance.now()
-    };
-    el.style.transform = `translate(${vivo.x}px, ${vivo.y}px)`;
-    habilitarArrastre(vivo);
-    nodosVivos.push(vivo);
+  p.nodos.forEach((n) => {
+    if (!estado.predefIds.includes(n.id)) estado.predefIds.push(n.id);
   });
-  acomodarNodos(foto);
+
+  aplicarEscalaIdeas(true);
+  pNodos.forEach((n) => nacerIdea(n, { predef: true, hundir: true }));
+  estado.ideasJugador.filter((idea) => !idea.usada).forEach((idea) => {
+    nacerIdea({ id: idea.id, texto: idea.texto, libre: true, valido: false }, { hundir: true });
+  });
+  aplicarEscalaIdeas(true);
+  prepararHundimiento();
 
   tanques.forEach((t) => {
     const caja = document.getElementById(t.id);
-    caja.addEventListener("pointerup", (e) => {
+    const soltarElegido = (e) => {
       if (estado.elegido && !arrastre) {
         e.stopPropagation();
         intentarSoltar(estado.elegido, t.id);
       }
-    });
+    };
+    caja.addEventListener("pointerup", soltarElegido);
+    caja.addEventListener("click", soltarElegido);
   });
 
   revisarMeta();
-  if (!foto) raf = requestAnimationFrame(animar);
-  else congelarFoto();
+  if (movimientoReducido()) asentarMar();
+  else arrancarMar();
 }
 
 function escapeAttr(s) {
   return String(s || "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
 
-function columnasPara(n, maxCols) {
-  let cols;
-  if (n <= 3) cols = n || 1;
-  else if (n === 4) cols = 2;
-  else if (n <= 6) cols = 3;
-  else if (n <= 8) cols = 4;
-  else cols = 5;
-  return Math.max(1, Math.min(cols, maxCols || cols));
+function normalizarTexto(s) {
+  return String(s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
-function distribuirNodos(nodos, mar) {
+function totalIdeasSesion() {
+  return (estado.ideasJugador ? estado.ideasJugador.length : 0) + (estado.predefIds ? estado.predefIds.length : 0);
+}
+
+function medidaIdeas(n) {
+  const t = Math.max(0, Math.min(1, (n - 6) / (200 - 6)));
+  const e = t * t * (3 - 2 * t);
+  return {
+    font: Math.round(64 - e * 53),
+    lado: Math.round(220 - e * 168),
+    max: Math.round(280 - e * 200),
+    min: Math.round(120 - e * 68),
+    pad: Math.round(18 - e * 12)
+  };
+}
+
+function aplicarEscalaIdeas(inmediato) {
+  const mar = $("#mar");
+  if (!mar) return;
+  const m = medidaIdeas(totalIdeasSesion());
+  mar.style.setProperty("--idea-fonte", m.font + "px");
+  mar.style.setProperty("--idea-lado", m.lado + "px");
+  mar.style.setProperty("--idea-max", m.max + "px");
+  mar.style.setProperty("--idea-min", m.min + "px");
+  mar.style.setProperty("--idea-pad", m.pad + "px");
+  const capa = $("#capa-arrastre");
+  if (capa) {
+    capa.style.setProperty("--idea-fonte", m.font + "px");
+    capa.style.setProperty("--idea-lado", m.lado + "px");
+    capa.style.setProperty("--idea-max", m.max + "px");
+    capa.style.setProperty("--idea-min", m.min + "px");
+    capa.style.setProperty("--idea-pad", m.pad + "px");
+  }
+  nodosVivos.forEach((v) => {
+    if (v.estado === "fuera") return;
+    medirIdea(v);
+    if (!inmediato) {
+      v.dormido = false;
+      v.contacto = false;
+      v.quietoT = 0;
+    }
+  });
+}
+
+function medirIdea(v) {
+  const el = v.el;
+  v.w = Math.max(8, el.offsetWidth);
+  v.h = Math.max(8, el.offsetHeight);
+}
+
+function nacerIdea(data, op = {}) {
+  const mar = $("#mar");
+  if (!mar) return null;
+  const el = document.createElement("button");
+  el.type = "button";
+  el.className = "nodo";
+  el.id = data.id;
+  el.textContent = data.texto;
+  el.setAttribute("aria-label", "Idea: " + data.texto);
+  mar.appendChild(el);
+  const vivo = {
+    data,
+    el,
+    x: 0,
+    y: 0,
+    w: 0,
+    h: 0,
+    vx: 0,
+    vy: 40 + rnd() * 50,
+    a: (rnd() * 2 - 1) * 12,
+    rest: (rnd() * 2 - 1) * 9,
+    tilt: (rnd() * 2 - 1) * 12,
+    fase: rnd() * Math.PI * 2,
+    omega: 0.9 + rnd() * 0.7,
+    amp: 14 + rnd() * 20,
+    vt: 120 + rnd() * 60,
+    sway: 1,
+    estado: "cae",
+    contacto: false,
+    dormido: false,
+    quietoT: 0,
+    padre: "mar",
+    delay: op.delay != null ? op.delay : 0
+  };
+  medirIdea(vivo);
   const W = mar.clientWidth || 1000;
-  const H = mar.clientHeight || 500;
-  const cols = columnasPara(nodos.length, 3);
-  const filas = Math.ceil(nodos.length / cols);
-  const layout = [];
-  nodos.forEach((_, i) => {
-    const c = i % cols;
-    const f = Math.floor(i / cols);
-    const enFila = (f === filas - 1) ? (nodos.length - f * cols) : cols;
-    const cellW = (W - 24) / enFila;
-    const cellH = (H - 20) / filas;
-    const jitterX = foto ? 0 : (Math.random() * 24 - 12);
-    const jitterY = foto ? 0 : (Math.random() * 18 - 9);
-    layout.push({
-      x: 12 + c * cellW + jitterX,
-      y: 10 + f * cellH + jitterY
-    });
-  });
-  return layout;
+  const hw = vivo.w;
+  vivo.x = Math.max(0, Math.min(W - hw, (rnd() + rnd()) / 2 * (W - hw)));
+  vivo.y = op.hundir && !movimientoReducido() ? -vivo.h - 8 - rnd() * 40 : 0;
+  habilitarArrastre(vivo);
+  nodosVivos.push(vivo);
+  dibujarIdea(vivo);
+  return vivo;
 }
 
-function acomodarNodos(congelar) {
-  const mar = $("#mar");
-  if (!mar || !nodosVivos.length) return;
-  const W = mar.clientWidth, H = mar.clientHeight;
+function agregarIdea(texto, op = {}) {
+  const t = String(texto || "").trim();
+  if (!t) return null;
+  const dup = estado.ideasJugador.some((i) => !i.usada && normalizarTexto(i.texto) === normalizarTexto(t));
+  if (dup) {
+    mostrarToast("Esa idea ya está en el mar.", true);
+    return null;
+  }
+  estado.ideaSeq += 1;
+  const idea = { id: "idea-j-" + estado.ideaSeq, texto: t, usada: false };
+  estado.ideasJugador.push(idea);
+  guardar();
+  const vivo = nacerIdea({ id: idea.id, texto: t, libre: true, valido: false }, { hundir: op.hundir !== false, delay: 0 });
+  aplicarEscalaIdeas(false);
+  if (movimientoReducido()) asentarMar();
+  else arrancarMar();
+  return vivo;
+}
+
+function agregarIdeasLote(textos) {
+  const lista = Array.isArray(textos) ? textos : [];
+  lista.forEach((texto, i) => {
+    const t = String(texto || "").trim() || ("Idea " + (estado.ideaSeq + 1));
+    estado.ideaSeq += 1;
+    const idea = { id: "idea-j-" + estado.ideaSeq, texto: t, usada: false };
+    estado.ideasJugador.push(idea);
+    nacerIdea({ id: idea.id, texto: t, libre: true, valido: false }, { hundir: true, delay: 0 });
+  });
+  aplicarEscalaIdeas(false);
+  if (movimientoReducido()) asentarMar();
+  else arrancarMar();
+  guardar();
+}
+
+function prepararHundimiento() {
   const n = nodosVivos.length;
-  const gapX = 20;
-  const maxW = Math.max(...nodosVivos.map((nodo) => nodo.w));
-  const maxCols = Math.max(1, Math.floor((W + gapX) / (maxW + gapX)));
-  const cols = columnasPara(n, maxCols);
-  const filas = Math.ceil(n / cols);
-  const rows = [];
-  for (let f = 0; f < filas; f++) rows.push(nodosVivos.slice(f * cols, f * cols + cols));
-  const rowH = rows.map((row) => Math.max(...row.map((nodo) => nodo.h)));
-  const gapY = 22;
-  const totalH = rowH.reduce((a, b) => a + b, 0) + (filas - 1) * gapY;
-  let y0 = Math.max(8, (H - totalH) / 2);
-  rows.forEach((row, fi) => {
-    const rowW = row.reduce((a, nodo) => a + nodo.w, 0) + (row.length - 1) * gapX;
-    let x = Math.max(8, (W - rowW) / 2);
-    row.forEach((nodo) => {
-      const jx = congelar ? 0 : (Math.random() * 16 - 8);
-      const jy = congelar ? 0 : (Math.random() * 12 - 6);
-      nodo.x = Math.min(W - nodo.w, Math.max(0, x + jx));
-      nodo.y = Math.min(H - nodo.h, Math.max(0, y0 + jy));
-      nodo.el.style.transform = `translate(${nodo.x}px, ${nodo.y}px)`;
-      x += nodo.w + gapX;
-    });
-    y0 += rowH[fi] + gapY;
+  const paso = Math.max(40, Math.min(280, 2200 / Math.max(n, 1)));
+  const orden = nodosVivos.map((_, i) => i).sort(() => rnd() - 0.5);
+  orden.forEach((idx, k) => {
+    nodosVivos[idx].delay = k * paso * (0.6 + rnd() * 0.6);
+    // Permanecen visibles y se pueden tocar desde el primer instante (caen desde arriba).
   });
 }
 
-function congelarFoto() {
-  acomodarNodos(true);
+function dibujarIdea(v) {
+  const o = v.padre === "capa" ? origenMar() : { x: 0, y: 0 };
+  v.el.style.transform = `translate(${(v.x + o.x).toFixed(1)}px, ${(v.y + o.y).toFixed(1)}px) rotate(${v.a.toFixed(2)}deg)`;
 }
 
-function animar(now) {
+function hw(v) { return v.w * 0.48; }
+function hh(v) { return v.h * 0.46; }
+
+function pasoFisica(dt) {
   const mar = $("#mar");
-  if (!mar || foto) return;
+  if (!mar) return 0;
   const W = mar.clientWidth, H = mar.clientHeight;
-  nodosVivos.forEach((n) => {
-    if (arrastre && arrastre.vivo === n) return;
-    n.fase += 0.012;
-    n.x += n.vx + Math.sin(n.fase) * 0.15;
-    n.y += n.vy + Math.cos(n.fase * 0.8) * 0.12;
-    if (n.x < 0) { n.x = 0; n.vx *= -1; }
-    if (n.y < 0) { n.y = 0; n.vy *= -1; }
-    if (n.x > W - n.w) { n.x = W - n.w; n.vx *= -1; }
-    if (n.y > H - n.h) { n.y = H - n.h; n.vy *= -1; }
-    n.el.style.transform = `translate(${n.x}px, ${n.y}px)`;
+  relojMar += dt;
+  let despiertos = 0;
+  for (const v of nodosVivos) {
+    if (v.estado === "fuera") continue;
+    if (relojMar * 1000 < v.delay) { despiertos++; continue; }
+    if (v.estado === "agarrado") { despiertos++; continue; }
+    if (v.dormido) continue;
+    despiertos++;
+    v.contacto = false;
+    v.vy += (v.vt - v.vy) * 2.2 * dt;
+    v.fase += v.omega * dt;
+    const vaiven = v.amp * v.omega * Math.cos(v.fase) * v.sway;
+    v.x += (vaiven + v.vx) * dt;
+    v.y += v.vy * dt;
+    v.vx *= Math.max(0, 1 - 1.6 * dt);
+    const w = hw(v), h = hh(v);
+    if (v.x + v.w / 2 < w) { v.x = w - v.w / 2; v.vx = Math.abs(v.vx); }
+    if (v.x + v.w / 2 > W - w) { v.x = W - w - v.w / 2; v.vx = -Math.abs(v.vx); }
+    if (v.x < 0) v.x = 0;
+    if (v.x > W - v.w) v.x = W - v.w;
+    if (v.y + v.h > H - 2) { v.y = H - v.h - 2; v.contacto = true; }
+    if (v.y < -v.h) { /* todavía entrando */ }
+  }
+  for (let it = 0; it < 3; it++) {
+    for (let i = 0; i < nodosVivos.length; i++) {
+      const a = nodosVivos[i];
+      if (a.estado !== "cae" || relojMar * 1000 < a.delay) continue;
+      for (let j = i + 1; j < nodosVivos.length; j++) {
+        const b = nodosVivos[j];
+        if (b.estado !== "cae" || relojMar * 1000 < b.delay) continue;
+        if (a.dormido && b.dormido) continue;
+        const ax = a.x + a.w / 2, ay = a.y + a.h / 2;
+        const bx = b.x + b.w / 2, by = b.y + b.h / 2;
+        const dx = ax - bx, dy = ay - by;
+        const px = hw(a) + hw(b) - Math.abs(dx);
+        const py = hh(a) + hh(b) - Math.abs(dy);
+        if (px <= 0 || py <= 0) continue;
+        if (py <= px * 1.35) {
+          const arriba = dy < 0 ? a : b, abajo = dy < 0 ? b : a;
+          if (abajo.dormido) arriba.y -= py;
+          else if (arriba.dormido) abajo.y += py;
+          else { arriba.y -= py * 0.55; abajo.y += py * 0.45; }
+          if (!arriba.dormido) arriba.contacto = true;
+        } else {
+          const dir = dx === 0 ? (rnd() < 0.5 ? -1 : 1) : Math.sign(dx);
+          if (a.dormido) b.x -= dir * px;
+          else if (b.dormido) a.x += dir * px;
+          else { a.x += dir * px * 0.5; b.x -= dir * px * 0.5; }
+        }
+      }
+    }
+  }
+  for (const v of nodosVivos) {
+    if (v.estado !== "cae" || v.dormido || relojMar * 1000 < v.delay) continue;
+    if (v.x < 0) v.x = 0;
+    if (v.x > W - v.w) v.x = Math.max(0, W - v.w);
+    if (v.y + v.h > H) v.y = H - v.h;
+    if (v.contacto) {
+      v.vy = 0;
+      v.sway = Math.max(0, v.sway - 1.8 * dt);
+      v.quietoT += dt;
+      if (v.quietoT > 0.55 && v.sway === 0) v.dormido = true;
+    } else {
+      v.quietoT = 0;
+      v.sway = Math.min(1, v.sway + 0.4 * dt);
+    }
+    const asent = 1 - v.sway;
+    const objetivo = (v.tilt * (1 - asent) + v.rest * asent) + Math.sin(v.fase * 0.9 + 1) * 7 * v.sway;
+    v.a += (objetivo - v.a) * Math.min(1, 5 * dt);
+  }
+  return despiertos;
+}
+
+function bucleMar(ahora) {
+  if (movimientoReducido()) return;
+  const dt = Math.min((ahora - (ultimoFrame || ahora)) / 1000, 1 / 30);
+  ultimoFrame = ahora;
+  const n = pasoFisica(dt);
+  nodosVivos.forEach((v) => {
+    if (v.estado === "fuera") return;
+    if (v.padre === "capa" && v.estado === "cae") {
+      const o = origenMar();
+      if (v.y > 8) {
+        $("#mar").appendChild(v.el);
+        v.padre = "mar";
+      }
+    }
+    if (!v.dormido || v.estado === "agarrado") dibujarIdea(v);
   });
-  raf = requestAnimationFrame(animar);
+  if (n > 0 || arrastre) raf = requestAnimationFrame(bucleMar);
+  else { raf = 0; ultimoFrame = 0; }
+}
+
+function arrancarMar() {
+  if (!raf && !movimientoReducido()) {
+    ultimoFrame = 0;
+    raf = requestAnimationFrame(bucleMar);
+  }
+}
+
+function despertarMar(excepto) {
+  nodosVivos.forEach((v) => {
+    if (v === excepto || v.estado === "fuera" || v.estado === "agarrado") return;
+    v.dormido = false;
+    v.quietoT = 0;
+  });
+  arrancarMar();
+}
+
+function asentarMar() {
+  cancelAnimationFrame(raf);
+  raf = 0;
+  relojMar = 10;
+  nodosVivos.forEach((v) => { v.delay = 0; v.el.style.visibility = ""; });
+  const pasos = nodosVivos.length > 80 ? 60 * 8 : 60 * 16;
+  for (let i = 0; i < pasos; i++) pasoFisica(1 / 60);
+  nodosVivos.forEach((v) => {
+    if (v.estado === "fuera") return;
+    v.dormido = true;
+    v.sway = 0;
+    v.vy = 0;
+    v.a = v.rest;
+    if (v.padre === "capa") {
+      $("#mar").appendChild(v.el);
+      v.padre = "mar";
+    }
+    dibujarIdea(v);
+  });
+}
+
+function aCapa(v) {
+  const capa = $("#capa-arrastre");
+  if (!capa || v.padre === "capa") return;
+  capa.appendChild(v.el);
+  v.padre = "capa";
+  dibujarIdea(v);
+}
+
+function volverAlMar(v) {
+  const mar = $("#mar");
+  if (!mar || v.padre !== "capa") return;
+  mar.appendChild(v.el);
+  v.padre = "mar";
+  dibujarIdea(v);
 }
 
 function habilitarArrastre(vivo) {
@@ -471,14 +742,14 @@ function habilitarArrastre(vivo) {
     e.preventDefault();
     el.setPointerCapture(e.pointerId);
     const p = puntoLocal(e);
-    const marR = $("#mar").getBoundingClientRect();
-    const lienzoR = lienzo.getBoundingClientRect();
-    const s = lienzoR.width / ANCHO;
-    const origenMar = { x: (marR.left - lienzoR.left) / s, y: (marR.top - lienzoR.top) / s };
+    const o = origenMar();
+    vivo.estado = "agarrado";
+    vivo.dormido = false;
     arrastre = {
       vivo,
-      dx: p.x - origenMar.x - vivo.x,
-      dy: p.y - origenMar.y - vivo.y,
+      id: e.pointerId,
+      dx: p.x - (o.x + vivo.x),
+      dy: p.y - (o.y + vivo.y),
       x0: p.x,
       y0: p.y,
       moved: false
@@ -486,44 +757,56 @@ function habilitarArrastre(vivo) {
     el.classList.add("arrastre");
     estado.elegido = null;
     document.querySelectorAll(".nodo.elegido").forEach((n) => n.classList.remove("elegido"));
+    escenario.style.overflowY = "hidden";
   });
   el.addEventListener("pointermove", (e) => {
-    if (!arrastre || arrastre.vivo !== vivo) return;
+    if (!arrastre || arrastre.vivo !== vivo || e.pointerId !== arrastre.id) return;
     const p = puntoLocal(e);
-    if (Math.hypot(p.x - arrastre.x0, p.y - arrastre.y0) > 8) arrastre.moved = true;
-    const marR = $("#mar").getBoundingClientRect();
-    const lienzoR = lienzo.getBoundingClientRect();
-    const s = lienzoR.width / ANCHO;
-    const origenMar = { x: (marR.left - lienzoR.left) / s, y: (marR.top - lienzoR.top) / s };
-    vivo.x = p.x - origenMar.x - arrastre.dx;
-    vivo.y = p.y - origenMar.y - arrastre.dy;
-    el.style.transform = `translate(${vivo.x}px, ${vivo.y}px)`;
+    if (!arrastre.moved && Math.hypot(p.x - arrastre.x0, p.y - arrastre.y0) > 8) {
+      arrastre.moved = true;
+      aCapa(vivo);
+      lienzo.classList.add("arrastrando");
+      despertarMar(vivo);
+    }
+    if (!arrastre.moved) return;
+    const o = origenMar();
+    vivo.x = p.x - arrastre.dx - o.x;
+    vivo.y = p.y - arrastre.dy - o.y;
+    vivo.a += (0 - vivo.a) * 0.25;
+    dibujarIdea(vivo);
     resaltarTanques(p);
   });
-  el.addEventListener("pointerup", (e) => {
-    if (!arrastre || arrastre.vivo !== vivo) return;
-    el.releasePointerCapture(e.pointerId);
+  const soltar = (e, cancel) => {
+    if (!arrastre || arrastre.vivo !== vivo || (e.pointerId != null && e.pointerId !== arrastre.id)) return;
+    try { el.releasePointerCapture(e.pointerId); } catch (err) { /* ya liberado */ }
     el.classList.remove("arrastre");
     const p = puntoLocal(e);
-    const tanque = tanqueBajoPunto(p);
     const moved = arrastre.moved;
     arrastre = null;
-    document.querySelectorAll(".tanque.aceptando").forEach((t) => t.classList.remove("aceptando"));
-    if (moved && tanque) {
-      intentarSoltar(vivo, tanque);
-    } else if (!moved) {
+    escenario.style.overflowY = "";
+    lienzo.classList.remove("arrastrando");
+    document.querySelectorAll(".tanque.aceptando").forEach((tk) => tk.classList.remove("aceptando"));
+    const tanque = !cancel && moved ? tanqueBajoPunto(p) : null;
+    if (tanque) {
+      const ok = intentarSoltar(vivo, tanque);
+      if (ok) return;
+    }
+    volverAlMar(vivo);
+    vivo.estado = "cae";
+    vivo.vy = moved ? 40 : 0;
+    vivo.sway = moved ? 1 : 0;
+    vivo.dormido = !moved;
+    vivo.quietoT = 0;
+    if (!moved && !cancel) {
       document.querySelectorAll(".nodo.elegido").forEach((n) => n.classList.remove("elegido"));
       el.classList.add("elegido");
       estado.elegido = vivo;
       mostrarToast("Toca el tanque para colocar esta idea.");
     }
-  });
-  el.addEventListener("pointercancel", () => {
-    if (arrastre && arrastre.vivo === vivo) {
-      arrastre = null;
-      el.classList.remove("arrastre");
-    }
-  });
+    arrancarMar();
+  };
+  el.addEventListener("pointerup", (e) => soltar(e, false));
+  el.addEventListener("pointercancel", (e) => soltar(e, true));
 }
 
 function resaltarTanques(p) {
@@ -546,8 +829,23 @@ function elementoContiene(el, p) {
   return p.x >= x && p.x <= x + w && p.y >= y && p.y <= y + h;
 }
 
-function intentarSoltar(vivo, tanqueId) {
+function resolverDatosIdea(vivo) {
   const n = vivo.data;
+  if (!n.libre) return n;
+  const clave = normalizarTexto(n.texto);
+  const p = pasoActual();
+  const match = p.nodos.find((x) => normalizarTexto(x.texto) === clave);
+  if (!match) {
+    return { ...n, valido: false, error: "Esa idea no corresponde a este compartimento." };
+  }
+  if (estado.colocados[match.id]) {
+    return { ...n, valido: false, error: "Esa idea ya está en el tanque." };
+  }
+  return match;
+}
+
+function intentarSoltar(vivo, tanqueId) {
+  const n = resolverDatosIdea(vivo);
   const s = salaActual();
   const p = pasoActual();
   const tanque = p.tanques.find((t) => t.id === tanqueId);
@@ -557,20 +855,36 @@ function intentarSoltar(vivo, tanqueId) {
     caja.classList.add("rechazando");
     setTimeout(() => caja.classList.remove("rechazando"), 450);
     mostrarToast(n.error || "Esa idea no corresponde a este compartimento.", true);
-    return;
+    return false;
   }
   if (s.modo === "orden" && estado.colocados && Object.values(estado.colocados).includes(tanqueId)) {
     mostrarToast("Ese compartimento ya está ocupado.", true);
-    return;
+    return false;
   }
   estado.colocados[n.id] = tanqueId;
+  const propia = estado.ideasJugador.find((i) => i.id === vivo.data.id);
+  if (propia) propia.usada = true;
+  // si se usó el texto de una idea predefinida que aún flota, retirarla
+  nodosVivos.forEach((otro) => {
+    if (otro === vivo || otro.estado === "fuera") return;
+    if (otro.data && otro.data.id === n.id) {
+      otro.estado = "fuera";
+      otro.el.classList.add("colocado");
+    }
+  });
+  vivo.estado = "fuera";
   vivo.el.classList.add("colocado");
   const idx = nodosVivos.indexOf(vivo);
   if (idx >= 0) nodosVivos.splice(idx, 1);
+  if (vivo.el.parentNode) vivo.el.remove();
   ponerFicha(n, tanqueId);
   estado.elegido = null;
   mostrarToast(n.ok || "Bien. La pieza encaja.");
+  aplicarEscalaIdeas(false);
+  despertarMar();
   revisarMeta();
+  guardar();
+  return true;
 }
 
 function ponerFicha(n, tanqueId) {
@@ -900,6 +1214,10 @@ function aplicarVistaDesdeURL() {
   const q = new URLSearchParams(location.search);
   foto = q.get("foto") === "1";
   if (foto) document.body.classList.add("foto");
+  const semilla = q.get("semilla");
+  semillaRnd = semilla ? Number(semilla) : (foto ? 20261112 : ((Math.random() * 1e9) | 0));
+  rnd = mulberry32(semillaRnd);
+  ideasPreview = Number(q.get("ideas") || 0) || 0;
   const v = q.get("vista");
   if (!v) return false;
   if (v === "portada") { estado.vista = "portada"; return true; }
@@ -909,6 +1227,19 @@ function aplicarVistaDesdeURL() {
     estado.paso = 0;
     estado.colocados = {};
     estado.llaves = estado.llaves.map((_, i) => i < estado.sala);
+    estado.ideasJugador = [];
+    estado.predefIds = [];
+    estado.ideaSeq = 0;
+    if (ideasPreview > 0) {
+      for (let i = 0; i < ideasPreview; i++) {
+        estado.ideaSeq += 1;
+        estado.ideasJugador.push({
+          id: "idea-j-" + estado.ideaSeq,
+          texto: "Idea " + (i + 1) + " del consorcio",
+          usada: false
+        });
+      }
+    }
     return true;
   }
   if (v === "cierre") {
@@ -949,6 +1280,9 @@ function cargarFondoIlustrado() {
 function iniciar() {
   escalaLienzo();
   window.addEventListener("resize", escalaLienzo);
+  if (window.visualViewport) {
+    visualViewport.addEventListener("resize", escalaLienzo);
+  }
   cargarFondoIlustrado();
   if (!aplicarVistaDesdeURL()) cargar();
   if (!["portada", "sala", "cierre-form", "cierre-diploma"].includes(estado.vista)) {

@@ -41,7 +41,7 @@
   --alto: 2022px;
   --barra: 148px;
   --pie: 54px;
-  --franja: 92px;
+  --franja: 132px;
   --serif: "Fraunces", "Palatino Linotype", Palatino, "Times New Roman", serif;
   --sans: "Montserrat", "Segoe UI", system-ui, sans-serif;
 }
@@ -59,16 +59,33 @@ html, body {
 button, input, textarea { font: inherit; }
 button { cursor: pointer; color: inherit; }
 img { display: block; max-width: 100%; height: auto; }
+.visually-hidden {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 #escenario {
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
-  display: grid;
-  place-items: center;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background:
     radial-gradient(ellipse at 50% 0%, #0c2c4c 0%, #071018 62%);
+}
+#escenario::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: calc(var(--alto) * var(--escala, 1));
+  pointer-events: none;
 }
 
 #lienzo {
@@ -76,10 +93,11 @@ img { display: block; max-width: 100%; height: auto; }
   height: var(--alto);
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 0;
+  margin: 0;
   overflow: hidden;
   background: var(--abismo);
-  transform-origin: center center;
+  transform-origin: top center;
   box-shadow: 0 0 80px rgba(0, 20, 40, 0.65);
 }
 
@@ -190,12 +208,17 @@ img { display: block; max-width: 100%; height: auto; }
   background: rgba(16, 36, 56, 0.55);
   color: var(--espuma);
   border-radius: 999px;
-  padding: 12px 22px;
-  font-size: 20px;
+  min-height: 108px;
+  min-width: 220px;
+  padding: 24px 36px;
+  font-size: 30px;
   font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   backdrop-filter: blur(8px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .btn-glosario:focus-visible { outline: 2px solid var(--oro); outline-offset: 3px; }
 
@@ -280,19 +303,23 @@ img { display: block; max-width: 100%; height: auto; }
   color: rgba(245, 247, 249, 0.88);
   font-weight: 450;
 }
-.btn-entrar, .btn-seguir, .btn-principal {
+.btn-entrar, .btn-seguir, .btn-principal, .btn-idea {
   appearance: none;
   margin-top: 44px;
   border: 0;
   background: linear-gradient(180deg, var(--oro-2), var(--oro));
   color: #102438;
   font-weight: 750;
-  font-size: 26px;
+  font-size: 32px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 22px 48px;
+  padding: 28px 48px;
+  min-height: 124px;
   border-radius: 999px;
   box-shadow: 0 10px 30px rgba(197, 155, 39, 0.35);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .btn-entrar:active, .btn-seguir:active, .btn-principal:active { transform: translateY(1px); }
 
@@ -466,11 +493,15 @@ img { display: block; max-width: 100%; height: auto; }
   width: 100%;
   text-align: center;
   color: rgba(216, 232, 223, 0.8);
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 650;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  padding: 12px 8px;
+  padding: 24px 12px;
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
 }
 .tanque.lleno .pista-tanque { display: none; }
@@ -491,50 +522,94 @@ img { display: block; max-width: 100%; height: auto; }
   opacity: 0.85;
   pointer-events: none;
 }
+.form-idea {
+  position: absolute;
+  top: 52px;
+  left: 28px;
+  right: 28px;
+  z-index: 6;
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+.form-idea input {
+  flex: 1;
+  min-width: 0;
+  min-height: 96px;
+  border: 1px solid rgba(197, 155, 39, 0.45);
+  background: rgba(245, 247, 249, 0.96);
+  color: var(--abismo);
+  border-radius: 24px;
+  padding: 16px 24px;
+  font-size: 30px;
+  font-weight: 550;
+  user-select: text;
+  touch-action: manipulation;
+}
+.form-idea input::placeholder { color: rgba(16, 36, 56, 0.55); }
+.form-idea .btn-idea {
+  margin-top: 0;
+  min-height: 96px;
+  min-width: 220px;
+  padding: 16px 28px;
+  font-size: 30px;
+  flex: 0 0 auto;
+}
 #mar {
   position: absolute;
-  inset: 42px 16px 8px;
+  inset: 164px 16px 8px;
+  overflow: visible;
+}
+#capa-arrastre {
+  position: absolute;
+  inset: 0;
+  z-index: 16;
+  pointer-events: none;
+}
+#capa-arrastre .nodo { pointer-events: auto; }
+#lienzo.arrastrando .tanque:not(.lleno) {
+  outline: 3px dashed rgba(224, 180, 60, 0.7);
+  outline-offset: -8px;
 }
 .nodo {
   position: absolute;
   left: 0; top: 0;
-  max-width: 320px;
-  padding: 14px 18px;
-  border-radius: 999px;
-  background: none;
+  width: var(--idea-lado, 200px);
+  max-width: var(--idea-max, 280px);
+  min-width: var(--idea-min, 120px);
+  min-height: var(--idea-min, 120px);
+  padding: var(--idea-pad, 16px);
+  border-radius: 22px;
+  background: linear-gradient(180deg, #fff, var(--papel));
   color: var(--abismo);
-  border: 0;
-  box-shadow: none;
-  font-size: 26px;
+  border: 1.5px solid rgba(197, 155, 39, 0.55);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+  font-size: var(--idea-fonte, 26px);
   font-weight: 650;
-  line-height: 1.22;
+  line-height: 1.2;
   text-align: center;
   cursor: grab;
   touch-action: none;
   z-index: 3;
   will-change: transform;
-}
-.nodo::before {
-  content: "";
-  position: absolute;
-  inset: -10px;
-  z-index: -1;
-  pointer-events: none;
-  border-style: solid;
-  border-color: transparent;
-  border-width: 36px 38px;
-  border-image: url("../assets/disenografico/nodo_inactivo.svg") 36 38 fill / 36px 38px stretch;
+  transform-origin: center center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
 }
 .nodo:active { cursor: grabbing; }
 .nodo.arrastre {
   z-index: 8;
-  box-shadow: none;
+  cursor: grabbing;
+  box-shadow: 0 22px 28px rgba(0, 0, 0, 0.45);
+  border-color: var(--oro-2);
 }
-.nodo.arrastre::before, .nodo.elegido::before {
-  border-image-source: url("../assets/disenografico/nodo_activo.svg");
+.nodo.elegido {
+  box-shadow: 0 0 0 4px var(--oro-2), 0 10px 18px rgba(0, 0, 0, 0.3);
 }
-.nodo.elegido { box-shadow: none; }
 .nodo.colocado { display: none; }
+.nodo:focus-visible { outline: 3px solid var(--oro-2); outline-offset: 4px; }
 
 .acciones-sala {
   position: absolute;
@@ -660,14 +735,17 @@ form.registro input[type="tel"] {
 }
 .acciones-cierre a,
 .acciones-cierre button {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   text-decoration: none;
   border: 0;
   border-radius: 999px;
-  padding: 20px 28px;
+  padding: 28px 32px;
+  min-height: 124px;
   font-weight: 750;
-  font-size: 22px;
+  font-size: 32px;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
@@ -718,14 +796,18 @@ form.registro input[type="tel"] {
 }
 .modal-carta .cerrar {
   position: absolute;
-  top: 22px; right: 22px;
-  width: 56px; height: 56px;
+  top: 18px; right: 18px;
+  width: 96px; height: 96px;
+  min-height: 96px;
   border: 0;
   background: var(--azul);
   color: #fff;
   border-radius: 50%;
-  font-size: 36px;
+  font-size: 48px;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .entrada-glosario { margin: 18px 0 22px; }
 .entrada-glosario h3 {
