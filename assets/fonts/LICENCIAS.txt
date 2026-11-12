@@ -1,3 +1,11 @@
-Montserrat (Julieta Ulanovsky et al.) y Fraunces (Undercase Type / Phaedra Charles y Flavia Zimbardi)
-se distribuyen bajo la SIL Open Font License 1.1: https://scripts.sil.org/OFL
-Se incluyen solo los recortes tipográficos necesarios para esta interfaz.
+Montserrat y Fraunces se distribuyen bajo la SIL Open Font License, Version 1.1.
+El texto completo de cada licencia acompaña a las fuentes:
+
+  OFL-Montserrat.txt   Copyright The Montserrat Project Authors (https://github.com/JulietaUla/Montserrat)
+  OFL-Fraunces.txt     Copyright 2018 The Fraunces Project Authors (https://github.com/undercasetype/Fraunces)
+
+Archivos incluidos (fuentes variables, formato WOFF, subconjunto de caracteres latinos): Montserrat.woff, Montserrat-Italic.woff,
+Fraunces.woff, Fraunces-Italic.woff. No se modificó el diseño de las letras.
+Ninguna de las dos declara Reserved Font Name. Las fuentes se alojan en este sitio:
+no se cargan desde Google Fonts ni desde otra CDN.
+Inventario completo de licencias del repositorio: ../../LICENCIAS.md

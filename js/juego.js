@@ -1,4 +1,4 @@
-import * as DatosMod from './datos.js?v=20261112k';
+import * as DatosMod from './datos.js?v=20261112m';
 const Datos = Object.assign({}, DatosMod.default || {}, DatosMod, { normalizar: DatosMod.claveDe });
 window.Datos = Datos;
 
@@ -8,7 +8,9 @@ window.Datos = Datos;
 const ANCHO = 1080;
 const ALTO = 2022;
 const ACUARIO_SVG = '<svg class="acuario-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 605" preserveAspectRatio="none" aria-hidden="true">\n  <defs>\n    <linearGradient id="arena" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#C59B27" stop-opacity=".0"/>\n      <stop offset=".45" stop-color="#8A6A12" stop-opacity=".18"/>\n      <stop offset="1" stop-color="#5C4A18" stop-opacity=".45"/>\n    </linearGradient>\n    <linearGradient id="rayo" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#D8E8DF" stop-opacity=".16"/>\n      <stop offset="1" stop-color="#D8E8DF" stop-opacity="0"/>\n    </linearGradient>\n    <linearGradient id="alga" x1="0" y1="1" x2="0" y2="0">\n      <stop offset="0" stop-color="#2E6B4E"/>\n      <stop offset="1" stop-color="#4A8B68" stop-opacity=".85"/>\n    </linearGradient>\n  </defs>\n  <!-- caustics / refraction bands -->\n  <g opacity=".22" fill="none" stroke="#D8E8DF" stroke-width="1.2">\n    <path d="M0 90 Q180 70 360 100 T720 90 T1080 110" opacity=".7"/>\n    <path d="M0 130 Q200 150 400 120 T800 140 T1080 125" opacity=".45"/>\n    <path d="M0 170 Q160 155 320 180 T640 165 T1080 185" opacity=".35"/>\n  </g>\n  <!-- light rays -->\n  <g fill="url(#rayo)">\n    <polygon points="220,-10 310,-10 260,400 170,400" opacity=".8"/>\n    <polygon points="520,-10 590,-10 560,360 490,360" opacity=".55"/>\n    <polygon points="820,-10 900,-10 870,420 790,420" opacity=".65"/>\n  </g>\n  <!-- sand bottom -->\n  <path fill="url(#arena)" d="M0 500 C80 488 160 520 260 505 C360 488 470 525 580 508 C700 490 820 528 930 510 C1000 500 1040 518 1080 508 L1080 605 L0 605 Z"/>\n  <g fill="#C59B27" opacity=".2">\n    <circle cx="90" cy="560" r="4"/><circle cx="140" cy="575" r="3"/><circle cx="320" cy="568" r="3.5"/>\n    <circle cx="510" cy="580" r="4"/><circle cx="700" cy="565" r="3"/><circle cx="880" cy="578" r="4"/>\n    <circle cx="990" cy="555" r="2.5"/>\n  </g>\n  <!-- seaweed / coral, left -->\n  <g fill="url(#alga)" opacity=".85">\n    <path d="M70 605 C60 540 90 520 70 460 C50 400 95 390 80 330 C88 400 55 420 85 480 C100 530 55 550 70 605Z"/>\n    <path d="M110 605 C125 530 95 510 120 440 C140 380 100 370 115 320 C108 380 145 400 108 470 C90 530 130 560 110 605Z"/>\n    <path d="M40 605 C30 550 55 530 38 480 C22 430 58 425 48 390 C52 440 20 455 50 510 C62 545 28 565 40 605Z"/>\n  </g>\n  <!-- right -->\n  <g fill="url(#alga)" opacity=".8">\n    <path d="M1010 605 C1022 540 990 520 1015 455 C1038 400 990 390 1008 335 C1000 400 1040 420 1000 485 C985 535 1028 555 1010 605Z"/>\n    <path d="M1050 605 C1062 550 1038 535 1055 485 C1072 435 1038 428 1050 390 C1045 440 1078 455 1048 510 C1036 545 1068 565 1050 605Z"/>\n    <path d="M970 605 C955 545 990 525 968 470 C948 415 990 410 975 360 C980 420 945 435 985 500 C1000 545 958 560 970 605Z"/>\n  </g>\n  <!-- small coral clusters -->\n  <g fill="#C59B27" opacity=".35">\n    <path d="M200 600 l8-28 8 14 7-22 7 22 8-14 8 28z"/>\n    <path d="M860 600 l6-22 7 11 6-18 6 18 7-11 6 22z"/>\n  </g>\n  <!-- two slow fish silhouettes (animated via CSS on groups) -->\n  <g class="pez pez-a" fill="#102438" opacity=".28">\n    <ellipse cx="0" cy="0" rx="22" ry="10"/>\n    <polygon points="18,0 34,-9 34,9"/>\n    <circle cx="-8" cy="-2" r="1.4" fill="#D8E8DF" opacity=".8"/>\n  </g>\n  <g class="pez pez-b" fill="#102438" opacity=".2">\n    <ellipse cx="0" cy="0" rx="16" ry="7"/>\n    <polygon points="-14,0 -26,-7 -26,7"/>\n    <circle cx="6" cy="-1.5" r="1.1" fill="#D8E8DF" opacity=".8"/>\n  </g>\n</svg>\n';
-const VERSION = "20261112k";
+const VERSION = "20261112m";
+// Versión de los textos legales que la persona acepta (Términos y Aviso de privacidad).
+const VERSION_LEGAL = "v1-borrador-20261112";
 
 const NOM_LLAVE = ["pertinencia", "estructura", "validacion", "definitiva"];
 
@@ -186,6 +188,7 @@ const estado = {
   sesion: "",
   aportados: [],
   tituloListo: false,
+  consentimiento: null,
   conceptosUnicos: 0
 };
 
@@ -199,6 +202,7 @@ let relojMar = 0;
 let ultimoFrame = 0;
 let semillaRnd = 20261112;
 let ideasPreview = 0;
+let datosBorrados = false;
 
 function salaApi() {
   return (Number(estado.sala) || 0) + 1;
@@ -274,6 +278,7 @@ function movimientoReducido() {
 }
 
 function guardar() {
+  if (datosBorrados) return;
   try {
     localStorage.setItem("jandiekua-mar-" + VERSION, JSON.stringify({
       vista: estado.vista,
@@ -287,7 +292,8 @@ function guardar() {
       ideaSeq: estado.ideaSeq,
       sesion: estado.sesion,
       aportados: estado.aportados,
-      tituloListo: estado.tituloListo
+      tituloListo: estado.tituloListo,
+      consentimiento: estado.consentimiento
     }));
   } catch (err) { /* almacenamiento no disponible */ }
 }
@@ -296,6 +302,9 @@ function cargar() {
     const raw = localStorage.getItem("jandiekua-mar-" + VERSION);
     if (!raw) return;
     const d = JSON.parse(raw);
+    if (d && d.consentimiento && d.consentimiento.version && d.sesion && window.Datos && Datos.declararConsentimiento) {
+      Datos.declararConsentimiento({ sesion: d.sesion, version: d.consentimiento.version });
+    }
     Object.assign(estado, d, { colocado: {}, elegido: null, colocados: estado.colocados || {} });
     if (!Array.isArray(estado.ideasJugador)) estado.ideasJugador = [];
     if (!Array.isArray(estado.predefIds)) estado.predefIds = [];
@@ -364,7 +373,13 @@ function renderPortada() {
       <div class="logo-pendiente">[LOGO JANDIEKUA]<br>[POR DEFINIR]</div>
       <p class="entradilla">Cuatro salas para comprender la originalidad, el formato, la revisión por pares y la ética científica antes de postular un manuscrito.</p>
       <p class="aviso-juego">Mar de las Ideas es un juego formativo. No sustituye el proceso formal de envío y dictaminación de la Revista Jandiekua.</p>
+      <p class="aviso-datos">Es una herramienta de recolección de datos en formato lúdico: tus aportes se guardan en la base de datos de la Revista Jandiekua.</p>
       <button type="button" class="btn-entrar" id="btn-entrar">Entrar al consorcio</button>
+      <p class="enlaces-legales" id="enlaces-portada">
+        <a href="aviso-privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>
+        <span aria-hidden="true">·</span>
+        <a href="terminos.html" target="_blank" rel="noopener">Términos y condiciones</a>
+      </p>
     </section>`;
   $("#btn-entrar").addEventListener("click", () => {
     estado.vista = "sala";
@@ -379,6 +394,8 @@ function renderPortada() {
     estado.aportados = [];
     estado.tituloListo = false;
     estado.tema = "";
+    estado.consentimiento = null;
+    datosBorrados = false;
     estado.conceptosUnicos = 0;
     guardar();
     render();
@@ -391,7 +408,7 @@ async function renderSala() {
   const tanques = p.tanques;
   const claseTanque = s.modo === "orden" ? "tanque orden" : "tanque";
   escena.innerHTML = `
-    <section class="sala" data-sala="${s.id}">
+    <section class="sala${s.tema && !estado.tituloListo ? " pretitulo" : ""}" data-sala="${s.id}">
       <div class="zona zona-reto">
         <p class="kicker">${s.kicker}${s.modo === "pasos" ? ` · Paso ${estado.paso + 1} de ${s.pasos.length}` : ""}</p>
         <h2>${s.nombre}</h2>
@@ -402,9 +419,10 @@ async function renderSala() {
             <label for="tema">Título de tu investigación</label>
             <div class="fila-titulo">
               <input id="tema" type="text" required maxlength="180" value="${escapeAttr(estado.tema)}" placeholder="Escríbelo para habilitar el tanque y el Mar de Ideas.">
-              <button type="button" class="btn-principal" id="btn-registrar-titulo">Registrar título</button>
+              <button type="button" class="btn-principal" id="btn-registrar-titulo" aria-disabled="true" aria-describedby="ayuda-consentimiento">Registrar título</button>
             </div>
             <p class="ayuda-titulo">Es el primer paso del juego y aparecerá en tu reconocimiento con la etiqueta «Título».</p>
+            ${bloqueConsentimiento("acepto-terminos", false)}
           </div>` : ""}
           ${s.tema && estado.tituloListo ? `<p class="titulo-registrado">Título: ${escapeAttr(estado.tema)}</p>` : ""}
         </div>
@@ -447,6 +465,12 @@ async function renderSala() {
     }
     const btnT = $("#btn-registrar-titulo");
     if (btnT) btnT.addEventListener("click", registrarTitulo);
+    const chk = $("#acepto-terminos");
+    if (chk && btnT) {
+      const sync = () => btnT.setAttribute("aria-disabled", chk.checked ? "false" : "true");
+      chk.addEventListener("change", sync);
+      sync();
+    }
     if (!estado.tituloListo && tema) setTimeout(() => $("#tema") && $("#tema").focus(), 200);
   }
 
@@ -480,12 +504,48 @@ async function renderSala() {
   revisarMeta();
 }
 
+const ENLACE_TERMINOS = '<a href="terminos.html" target="_blank" rel="noopener">Términos y condiciones</a>';
+const ENLACE_AVISO = '<a href="aviso-privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>';
+
+// Casilla de consentimiento: siempre sin marcar al mostrarse. Sin ella no se envía ningún dato.
+function bloqueConsentimiento(id, requerida) {
+  return `<div class="consentimiento">
+    <label class="consent-etiqueta" for="${id}">
+      <input type="checkbox" id="${id}" name="${id}"${requerida ? " required" : ""}>
+      <span>He leído y acepto los ${ENLACE_TERMINOS} y el ${ENLACE_AVISO}</span>
+    </label>
+    <p class="consent-ayuda" id="ayuda-consentimiento">Mar de las Ideas es un juego y una herramienta de recolección de datos: tus aportes se guardan en la base de datos de la Revista Jandiekua. Sin marcar la casilla no se envía nada.</p>
+  </div>`;
+}
+
+function registrarConsentimiento() {
+  estado.consentimiento = { version: VERSION_LEGAL, aceptado: new Date().toISOString() };
+  guardar();
+  if (debePersistir() && window.Datos && Datos.aceptarConsentimiento) {
+    return Datos.aceptarConsentimiento({ sesion: asegurarSesion(), version: VERSION_LEGAL })
+      .then((r) => {
+        if (r && r.ok === false) {
+          console.warn("consentimiento", r.error);
+          mostrarToast("No pude guardar tu aceptación en este momento. Puedes seguir jugando; se reintentará.", true);
+        }
+        return r;
+      });
+  }
+  return Promise.resolve({ ok: true, local: true });
+}
+
 function tituloListoAhora() {
   return !salaActual().tema || !!estado.tituloListo;
 }
 function registrarTitulo() {
   const input = $("#tema");
   const v = ((input && input.value) || estado.tema || "").trim();
+  const chk = $("#acepto-terminos");
+  if (!estado.consentimiento && !(chk && chk.checked)) {
+    mostrarToast("Para continuar marca la casilla: acepto los Términos y el Aviso de privacidad.", true);
+    if (chk) chk.focus();
+    return false;
+  }
   if (v.length < 3) {
     mostrarToast("Escribe el título de tu investigación (al menos 3 caracteres).", true);
     if (input) input.focus();
@@ -494,16 +554,22 @@ function registrarTitulo() {
   estado.tema = v;
   estado.tituloListo = true;
   guardar();
-  if (debePersistir() && window.Datos && Datos.aportarConcepto) {
-    Datos.aportarConcepto({
-      texto: v,
-      sala: 1,
-      salaNombre: (salaActual() && salaActual().nombre) || "Túnel de la Originalidad",
-      tipo: "titulo",
-      sesion: asegurarSesion(),
-      tituloInvestigacion: v
-    }).catch((err) => console.warn("titulo", err));
-  }
+  // Primero el consentimiento (version y fecha); el título solo se envía cuando quedó registrado.
+  const consentido = estado.consentimiento ? Promise.resolve({ ok: true }) : registrarConsentimiento();
+  consentido.then(() => {
+    if (debePersistir() && window.Datos && Datos.aportarConcepto) {
+      return Datos.aportarConcepto({
+        texto: v,
+        sala: 1,
+        salaNombre: (salaActual() && salaActual().nombre) || "Túnel de la Originalidad",
+        tipo: "titulo",
+        sesion: asegurarSesion(),
+        tituloInvestigacion: v
+      });
+    }
+  }).catch((err) => console.warn("titulo", err));
+  const zs = document.querySelector(".sala");
+  if (zs) zs.classList.remove("pretitulo");
   const zt = document.querySelector(".zona-tanques");
   const zm = document.querySelector(".zona-mar");
   if (zt) zt.classList.remove("bloqueado");
@@ -1023,6 +1089,7 @@ function avanzar() {
 }
 
 function renderFormulario() {
+  const conConsent = !estado.consentimiento;
   escena.innerHTML = `
     <section class="cierre">
       <p class="aviso-termino">¡Terminaste el juego!</p>
@@ -1033,22 +1100,45 @@ function renderFormulario() {
         <label>Procedencia
           <input name="institucion" type="text" required maxlength="160" value="${escapeAttr(estado.registro.institucion)}" placeholder="Institución o facultad de adscripción" autocomplete="organization">
         </label>
-        <label class="aviso">
-          <input name="aviso" type="checkbox" ${estado.registro.aviso ? "checked" : ""} required>
-          <span>Aviso de privacidad: tu nombre, procedencia y título de investigación se almacenan con fines académicos de la Revista Jandiekua (Agenda Ambiental – UASLP). El aviso integral está [POR DEFINIR].</span>
+        <p class="nota-datos">Tu nombre, tu procedencia, tu título de investigación y tus ideas se guardan en la base de datos de la Revista Jandiekua. Consulta el ${ENLACE_AVISO}. Al terminar podrás descargar o borrar tus datos.</p>
+        ${conConsent ? bloqueConsentimiento("acepto-terminos-cierre", true) : ""}
+        <label class="consent-etiqueta consent-opcional" for="quiero-boletin">
+          <input type="checkbox" id="quiero-boletin" name="boletin">
+          <span>Quiero recibir noticias de la Revista Jandiekua <em>(opcional)</em></span>
+        </label>
+        <label class="campo-correo" id="campo-correo" hidden>Correo para las noticias
+          <input name="correo" id="correo-boletin" type="email" maxlength="254" autocomplete="email" placeholder="correo@ejemplo.org">
+          <small>Cada mensaje de la revista incluirá un enlace para darte de baja. Puedes borrar tu correo con «Borrar mis datos».</small>
         </label>
         <button type="submit" class="btn-principal">Generar reconocimiento</button>
-        <p class="nota-local">El envío real está [POR DEFINIR].</p>
       </form>
     </section>`;
-  $("#form-registro").addEventListener("submit", (e) => {
+  const chkB = $("#quiero-boletin");
+  const campoC = $("#campo-correo");
+  chkB.addEventListener("change", () => {
+    campoC.hidden = !chkB.checked;
+    $("#correo-boletin").required = chkB.checked;
+    if (chkB.checked) $("#correo-boletin").focus();
+  });
+  $("#form-registro").addEventListener("submit", async (e) => {
     e.preventDefault();
     const fd = new FormData(e.target);
+    const boletin = fd.get("boletin") === "on";
+    const correo = boletin ? String(fd.get("correo") || "").trim() : "";
+    if (conConsent) {
+      const c = $("#acepto-terminos-cierre");
+      if (!c || !c.checked) {
+        mostrarToast("Para continuar marca la casilla: acepto los Términos y el Aviso de privacidad.", true);
+        return;
+      }
+      registrarConsentimiento();
+    }
     estado.registro = {
       nombre: fd.get("nombre").trim(),
       institucion: fd.get("institucion").trim(),
-      correo: estado.registro.correo || "",
+      correo: boletin ? correo : "",
       telefono: estado.registro.telefono || "",
+      boletin,
       aviso: true
     };
     estado.tema = estado.tema || "";
@@ -1060,7 +1150,11 @@ function renderFormulario() {
         nombre: estado.registro.nombre,
         procedencia: estado.registro.institucion,
         tituloInvestigacion: estado.tema,
-        claves: estado.aportados
+        claves: estado.aportados,
+        boletin,
+        correo
+      }).then((r) => {
+        if (r && r.ok === false) console.warn("registrarParticipante", r.error);
       }).catch((err) => console.warn("registrarParticipante", err));
     }
     render();
@@ -1073,6 +1167,121 @@ function fechaEmision() {
     day: "numeric", month: "long", year: "numeric"
   });
   return fmt.format(new Date());
+}
+
+// ---------- Tus datos: descargar y borrar ----------
+function datosLocales() {
+  return {
+    descripcion: "Copia local de lo que se capturó en este navegador (no se pudo consultar el servidor o es modo de prueba).",
+    generado: new Date().toISOString(),
+    participaciones: [{
+      sesion: estado.sesion,
+      nombre: estado.registro.nombre || "",
+      procedencia: estado.registro.institucion || "",
+      tituloInvestigacion: estado.tema || "",
+      boletin: !!estado.registro.boletin,
+      correo: estado.registro.correo || "",
+      consentimiento: estado.consentimiento || null
+    }],
+    titulos: estado.tema ? [{ texto: estado.tema, sala: 1 }] : [],
+    aportes: (estado.aportados || []).map((c) => ({ concepto: c, clave: c })),
+    colocaciones: []
+  };
+}
+
+function bajarArchivo(nombre, tipo, contenido) {
+  const blob = new Blob([contenido], { type: tipo });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function estadoDatos(texto, error = false) {
+  const el = $("#estado-datos");
+  if (!el) return;
+  el.textContent = texto;
+  el.classList.toggle("error", !!error);
+}
+
+async function reunirMisDatos() {
+  if (debePersistir() && window.Datos && Datos.descargarMisDatos) {
+    const r = await Datos.descargarMisDatos();
+    if (r && r.ok) return { datos: r.datos, origen: "servidor" };
+  }
+  return { datos: datosLocales(), origen: debePersistir() ? "local-sin-red" : "local-prueba" };
+}
+
+function conectarMisDatos() {
+  const descargar = async (formato) => {
+    estadoDatos("Reuniendo tus datos…");
+    const { datos, origen } = await reunirMisDatos();
+    const base = "Mis_datos_Mar_de_las_Ideas_Jandiekua";
+    if (formato === "json") bajarArchivo(base + ".json", "application/json", JSON.stringify(datos, null, 2));
+    else bajarArchivo(base + ".csv", "text/csv;charset=utf-8", Datos.datosACsv(datos));
+    estadoDatos(
+      origen === "servidor"
+        ? "Listo: descargaste los datos que están guardados."
+        : origen === "local-prueba"
+          ? "Modo de prueba: no se envió nada; descargaste la copia local."
+          : "No pude consultar el servidor; descargaste la copia local de este navegador.",
+      origen === "local-sin-red"
+    );
+  };
+  $("#btn-datos-json").addEventListener("click", () => descargar("json"));
+  $("#btn-datos-csv").addEventListener("click", () => descargar("csv"));
+  $("#btn-datos-borrar").addEventListener("click", abrirConfirmarBorrado);
+}
+
+let enfoqueAntesModal = null;
+function abrirConfirmarBorrado() {
+  const m = $("#modal-borrar");
+  enfoqueAntesModal = document.activeElement;
+  $("#borrar-mensaje").textContent = "";
+  $("#borrar-confirmar").disabled = false;
+  $("#borrar-cancelar").disabled = false;
+  m.hidden = false;
+  $("#borrar-cancelar").focus();
+}
+function cerrarConfirmarBorrado() {
+  const m = $("#modal-borrar");
+  if (m.hidden) return;
+  m.hidden = true;
+  if (enfoqueAntesModal && enfoqueAntesModal.focus) enfoqueAntesModal.focus();
+}
+async function confirmarBorrado() {
+  const msg = $("#borrar-mensaje");
+  $("#borrar-confirmar").disabled = true;
+  $("#borrar-cancelar").disabled = true;
+  msg.textContent = "Borrando tus datos…";
+  let ok = true;
+  let detalle = "";
+  if (debePersistir() && window.Datos && Datos.borrarMisDatos) {
+    const r = await Datos.borrarMisDatos();
+    ok = !!(r && r.ok);
+    if (!ok) detalle = (r && r.error) || "";
+  }
+  if (!ok) {
+    msg.textContent = "No se pudo completar el borrado (" + detalle + "). No se perdió nada; inténtalo de nuevo.";
+    $("#borrar-confirmar").disabled = false;
+    $("#borrar-cancelar").disabled = false;
+    return;
+  }
+  datosBorrados = true;
+  try { localStorage.removeItem("jandiekua-mar-" + VERSION); } catch (err) { /* sin almacenamiento */ }
+  cerrarConfirmarBorrado();
+  ["btn-datos-json", "btn-datos-csv", "btn-datos-borrar"].forEach((id) => {
+    const b = $("#" + id);
+    if (b) b.disabled = true;
+  });
+  estadoDatos(debePersistir()
+    ? "Listo: borramos de la base de datos tu nombre, procedencia, título, ideas y colocaciones, y descontamos tus aportes de los conteos. Tu certificado ya generado no se afecta."
+    : "Modo de prueba: no había nada enviado. Se borró la copia local.");
+  mostrarToast("Tus datos se borraron.");
 }
 
 async function renderDiploma() {
@@ -1088,7 +1297,23 @@ async function renderDiploma() {
         <button type="button" class="btn-descarga" id="btn-descarga">Descargar certificado en PNG</button>
         <a class="btn-envio" id="cta-manuscrito" href="#por-definir">Enviar manuscrito · [POR DEFINIR]</a>
       </div>
+      <section class="mis-datos" aria-labelledby="md-titulo">
+        <h3 id="md-titulo">Tus datos</h3>
+        <p>Tus aportes se guardaron para la base de datos de la Revista Jandiekua. Puedes llevártelos o borrarlos ahora. Aplica a lo que jugaste en este navegador.</p>
+        <div class="acciones-datos">
+          <button type="button" class="btn-datos" id="btn-datos-json">Descargar mis datos (JSON)</button>
+          <button type="button" class="btn-datos" id="btn-datos-csv">Descargar mis datos (CSV)</button>
+          <button type="button" class="btn-datos peligro" id="btn-datos-borrar">Borrar mis datos</button>
+        </div>
+        <p class="estado-datos" id="estado-datos" role="status" aria-live="polite"></p>
+        <p class="enlaces-legales">
+          <a href="aviso-privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>
+          <span aria-hidden="true">·</span>
+          <a href="terminos.html" target="_blank" rel="noopener">Términos y condiciones</a>
+        </p>
+      </section>
     </section>`;
+  conectarMisDatos();
   $("#cta-manuscrito").addEventListener("click", (e) => {
     e.preventDefault();
     mostrarToast("El enlace de envío de manuscritos está [POR DEFINIR].");
@@ -1344,7 +1569,7 @@ function cargarFondoIlustrado() {
 
 Object.assign(window, {
   estado, agregarIdea, agregarIdeasLote, totalIdeasSesion, render, aplicarVistaDesdeURL,
-  ANCHO, ALTO, VERSION, Datos
+  ANCHO, ALTO, VERSION, VERSION_LEGAL, Datos
 });
 if (typeof dibujarCertificado === "function") window.dibujarCertificado = dibujarCertificado;
 
@@ -1365,8 +1590,13 @@ function iniciar() {
   $("#modal-glosario").addEventListener("click", (e) => {
     if (e.target.id === "modal-glosario") cerrarGlosario();
   });
+  $("#borrar-cancelar").addEventListener("click", cerrarConfirmarBorrado);
+  $("#borrar-confirmar").addEventListener("click", confirmarBorrado);
+  $("#modal-borrar").addEventListener("click", (e) => {
+    if (e.target.id === "modal-borrar" && !$("#borrar-confirmar").disabled) cerrarConfirmarBorrado();
+  });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") cerrarGlosario();
+    if (e.key === "Escape") { cerrarGlosario(); if (!$("#borrar-confirmar").disabled) cerrarConfirmarBorrado(); }
   });
   render();
 }

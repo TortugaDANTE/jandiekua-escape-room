@@ -1,0 +1,242 @@
+/* Páginas legales (aviso de privacidad y términos), banner de almacenamiento y diálogo de borrado.
+   Tipografías alojadas en el sitio (sin Google Fonts). Todo está acotado a .pagina-legal,
+   #aviso-almacenamiento y .compacta para no afectar al juego. */
+@font-face {
+  font-family: "Fraunces";
+  src: url("../assets/fonts/Fraunces.woff") format("woff");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Fraunces";
+  src: url("../assets/fonts/Fraunces-Italic.woff") format("woff");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Montserrat";
+  src: url("../assets/fonts/Montserrat.woff") format("woff");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- Banner de almacenamiento (strictly necessary) ---------- */
+#aviso-almacenamiento {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  padding: 0 10px calc(10px + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+}
+#aviso-almacenamiento[hidden] { display: none; }
+#aviso-almacenamiento .caja {
+  pointer-events: auto;
+  width: min(560px, 100%);
+  background: #0b2a4a;
+  color: #F5F7F9;
+  border: 1px solid rgba(224, 180, 60, 0.7);
+  border-radius: 16px;
+  padding: 14px 16px 14px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  font-family: "Montserrat", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  user-select: text;
+  -webkit-user-select: text;
+}
+#aviso-almacenamiento p { margin: 0 0 10px; font-weight: 500; }
+#aviso-almacenamiento strong { font-weight: 700; color: #E0B43C; }
+#aviso-almacenamiento .acciones { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+#aviso-almacenamiento a {
+  color: #E0B43C;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 600;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+#aviso-almacenamiento button {
+  appearance: none;
+  border: 0;
+  min-height: 44px;
+  min-width: 132px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #E0B43C, #C59B27);
+  color: #102438;
+  font: 750 15px "Montserrat", "Segoe UI", system-ui, sans-serif;
+  cursor: pointer;
+}
+#aviso-almacenamiento a:focus-visible,
+#aviso-almacenamiento button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+/* ---------- Diálogo de confirmación de borrado (tamaño real, no escalado) ---------- */
+.modal-carta.compacta { width: min(440px, 92vw); padding: 24px 22px 22px; }
+.modal-carta.compacta h2 { font-size: 26px; line-height: 1.15; }
+.modal-carta.compacta p { font-size: 15px; line-height: 1.5; font-weight: 500; margin-top: 12px; color: #102438; }
+.modal-carta.compacta .borrar-mensaje { min-height: 1.4em; font-weight: 700; color: #003B71; }
+.modal-acciones { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+.btn-modal {
+  appearance: none;
+  flex: 1 1 150px;
+  min-height: 48px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 999px;
+  font: 750 15px "Montserrat", "Segoe UI", system-ui, sans-serif;
+  cursor: pointer;
+}
+.btn-modal.secundario { background: #dfe7e2; color: #102438; }
+.btn-modal.peligro { background: #9b2c2c; color: #fff; }
+.btn-modal:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-modal:focus-visible { outline: 3px solid #003B71; outline-offset: 2px; }
+
+/* ---------- Páginas legales ---------- */
+.pagina-legal {
+  margin: 0;
+  background: radial-gradient(ellipse at 50% 0%, #0c2c4c 0%, #071018 62%) fixed #071018;
+  color: #F5F7F9;
+  font-family: "Montserrat", "Segoe UI", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+.pagina-legal *, .pagina-legal *::before, .pagina-legal *::after { box-sizing: border-box; }
+.pagina-legal .barra-legal {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #003B71;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+}
+.pagina-legal .barra-legal::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2E6B4E, #C59B27 50%, #4A8B68);
+}
+.pagina-legal .barra-legal img { height: 40px; width: auto; max-width: none; display: block; }
+.pagina-legal .documento {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 22px 18px 56px;
+  user-select: text;
+  -webkit-user-select: text;
+}
+.pagina-legal .kicker {
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #E0B43C;
+}
+.pagina-legal h1 {
+  font-family: "Fraunces", Georgia, serif;
+  font-style: italic;
+  font-weight: 550;
+  font-size: 34px;
+  line-height: 1.1;
+  margin: 6px 0 10px;
+  color: #fff;
+}
+.pagina-legal h2 {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
+  font-size: 23px;
+  line-height: 1.2;
+  margin: 34px 0 8px;
+  color: #fff;
+  scroll-margin-top: 72px;
+}
+.pagina-legal h3 { font-size: 16px; font-weight: 750; margin: 18px 0 4px; color: #E0B43C; }
+.pagina-legal p, .pagina-legal li { color: rgba(245, 247, 249, 0.93); font-weight: 450; }
+.pagina-legal p { margin: 8px 0; }
+.pagina-legal ul, .pagina-legal ol { margin: 8px 0 8px 22px; }
+.pagina-legal li { margin: 5px 0; }
+.pagina-legal a { color: #E0B43C; text-underline-offset: 3px; }
+.pagina-legal a:focus-visible { outline: 3px solid #fff; outline-offset: 2px; border-radius: 4px; }
+.pagina-legal .version {
+  font-size: 13px;
+  color: rgba(216, 232, 223, 0.9);
+  border-left: 3px solid #C59B27;
+  padding: 4px 0 4px 12px;
+  margin: 10px 0 16px;
+}
+.pagina-legal .borrador {
+  background: rgba(197, 155, 39, 0.14);
+  border: 1px solid rgba(224, 180, 60, 0.55);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  margin: 14px 0;
+}
+.pagina-legal .pd { background: rgba(224, 180, 60, 0.2); color: #FFE9A8; border-radius: 4px; padding: 0 4px; font-weight: 650; white-space: nowrap; }
+.pagina-legal .pestanas { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 6px; }
+.pagina-legal .pestanas a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(216, 232, 223, 0.45);
+  background: rgba(16, 36, 56, 0.55);
+  color: #D8E8DF;
+  text-decoration: none;
+  font-weight: 650;
+  font-size: 15px;
+}
+.pagina-legal .pestanas a[aria-current="page"], .pagina-legal .pestanas a.activa { background: #C59B27; color: #102438; border-color: #C59B27; }
+.pagina-legal .tarjeta {
+  background: rgba(16, 36, 56, 0.6);
+  border: 1px solid rgba(216, 232, 223, 0.28);
+  border-radius: 16px;
+  padding: 14px 18px 16px;
+  margin: 14px 0;
+}
+.pagina-legal .tarjeta h2 { margin-top: 4px; }
+.pagina-legal .tabla-scroll { overflow-x: auto; margin: 10px 0; border-radius: 12px; border: 1px solid rgba(216, 232, 223, 0.28); }
+.pagina-legal table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 520px; }
+.pagina-legal th, .pagina-legal td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid rgba(216, 232, 223, 0.18); }
+.pagina-legal th { background: rgba(0, 59, 113, 0.75); color: #fff; font-weight: 700; }
+.pagina-legal tr:last-child td { border-bottom: 0; }
+.pagina-legal code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.9em; background: rgba(216, 232, 223, 0.12); padding: 1px 5px; border-radius: 4px; }
+.pagina-legal .volver {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0 4px;
+}
+.pagina-legal .pie-legal {
+  border-top: 1px solid rgba(216, 232, 223, 0.25);
+  margin-top: 40px;
+  padding-top: 16px;
+  font-size: 13px;
+  color: rgba(216, 232, 223, 0.85);
+}
+.pagina-legal .pie-legal a { min-height: 44px; display: inline-flex; align-items: center; margin-right: 14px; }
+@media (min-width: 700px) {
+  .pagina-legal { font-size: 17px; }
+  .pagina-legal h1 { font-size: 44px; }
+  .pagina-legal .barra-legal img { height: 56px; }
+  .pagina-legal .barra-legal { padding: 10px 28px; }
+}
+@media print {
+  .pagina-legal { background: #fff; color: #000; }
+  .pagina-legal .barra-legal, #aviso-almacenamiento { display: none; }
+  .pagina-legal p, .pagina-legal li, .pagina-legal h1, .pagina-legal h2 { color: #000; }
+}

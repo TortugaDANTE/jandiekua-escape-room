@@ -79,7 +79,7 @@ def main():
             args=["--headless=new", "--no-sandbox", "--disable-gpu"],
         )
         page = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&v=20261112k", wait_until="networkidle")
+        page.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&v=20261112m", wait_until="networkidle")
         page.evaluate("localStorage.clear()")
         page.reload(wait_until="networkidle")
         page.wait_for_timeout(400)
@@ -87,6 +87,7 @@ def main():
         page.locator("#btn-entrar").click()
         page.wait_for_selector("#tema")
         page.fill("#tema", "PRUEBA título e2e local 2026-11-12")
+        page.check("#acepto-terminos")
         page.locator("#btn-registrar-titulo").click()
         page.wait_for_function("() => !document.querySelector('.zona-tanques.bloqueado')")
         page.wait_for_selector("#mar[data-listo='1'] #s1-a", state="attached", timeout=20000)
@@ -160,7 +161,6 @@ def main():
             errores.append("falta la pregunta de nombre en el cierre")
         page.fill("input[name=nombre]", "Persona de prueba")
         page.fill("input[name=institucion]", "Institución de prueba")
-        page.check("input[name=aviso]")
         page.locator("#form-registro button[type=submit]").click()
 
         print("diploma")
@@ -175,7 +175,7 @@ def main():
 
         print("estres 200 ideas")
         page2 = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page2.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&vista=sala1&v=20261112k", wait_until="networkidle")
+        page2.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&vista=sala1&v=20261112m", wait_until="networkidle")
         page2.wait_for_selector("#mar[data-listo='1'] #s1-a", state="attached", timeout=20000)
         page2.wait_for_timeout(400)
         page2.evaluate("""async () => {

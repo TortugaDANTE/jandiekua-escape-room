@@ -1019,3 +1019,151 @@ form.registro input[type="tel"] {
   pointer-events: none;
   z-index: 5;
 }
+
+
+/* ---------- v4 · Privacidad y términos: pie, portada, consentimiento y «Tus datos» ---------- */
+.pie { gap: 16px; font-size: 24px; }
+.pie a {
+  color: var(--oro-2);
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  letter-spacing: 0.1em;
+  padding: 12px 4px;
+}
+.pie a:focus-visible { outline: 2px solid var(--oro-2); outline-offset: 2px; }
+.pie-sep { opacity: 0.55; letter-spacing: 0; }
+
+.portada .aviso-datos {
+  margin-top: 14px;
+  max-width: 840px;
+  text-align: center;
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 650;
+  color: var(--oro-2);
+}
+.enlaces-legales {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 14px;
+  margin-top: 8px;
+  font-size: 26px;
+  font-weight: 650;
+  color: var(--espuma);
+}
+.enlaces-legales a {
+  min-height: 124px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--oro-2);
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+.enlaces-legales a:focus-visible { outline: 3px solid var(--oro-2); outline-offset: 2px; border-radius: 12px; }
+
+/* Casilla de consentimiento (sala 1 y cierre) */
+.consentimiento { margin-top: 6px; }
+.consent-etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 124px;
+  font-size: 28px;
+  font-weight: 650;
+  line-height: 1.3;
+  color: var(--abismo);
+  cursor: pointer;
+}
+.consent-etiqueta input[type="checkbox"] {
+  flex: none;
+  color-scheme: light;
+  width: 64px;
+  height: 64px;
+  accent-color: var(--azul);
+  cursor: pointer;
+}
+.consent-etiqueta a { color: var(--azul); text-decoration: underline; font-weight: 800; }
+.consent-etiqueta em { font-weight: 500; font-style: normal; opacity: 0.85; }
+.consent-ayuda {
+  font-size: 22px;
+  line-height: 1.35;
+  font-weight: 550;
+  color: var(--azul);
+}
+#btn-registrar-titulo[aria-disabled="true"] {
+  opacity: 0.45;
+  filter: grayscale(0.4);
+  box-shadow: none;
+}
+/* Mientras falta el título, la tarjeta puede crecer sobre los tanques (están bloqueados) */
+.sala.pretitulo .zona-reto { overflow: visible; z-index: 9; }
+.sala.pretitulo .carta-reto { flex-shrink: 0; overflow: visible; }
+.carta-reto .consent-etiqueta { font-size: 28px; line-height: 1.3; font-weight: 650; min-height: 124px; }
+.carta-reto .consent-ayuda { font-size: 22px; line-height: 1.35; font-weight: 550; }
+.sala.pretitulo .zona-tanques.bloqueado::after { display: none; }
+
+form.registro .nota-datos { font-size: 22px; line-height: 1.4; font-weight: 500; color: var(--espuma); }
+form.registro .nota-datos a { color: var(--oro-2); text-decoration: underline; }
+form.registro label.consent-etiqueta {
+  flex-direction: row;
+  align-items: center;
+  font-size: 26px;
+  color: var(--espuma);
+}
+form.registro label.consent-etiqueta a { color: var(--oro-2); }
+form.registro label.consent-etiqueta input[type="checkbox"] { width: 56px; height: 56px; accent-color: var(--oro); }
+form.registro .consent-ayuda { color: var(--espuma); }
+form.registro .campo-correo small { font-size: 20px; font-weight: 500; opacity: 0.9; line-height: 1.35; }
+form.registro label.campo-correo[hidden] { display: none; }
+
+/* «Tus datos»: descargar y borrar */
+.mis-datos {
+  width: min(760px, 100%);
+  margin-top: 8px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(16, 36, 56, 0.55);
+  border: 1px solid rgba(216, 232, 223, 0.3);
+  border-radius: 24px;
+}
+.mis-datos h3 {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 44px;
+  font-weight: 550;
+  color: #fff;
+}
+.mis-datos p { font-size: 24px; line-height: 1.4; font-weight: 500; color: var(--espuma); }
+.acciones-datos { display: flex; flex-direction: column; gap: 12px; }
+.btn-datos {
+  appearance: none;
+  min-height: 124px;
+  padding: 24px 32px;
+  border-radius: 999px;
+  border: 2px solid var(--oro-2);
+  background: rgba(216, 232, 223, 0.1);
+  color: var(--espuma);
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.btn-datos.peligro { border-color: #E59A9A; background: rgba(155, 44, 44, 0.3); color: #FFE3E3; }
+.btn-datos:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-datos:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.estado-datos { color: var(--oro-2) !important; font-weight: 650 !important; min-height: 1.4em; }
+.estado-datos.error { color: #FFB4B4 !important; }
+.mis-datos .enlaces-legales { margin-top: 0; }
+
+/* v4: el aviso flotante ocupa el ancho necesario (antes se estrechaba a la mitad en móvil) */
+.toast { width: max-content; max-width: min(820px, 92vw); bottom: max(8vh, 24px); }
+
+/* v4: con la sección «Tus datos» el cierre desborda y hace scroll; que nada se encoja (el certificado se recortaba) */
+.cierre > *, .cierre.diploma-vista > * { flex-shrink: 0; }

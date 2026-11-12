@@ -1,0 +1,292 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // v4 (privacidad): cada documento privado lleva el uid de Firebase Authentication
+    // (inicio de sesión anónimo). Solo esa persona puede leerlo o borrarlo, y nada
+    // se escribe sin un registro de consentimiento previo en participantes/{sesion}.
+    function autenticado() {
+      return request.auth != null && request.auth.uid is string;
+    }
+
+    function esDueno() {
+      return autenticado() && resource.data.uid == request.auth.uid;
+    }
+
+    function sesionOk(s) {
+      return s is string
+        && s.size() >= 8
+        && s.size() <= 128
+        && s.matches('^[A-Za-z0-9_-]+$');
+    }
+
+    function salaOk(n) {
+      return n is int && n >= 1 && n <= 4;
+    }
+
+    function tsNow(t) {
+      return t is timestamp && t == request.time;
+    }
+
+    function textoOk(t) {
+      return t is string && t.size() >= 1 && t.size() <= 180;
+    }
+
+    function claveOk(c) {
+      return c is string && c.size() >= 1 && c.size() <= 180;
+    }
+
+    function tanqueOk(t) {
+      return t is string && t.size() >= 1 && t.size() <= 40;
+    }
+
+    function salaNombreOk(s) {
+      return s is string && s.size() >= 1 && s.size() <= 80;
+    }
+
+    function tituloInvOk(t) {
+      return t == null || (t is string && t.size() <= 180);
+    }
+
+    function nombreOk(n) {
+      return n is string && n.size() >= 1 && n.size() <= 120;
+    }
+
+    function procedenciaOk(p) {
+      return p is string && p.size() >= 1 && p.size() <= 160;
+    }
+
+    function consentimientoOk(c) {
+      return c is map
+        && c.keys().hasOnly(['version', 'aceptado'])
+        && c.version is string
+        && c.version.size() >= 1
+        && c.version.size() <= 24
+        && c.aceptado == request.time;
+    }
+
+    function correoOk(c, boletin) {
+      return (boletin == false && c == null)
+        || (boletin == true
+            && (c == null
+                || (c is string && c.size() >= 3 && c.size() <= 254 && c.matches('.+@.+'))));
+    }
+
+    function conceptoKeys(d) {
+      return d.keys().hasOnly(['texto', 'clave', 'salas', 'personas', 'ultimoSesion', 'creado', 'actualizado']);
+    }
+
+    function salasValidas(arr) {
+      return arr is list
+        && arr.size() >= 1
+        && arr.size() <= 4
+        && arr[0] is int && arr[0] >= 1 && arr[0] <= 4
+        && (arr.size() < 2 || (arr[1] is int && arr[1] >= 1 && arr[1] <= 4))
+        && (arr.size() < 3 || (arr[2] is int && arr[2] >= 1 && arr[2] <= 4))
+        && (arr.size() < 4 || (arr[3] is int && arr[3] >= 1 && arr[3] <= 4));
+    }
+
+    function conceptoPath(key) {
+      return /databases/$(database)/documents/conceptos/$(key);
+    }
+
+    function aportePath(key, sid) {
+      return /databases/$(database)/documents/conceptos/$(key)/aportes/$(sid);
+    }
+
+    function participantePath(sid) {
+      return /databases/$(database)/documents/participantes/$(sid);
+    }
+
+    // Hay un participante con consentimiento registrado para esta sesión y es de quien escribe.
+    function consentida(sid) {
+      return autenticado()
+        && sesionOk(sid)
+        && exists(participantePath(sid))
+        && get(participantePath(sid)).data.uid == request.auth.uid
+        && get(participantePath(sid)).data.consentimiento.version is string;
+    }
+
+    match /conceptos/{key} {
+      // Public read of concept text and counts only. Names live under aportes (private).
+      allow read: if true;
+
+      allow create: if conceptoKeys(request.resource.data)
+        && textoOk(request.resource.data.texto)
+        && request.resource.data.clave == key
+        && claveOk(request.resource.data.clave)
+        && request.resource.data.personas == 1
+        && sesionOk(request.resource.data.ultimoSesion)
+        && tsNow(request.resource.data.creado)
+        && tsNow(request.resource.data.actualizado)
+        && salasValidas(request.resource.data.salas)
+        && request.resource.data.salas.size() == 1
+        && !exists(aportePath(key, request.resource.data.ultimoSesion))
+        && existsAfter(aportePath(key, request.resource.data.ultimoSesion))
+        && getAfter(aportePath(key, request.resource.data.ultimoSesion)).data.sesion == request.resource.data.ultimoSesion
+        && request.resource.data.salas[0] == getAfter(aportePath(key, request.resource.data.ultimoSesion)).data.sala;
+
+      allow update: if incrementoOk(key) || decrementoOk(key);
+
+      function incrementoOk(key) {
+        return conceptoKeys(request.resource.data)
+        && request.resource.data.texto == resource.data.texto
+        && request.resource.data.clave == resource.data.clave
+        && request.resource.data.clave == key
+        && request.resource.data.creado == resource.data.creado
+        && tsNow(request.resource.data.actualizado)
+        && request.resource.data.personas == resource.data.personas + 1
+        && sesionOk(request.resource.data.ultimoSesion)
+        && request.resource.data.ultimoSesion != resource.data.ultimoSesion
+        && salasValidas(request.resource.data.salas)
+        && request.resource.data.salas.hasAll(resource.data.salas)
+        && request.resource.data.salas.size() <= resource.data.salas.size() + 1
+        && !exists(aportePath(key, request.resource.data.ultimoSesion))
+        && existsAfter(aportePath(key, request.resource.data.ultimoSesion))
+        && getAfter(aportePath(key, request.resource.data.ultimoSesion)).data.sesion == request.resource.data.ultimoSesion
+        && salaOk(getAfter(aportePath(key, request.resource.data.ultimoSesion)).data.sala)
+        && request.resource.data.salas.hasAll([getAfter(aportePath(key, request.resource.data.ultimoSesion)).data.sala]);
+      }
+
+      // Borrado de datos por la persona participante: baja el conteo en 1 y el aporte
+      // (propio, con su uid) desaparece en el mismo lote. ultimoSesion apunta al aporte borrado.
+      function decrementoOk(key) {
+        return conceptoKeys(request.resource.data)
+          && request.resource.data.texto == resource.data.texto
+          && request.resource.data.clave == resource.data.clave
+          && request.resource.data.creado == resource.data.creado
+          && request.resource.data.salas == resource.data.salas
+          && tsNow(request.resource.data.actualizado)
+          && resource.data.personas >= 1
+          && request.resource.data.personas == resource.data.personas - 1
+          && autenticado()
+          && sesionOk(request.resource.data.ultimoSesion)
+          && exists(aportePath(key, request.resource.data.ultimoSesion))
+          && !existsAfter(aportePath(key, request.resource.data.ultimoSesion))
+          && get(aportePath(key, request.resource.data.ultimoSesion)).data.uid == request.auth.uid;
+      }
+
+      // Limpieza de conceptos que quedaron sin ninguna persona (texto sin vínculo alguno).
+      allow delete: if autenticado() && resource.data.personas == 0;
+
+      match /aportes/{sesion} {
+        // Lectura puntual (get) solo para quien lo creó; nunca listado.
+        allow get: if esDueno();
+        allow list: if false;
+
+        allow create: if request.resource.data.keys().hasOnly(['sesion', 'sala', 'creado', 'uid'])
+          && request.resource.data.sesion == sesion
+          && sesionOk(sesion)
+          && autenticado()
+          && request.resource.data.uid == request.auth.uid
+          && consentida(sesion)
+          && salaOk(request.resource.data.sala)
+          && tsNow(request.resource.data.creado)
+          && existsAfter(conceptoPath(key))
+          && getAfter(conceptoPath(key)).data.ultimoSesion == sesion
+          && (
+            (!exists(conceptoPath(key))
+              && getAfter(conceptoPath(key)).data.personas == 1)
+            ||
+            (exists(conceptoPath(key))
+              && getAfter(conceptoPath(key)).data.personas
+                == get(conceptoPath(key)).data.personas + 1)
+          );
+
+        // Parche único y privado: agrega nombre y procedencia a este mismo aporte.
+        allow update: if esDueno()
+          && resource.data.keys().hasOnly(['sesion', 'sala', 'creado', 'uid'])
+          && request.resource.data.keys().hasOnly(['sesion', 'sala', 'creado', 'uid', 'nombre', 'procedencia'])
+          && request.resource.data.sesion == resource.data.sesion
+          && request.resource.data.sesion == sesion
+          && request.resource.data.uid == resource.data.uid
+          && request.resource.data.sala == resource.data.sala
+          && request.resource.data.creado == resource.data.creado
+          && nombreOk(request.resource.data.nombre)
+          && procedenciaOk(request.resource.data.procedencia)
+          && existsAfter(participantePath(sesion))
+          && getAfter(participantePath(sesion)).data.sesion == sesion
+          && getAfter(participantePath(sesion)).data.nombre == request.resource.data.nombre
+          && getAfter(participantePath(sesion)).data.procedencia == request.resource.data.procedencia;
+
+        // Borrado por su dueño, siempre junto con el descuento del conteo del concepto.
+        allow delete: if esDueno()
+          && existsAfter(conceptoPath(key))
+          && getAfter(conceptoPath(key)).data.personas == get(conceptoPath(key)).data.personas - 1;
+      }
+    }
+
+    match /titulos/{id} {
+      allow create: if autenticado()
+        && request.resource.data.keys().hasOnly([
+          'texto', 'sala', 'salaNombre', 'tipo', 'sesion', 'uid',
+          'tituloInvestigacion', 'creado', 'version'
+        ])
+        && request.resource.data.uid == request.auth.uid
+        && sesionOk(request.resource.data.sesion)
+        && consentida(request.resource.data.sesion)
+        && textoOk(request.resource.data.texto)
+        && salaOk(request.resource.data.sala)
+        && salaNombreOk(request.resource.data.salaNombre)
+        && request.resource.data.tipo == 'titulo'
+        && tituloInvOk(request.resource.data.tituloInvestigacion)
+        && tsNow(request.resource.data.creado)
+        && request.resource.data.version in ['v3', 'v4'];
+      allow get, list, delete: if esDueno();
+      allow update: if false;
+    }
+
+    match /colocaciones/{id} {
+      allow create: if autenticado()
+        && request.resource.data.keys().hasOnly([
+          'clave', 'sesion', 'uid', 'sala', 'tanque', 'creado'
+        ])
+        && request.resource.data.uid == request.auth.uid
+        && sesionOk(request.resource.data.sesion)
+        && consentida(request.resource.data.sesion)
+        && claveOk(request.resource.data.clave)
+        && salaOk(request.resource.data.sala)
+        && tanqueOk(request.resource.data.tanque)
+        && tsNow(request.resource.data.creado);
+      allow get, list, delete: if esDueno();
+      allow update: if false;
+    }
+
+    // Una persona participante por sesión. Se crea al aceptar los Términos y el Aviso de
+    // privacidad (consentimiento con versión y sello de tiempo del servidor) y se completa
+    // una sola vez al final con nombre y procedencia (y, si lo pide, el correo del boletín).
+    match /participantes/{sesion} {
+      allow create: if autenticado()
+        && sesionOk(sesion)
+        && request.resource.data.keys().hasOnly([
+          'sesion', 'uid', 'consentimiento', 'boletin', 'creado'
+        ])
+        && request.resource.data.sesion == sesion
+        && request.resource.data.uid == request.auth.uid
+        && consentimientoOk(request.resource.data.consentimiento)
+        && request.resource.data.boletin == false
+        && tsNow(request.resource.data.creado);
+
+      allow get, list: if esDueno();
+
+      allow update: if esDueno()
+        && !('nombre' in resource.data)
+        && request.resource.data.keys().hasOnly([
+          'sesion', 'uid', 'consentimiento', 'boletin', 'creado',
+          'nombre', 'procedencia', 'tituloInvestigacion', 'correo', 'completado'
+        ])
+        && request.resource.data.sesion == resource.data.sesion
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.consentimiento == resource.data.consentimiento
+        && request.resource.data.creado == resource.data.creado
+        && nombreOk(request.resource.data.nombre)
+        && procedenciaOk(request.resource.data.procedencia)
+        && tituloInvOk(request.resource.data.get('tituloInvestigacion', null))
+        && request.resource.data.boletin is bool
+        && correoOk(request.resource.data.get('correo', null), request.resource.data.boletin)
+        && tsNow(request.resource.data.completado);
+
+      allow delete: if esDueno();
+    }
+  }
+}

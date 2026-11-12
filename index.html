@@ -7,10 +7,14 @@
   <meta name="color-scheme" content="dark">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
+  <link rel="icon" href="data:,">
   <title>Mar de las Ideas · Escape room virtual · Revista Jandiekua</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="description" content="Escape room virtual de inducción a la publicación científica de la Revista Jandiekua, Agenda Ambiental UASLP.">
-  <link rel="stylesheet" href="css/juego.css?v=20261112k">
-  <link rel="stylesheet" href="css/mar_ideas.css?v=20261112k">
+  <link rel="stylesheet" href="css/juego.css?v=20261112m">
+  <link rel="stylesheet" href="css/mar_ideas.css?v=20261112m">
+  <link rel="stylesheet" href="css/legal.css?v=20261112m">
 </head>
 <body>
   <div id="escenario">
@@ -31,7 +35,7 @@
 
       <main id="escena"></main>
 
-      <footer class="pie">ext. 7200 y 7210</footer>
+      <footer class="pie"><span>ext. 7200 y 7210</span><span class="pie-sep" aria-hidden="true">·</span><a href="aviso-privacidad.html" target="_blank" rel="noopener">privacidad</a><span class="pie-sep" aria-hidden="true">·</span><a href="terminos.html" target="_blank" rel="noopener">términos</a></footer>
       <div id="capa-arrastre" aria-hidden="true"></div>
     </div>
   </div>
@@ -47,8 +51,21 @@
     </div>
   </div>
 
+  <div id="modal-borrar" class="modal" hidden role="alertdialog" aria-modal="true" aria-labelledby="borrar-titulo" aria-describedby="borrar-texto">
+    <div class="modal-carta compacta">
+      <h2 id="borrar-titulo">¿Borrar tus datos?</h2>
+      <p id="borrar-texto">Se eliminarán de la base de datos de la Revista Jandiekua tu nombre, tu procedencia, tu título de investigación, tus ideas y tus colocaciones, y se descontará tu aporte de los conteos. No se puede deshacer. El certificado que ya generaste no se afecta.</p>
+      <p id="borrar-mensaje" class="borrar-mensaje" role="status" aria-live="polite"></p>
+      <div class="modal-acciones">
+        <button type="button" class="btn-modal secundario" id="borrar-cancelar">Cancelar</button>
+        <button type="button" class="btn-modal peligro" id="borrar-confirmar">Sí, borrar mis datos</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast" hidden role="status"></div>
-  <script src="js/mar_ideas.js?v=20261112k"></script>
-  <script type="module" src="js/juego.js?v=20261112k"></script>
+  <script src="js/legal.js?v=20261112m"></script>
+  <script src="js/mar_ideas.js?v=20261112m"></script>
+  <script type="module" src="js/juego.js?v=20261112m"></script>
 </body>
 </html>
