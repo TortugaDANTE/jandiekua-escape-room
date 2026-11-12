@@ -3,21 +3,9 @@
 
 const ANCHO = 1080;
 const ALTO = 2022;
-const VERSION = "20261112a";
+const VERSION = "20261112b";
 
-const ICONO_LLAVE = `
-<svg viewBox="0 0 64 64" aria-hidden="true">
-  <defs>
-    <linearGradient id="oroLlave" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#F3E3A4"/>
-      <stop offset="45%" stop-color="#C59B27"/>
-      <stop offset="100%" stop-color="#8A6A12"/>
-    </linearGradient>
-  </defs>
-  <circle cx="24" cy="22" r="13" fill="none" stroke="url(#oroLlave)" stroke-width="5"/>
-  <circle cx="24" cy="22" r="5" fill="url(#oroLlave)"/>
-  <path d="M34 26 L56 48 L50 54 L46 50 L42 54 L38 50 L44 44 L36 36 Z" fill="url(#oroLlave)"/>
-</svg>`;
+const NOM_LLAVE = ["pertinencia", "estructura", "validacion", "definitiva"];
 
 const GLOSARIO = [
   {
@@ -234,7 +222,8 @@ function cargar() {
 function svgLlaves() {
   const ol = $("#llaves");
   ol.innerHTML = SALAS.map((s, i) =>
-    `<li class="llave${estado.llaves[i] ? " obtenida" : ""}" title="${s.llave}">${ICONO_LLAVE.replaceAll("oroLlave", "oroLlave" + i)}</li>`
+    `<li class="llave${estado.llaves[i] ? " obtenida" : ""}" title="${s.llave}" aria-label="${s.llave}: ${estado.llaves[i] ? "obtenida" : "bloqueada"}">` +
+    `<img src="assets/disenografico/llave_${i + 1}_${NOM_LLAVE[i]}${estado.llaves[i] ? "" : "_bloqueada"}.svg" alt=""></li>`
   ).join("");
 }
 
@@ -315,6 +304,7 @@ function renderSala() {
       <div class="zona zona-tanques" id="zona-tanques">
         ${tanques.map((t) => `
           <div class="${claseTanque}" data-tanque="${t.id}" id="${t.id}">
+            ${s.modo !== "orden" ? `<div class="agua"><img src="assets/disenografico/tanque_agua.svg" alt=""></div>` : ""}
             <h3>${t.etiqueta}</h3>
             <div class="tanque-cuerpo"><span class="pista-tanque">Suelta aquí</span></div>
           </div>`).join("")}
@@ -339,6 +329,7 @@ function renderSala() {
   const nodos = p.nodos.filter((n) => !estado.colocados[n.id]);
   const colocados = p.nodos.filter((n) => estado.colocados[n.id]);
   colocados.forEach((n) => ponerFicha(n, estado.colocados[n.id]));
+  tanques.forEach((tk) => actualizarTanque(tk.id));
 
   const layout = distribuirNodos(nodos, mar);
   nodos.forEach((n, i) => {
@@ -351,7 +342,7 @@ function renderSala() {
     el.style.width = "max-content";
     mar.appendChild(el);
     // measure after insert
-    const w = Math.min(el.offsetWidth, 300);
+    const w = Math.min(el.offsetWidth, 320);
     const h = el.offsetHeight;
     const vivo = {
       data: n,
@@ -589,7 +580,26 @@ function ponerFicha(n, tanqueId) {
   f.className = "ficha";
   f.textContent = n.texto;
   cuerpo.appendChild(f);
-  document.getElementById(tanqueId).classList.add("lleno");
+  actualizarTanque(tanqueId);
+}
+
+function actualizarTanque(tanqueId) {
+  const caja = document.getElementById(tanqueId);
+  if (!caja) return;
+  const s = salaActual();
+  const p = pasoActual();
+  const validosNecesarios = s.modo === "orden"
+    ? 1
+    : p.nodos.filter((n) => n.valido && (!n.tanque || n.tanque === tanqueId)).length;
+  const validosColocados = p.nodos.filter((n) => n.valido && estado.colocados[n.id] === tanqueId).length;
+  if (s.modo !== "orden") {
+    caja.style.setProperty("--nivel", String(validosNecesarios ? validosColocados / validosNecesarios : 0));
+  }
+  if (validosNecesarios > 0 && validosColocados >= validosNecesarios) {
+    caja.classList.add("lleno");
+  } else {
+    caja.classList.remove("lleno");
+  }
 }
 
 function revisarMeta() {
@@ -704,7 +714,8 @@ function fechaEmision() {
 async function renderDiploma() {
   escena.innerHTML = `
     <section class="cierre diploma-vista">
-      <div class="insignia" aria-hidden="true"><strong>[POR DEFINIR]</strong></div>
+      <img class="insignia" src="assets/disenografico/insignia.svg" alt="" aria-hidden="true">
+      <p class="leyenda-insignia">[POR DEFINIR]</p>
       <h2>Reconocimiento</h2>
       <p class="lead">Revista Jandiekua · Revista Mexicana de Educación Ambiental<br>Agenda Ambiental · UASLP</p>
       <div id="certificado-marco"><p style="padding:24px;color:#102438;text-align:center">Preparando el certificado…</p></div>
@@ -743,7 +754,12 @@ async function dibujarCertificado() {
   ]);
   const logo = new Image();
   logo.src = "assets/logos/logo_banner_blanco.png";
-  await new Promise((res, rej) => { logo.onload = res; logo.onerror = rej; });
+  const sello = new Image();
+  sello.src = "assets/disenografico/insignia_sello.svg";
+  await Promise.all([
+    new Promise((res, rej) => { logo.onload = res; logo.onerror = rej; }),
+    new Promise((res, rej) => { sello.onload = res; sello.onerror = rej; })
+  ]);
 
   const W = 1080, H = 1350;
   const c = document.createElement("canvas");
@@ -810,25 +826,26 @@ async function dibujarCertificado() {
   ctx.fillStyle = "#102438";
   ctx.fillText("por completar el recorrido formativo del escape room virtual.", W / 2, 800);
 
-  ctx.font = "italic 30px Fraunces";
-  ctx.fillStyle = "#C59B27";
-  ctx.fillText("Insignia  [POR DEFINIR]", W / 2, 860);
+  ctx.drawImage(sello, W / 2 - 62, 806, 124, 124);
+  ctx.font = "700 16px Montserrat";
+  ctx.fillStyle = "#4A8B68";
+  ctx.fillText("[POR DEFINIR]", W / 2, 948);
 
   if (estado.tema) {
     ctx.font = "500 20px Montserrat";
     ctx.fillStyle = "#2E6B4E";
-    wrapText(ctx, "Tema de investigación: " + estado.tema, W / 2, 910, W - 200, 28);
+    wrapText(ctx, "Tema de investigación: " + estado.tema, W / 2, 970, W - 200, 28);
   }
 
   ctx.font = "400 18px Montserrat";
   ctx.fillStyle = "#102438";
   wrapText(ctx,
     "Este reconocimiento acredita que quien participa comprendió las directrices clave del proceso editorial y puede iniciar una postulación. No garantiza la aceptación del manuscrito, sujeta a la dictaminación por pares.",
-    W / 2, 1000, W - 200, 26);
+    W / 2, 1050, W - 200, 26);
 
   ctx.font = "500 18px Montserrat";
   ctx.fillStyle = "#003B71";
-  ctx.fillText("Fecha de emisión: " + fechaEmision(), W / 2, 1110);
+  ctx.fillText("Fecha de emisión: " + fechaEmision(), W / 2, 1140);
 
   ctx.fillStyle = "#003B71";
   ctx.fillRect(0, H - 70, W, 70);
@@ -906,9 +923,28 @@ function aplicarVistaDesdeURL() {
   return false;
 }
 
+function cargarFondoIlustrado() {
+  const caja = $("#fondo");
+  if (!caja || foto) return;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  fetch("assets/disenografico/fondo_mar.svg")
+    .then((r) => r.text())
+    .then((txt) => {
+      caja.innerHTML = txt;
+      const svg = caja.querySelector("svg");
+      if (svg) {
+        svg.removeAttribute("width");
+        svg.removeAttribute("height");
+        svg.setAttribute("preserveAspectRatio", "none");
+      }
+    })
+    .catch(() => { /* se conserva la imagen estática */ });
+}
+
 function iniciar() {
   escalaLienzo();
   window.addEventListener("resize", escalaLienzo);
+  cargarFondoIlustrado();
   if (!aplicarVistaDesdeURL()) cargar();
   if (!["portada", "sala", "cierre-form", "cierre-diploma"].includes(estado.vista)) {
     estado.vista = "portada";

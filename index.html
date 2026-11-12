@@ -9,45 +9,14 @@
   <meta http-equiv="Pragma" content="no-cache">
   <title>Mar de las Ideas · Escape room virtual · Revista Jandiekua</title>
   <meta name="description" content="Escape room virtual de inducción a la publicación científica de la Revista Jandiekua, Agenda Ambiental UASLP.">
-  <link rel="stylesheet" href="css/juego.css?v=20261112a">
+  <link rel="stylesheet" href="css/juego.css?v=20261112b">
 </head>
 <body>
   <div id="escenario">
     <div id="lienzo" role="application" aria-label="Mar de las Ideas, escape room virtual de la Revista Jandiekua">
-      <svg id="fondo" viewBox="0 0 1080 2022" preserveAspectRatio="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="gCielo" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0a2a4a"/>
-            <stop offset="38%" stop-color="#102438"/>
-            <stop offset="100%" stop-color="#07131f"/>
-          </linearGradient>
-          <linearGradient id="gHaz" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#d8e8df" stop-opacity="0.22"/>
-            <stop offset="100%" stop-color="#d8e8df" stop-opacity="0"/>
-          </linearGradient>
-          <linearGradient id="gMar" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#2e6b4e" stop-opacity="0"/>
-            <stop offset="100%" stop-color="#2e6b4e" stop-opacity="0.35"/>
-          </linearGradient>
-          <filter id="grano">
-            <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
-            <feColorMatrix type="luminanceToAlpha"/>
-            <feComponentTransfer><feFuncA type="linear" slope="0.08"/></feComponentTransfer>
-          </filter>
-        </defs>
-        <rect width="1080" height="2022" fill="url(#gCielo)"/>
-        <path d="M260 -20 L430 2022 L620 2022 L520 -20 Z" fill="url(#gHaz)"/>
-        <path d="M700 -20 L780 2022 L910 2022 L860 -20 Z" fill="url(#gHaz)" opacity="0.55"/>
-        <path d="M-40 1480 C 180 1420, 320 1580, 520 1520 C 740 1450, 900 1600, 1120 1520 L 1120 2022 L -40 2022 Z" fill="url(#gMar)"/>
-        <path class="ola ola-a" d="M-40 1680 C 160 1620, 300 1760, 520 1700 C 760 1630, 940 1780, 1120 1710" fill="none" stroke="#4a8b68" stroke-opacity="0.35" stroke-width="3"/>
-        <path class="ola ola-b" d="M-40 1760 C 200 1840, 380 1700, 600 1780 C 820 1860, 980 1740, 1120 1810" fill="none" stroke="#d8e8df" stroke-opacity="0.18" stroke-width="2"/>
-        <g id="burbujas-svg" fill="#d8e8df" fill-opacity="0.28">
-          <circle cx="90" cy="1540" r="5"/><circle cx="140" cy="1710" r="3"/>
-          <circle cx="980" cy="1600" r="4"/><circle cx="920" cy="1800" r="6"/>
-          <circle cx="240" cy="1880" r="3"/><circle cx="800" cy="1920" r="2.5"/>
-        </g>
-        <rect width="1080" height="2022" filter="url(#grano)" opacity="0.35"/>
-      </svg>
+      <div id="fondo" aria-hidden="true">
+        <img src="assets/disenografico/fondo_mar.svg" alt="">
+      </div>
 
       <header class="barra">
         <img src="assets/logos/logo_banner_blanco.png" width="2890" height="590" alt="Universidad Autónoma de San Luis Potosí y Agenda Ambiental">
@@ -76,6 +45,6 @@
   </div>
 
   <div id="toast" class="toast" hidden role="status"></div>
-  <script src="js/juego.js?v=20261112a"></script>
+  <script src="js/juego.js?v=20261112b"></script>
 </body>
 </html>
