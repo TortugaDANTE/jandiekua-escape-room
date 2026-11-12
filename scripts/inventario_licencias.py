@@ -26,6 +26,7 @@ REGLAS = [
     (r"^docs/fuentes/.*\.md$", "Documento fuente", "Copia de Google Docs internos de la Agenda Ambiental / Revista", "Interna: autoría y publicación pública [POR DEFINIR]", "VERIFICAR"),
     (r"^docs/.*", "Documento", "Proyecto", "Sin licencia declarada [POR DEFINIR]", "OK*"),
     (r"^preview/.*\.png$", "Captura", "Del proyecto (capturas del juego; muestran los logotipos)", "Derechos reservados del proyecto; logotipos: ver arriba", "OK*"),
+    (r"^js/textos_sala2\.js$", "Datos: citas de la Revista Jandiekua", "10 fragmentos textuales de artículos de la Revista Jandiekua (leka.uaslp.mx), con su fuente", "CC BY-NC-ND 4.0 de sus autores; el juego muestra versiones alteradas (SinDerivadas): permiso por confirmar [POR DEFINIR]", "VERIFICAR"),
     (r"^(js|css)/.*|^index\.html$|^prototipo/.*|^aviso-privacidad\.html$|^terminos\.html$", "Código del juego", "Proyecto (propio; sin librerías de terceros)", "Sin licencia declarada [POR DEFINIR]", "OK*"),
     (r"^firebase/.*", "Reglas y pruebas de Firestore", "Proyecto (reglas propias; sin código de terceros)", "Sin licencia declarada [POR DEFINIR]", "OK*"),
     (r"^\.gitignore$", "Configuración", "Proyecto", "Sin relevancia (configuración)", "OK"),

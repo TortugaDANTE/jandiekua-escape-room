@@ -38,7 +38,12 @@ const Peces = (() => {
     ctxMedida.font = "650 " + f + 'px Montserrat, "Segoe UI", system-ui, sans-serif';
     return ctxMedida.measureText(t).width;
   }
-  function medir(texto, personas, compacto) {
+  function medir(texto, personas, compacto, glifo) {
+    if (glifo) { // pez de signo: un solo carácter grande sobre un cuerpo pequeño
+      const fp = 92, fc = 64, tw = Math.max(40, Math.ceil(anchoTexto(texto, fp)));
+      const H = Math.round(fc * 2.05), t = Math.round(H * 0.46), W = t + Math.round(H * 0.14) + tw + Math.round(H * 0.46);
+      return { font: fp, lineas: [texto], tw, H, t, W, B: W - t };
+    }
     const font = personas >= 5 ? 36 : personas >= 3 ? 35 : FONT_MIN;
     let lineas = [texto], tw = Math.ceil(anchoTexto(texto, font));
     if (texto.includes(" ") && tw > (compacto ? 190 : 250)) {
@@ -77,10 +82,10 @@ const Peces = (() => {
 
   function construirEl(f) {
     const el = document.createElement("div");
-    el.className = "pez";
+    el.className = "pez" + (f.glifo ? " glifo" : "");
     el.tabIndex = 0;
     el.setAttribute("role", "button");
-    el.setAttribute("aria-label", "Pez: " + f.texto + (f.personas >= 2 ? ", " + f.personas + " personas" : "") + ". Toca para añadirlo al título.");
+    el.setAttribute("aria-label", f.glifo ? "Pez con el signo " + (f.etiqueta || f.texto) + ". Arrástralo al texto." : "Pez: " + f.texto + (f.personas >= 2 ? ", " + f.personas + " personas" : "") + ". Toca para añadirlo al título.");
     el.dataset.clave = f.clave;
     el.style.width = f.m.W + "px";
     el.style.height = f.m.H + "px";
@@ -167,20 +172,20 @@ const Peces = (() => {
     const prioridad = !!(op.caer || op.forzar);
     const io = ocultos.findIndex((o) => o.clave === clave);
     if (io >= 0) { const o = ocultos.splice(io, 1)[0]; d = Object.assign({}, o, d, { personas: Math.max(o.personas || 1, d.personas || 1) }); }
-    const mAprox = medir(d.texto, Math.max(1, d.personas || 1), compacto());
-    if (!prioridad && usado() + areaDe(mAprox) > capacidad()) {
+    const mAprox = medir(d.texto, Math.max(1, d.personas || 1), compacto(), !!d.glifo);
+    if (!op.sinTope && !prioridad && usado() + areaDe(mAprox) > capacidad()) {
       ocultos.push({ clave, texto: d.texto, elemento: d.elemento || null, personas: Math.max(1, d.personas || 1) });
       avisarOcultos();
       return null;
     }
     const f = {
-      clave, texto: d.texto, elemento: d.elemento || null, personas: Math.max(1, d.personas || 1),
+      clave, texto: d.texto, elemento: d.elemento || null, personas: Math.max(1, d.personas || 1), glifo: !!d.glifo, etiqueta: d.etiqueta || null, datos: d.datos || null,
       dir: rnd() < 0.5 ? -1 : 1, estado: "nada", x: 0, y: 0, vx: 0, vy: 0, ang: 0, fase: rnd() * 6.28, om: 0.6 + rnd() * 0.8,
       v: 16 + rnd() * 26, tx: 0, ty: 0, tNext: 0, paso: 0, nuevo: !!op.caer
     };
     f.m = mAprox;
     construirEl(f);
-    if (prioridad) { let g = 40; while (g-- > 0 && usado() + areaDe(f.m) > capacidad() && ocultarMenosPopular()); }
+    if (prioridad && !op.sinTope) { let g = 40; while (g-- > 0 && usado() + areaDe(f.m) > capacidad() && ocultarMenosPopular()); }
     C.caja.appendChild(f.el);
     const l = limites(f);
     if (op.caer) {
@@ -227,7 +232,7 @@ const Peces = (() => {
   function actualizar(clave, d) {
     const f = lista.find((p) => p.clave === clave);
     if (!f) return null;
-    if (d.personas && d.personas !== f.personas) { f.personas = d.personas; f.m = medir(f.texto, f.personas, compacto()); refrescar(f); }
+    if (d.personas && d.personas !== f.personas) { f.personas = d.personas; f.m = medir(f.texto, f.personas, compacto(), f.glifo); refrescar(f); }
     if (d.elemento && !f.elemento) { f.elemento = d.elemento; refrescar(f); }
     eco(f);
     return f;
@@ -242,7 +247,7 @@ const Peces = (() => {
     medirOrigen();
     const comp = compacto();
     lista.forEach((f) => {
-      const m = medir(f.texto, f.personas, comp);
+      const m = medir(f.texto, f.personas, comp, f.glifo);
       if (m.W !== f.m.W || m.H !== f.m.H) { f.m = m; refrescar(f); }
       const l = limites(f);
       f.x = clamp(f.x, l.x0, l.x1); f.y = clamp(f.y, l.y0, l.y1); f.tx = f.x; f.ty = f.y;
@@ -394,7 +399,11 @@ const Peces = (() => {
           const q = puntoArrastre(ev, a);
           C.lienzo.classList.remove("arrastrando");
           if (C.barra) C.barra.classList.remove("recibiendo");
-          if (!cancel && C.sobreBarra && C.sobreBarra(q)) { C.alPescar(f, q); return; }
+          if (C.alMover) C.alMover(null, f);
+          if (!cancel && C.sobreBarra && C.sobreBarra(q)) {
+            if (C.alPescar(f, q) === false) rebote(f);
+            return;
+          }
           volver(f, !cancel && C.sobreTanque && C.sobreTanque(q) ? q : null);
         } else if (!cancel && !a.larga) {
           C.alToque && C.alToque(f);
@@ -426,7 +435,13 @@ const Peces = (() => {
     const f = arr.f, p = puntoArrastre(e, arr);
     f.x = p.x - C.ox; f.y = p.y - C.oy;
     dibujar(f);
+    if (C.alMover) C.alMover(p, f);
     if (Math.hypot(p.x - arr.ultB.x, p.y - arr.ultB.y) > 22) { arr.ultB = p; burbujaCapa(p.x - f.dir * f.m.W * 0.35, p.y + 6); }
+  }
+  /* Soltado en un sitio equivocado: el pez se sacude y vuelve nadando al tanque. */
+  function rebote(f) {
+    f.el.classList.add("rebote");
+    setTimeout(() => { f.el.classList.remove("rebote"); if (lista.includes(f)) volver(f, null); }, 520);
   }
   function volver(f, p) {
     f.padre = "mar"; f.escala = 0; f.estado = "nada";

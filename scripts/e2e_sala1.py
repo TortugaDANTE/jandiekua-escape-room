@@ -45,6 +45,10 @@ def check(nombre, cond, detalle=""):
     print(f"  [{'PASS' if cond else 'FAIL'}] {nombre}" + (f" — {detalle}" if (detalle and not cond) else ""))
 
 
+def document_has(page, sel):
+    return page.locator(sel).count() > 0
+
+
 def centro(page, sel):
     b = page.locator(sel).first.bounding_box()
     return b["x"] + b["width"] / 2, b["y"] + b["height"] / 2
@@ -210,10 +214,10 @@ def main():
         page.wait_for_selector("#btn-continuar", timeout=10000)
         check("al recargar se conserva el título registrado", page.evaluate("() => estado.tituloListo && estado.tituloPartes.length > 10"))
         page.click("#btn-continuar")
-        page.wait_for_selector(".sala:not(.sala-peces)")
+        page.wait_for_selector(".sala-signos")
         page.wait_for_timeout(900)
         check("«Continuar» lleva a la Sala 2 (Laberinto del Formato)", "Laberinto del Formato" in page.locator("#escena").inner_text())
-        check("en la Sala 2 vuelven la franja de llaves y el pie", page.evaluate("() => getComputedStyle(document.querySelector('.franja-llaves')).display") != "none")
+        check("la Sala 2 usa el mismo diseño de tanque a pantalla completa (sin franja ni pie)", page.evaluate("() => getComputedStyle(document.querySelector('.franja-llaves')).display") == "none" and document_has(page, ".sala-signos .tanque-peces"))
         check("la llave 1 figura obtenida", page.locator(".llave.obtenida").count() == 1)
         page.screenshot(path=str(OUT / "10_sala2.png"))
         nav.close()

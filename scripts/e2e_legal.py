@@ -31,7 +31,7 @@ PORT = 8894
 EMU = "http://127.0.0.1:8080"
 PROJECT = "jandiekua-escape-room"
 DOCS = f"{EMU}/v1/projects/{PROJECT}/databases/(default)/documents"
-CB = "20261113a"
+CB = "20261113b"
 RESULTADOS = []
 PETICIONES = []     # (método, host, ruta, ¿con Authorization?)
 BLOQUEADAS = []
@@ -269,8 +269,12 @@ def main():
         check("al recargar los peces vuelven del servidor (solo los que tienen elemento)", page.evaluate("() => Peces.total()") == 8, page.evaluate("() => Peces.total()"))
         page.screenshot(path=str(OUT / "03_sala1_peces_del_servidor.png"))
         page.click("#btn-continuar")
+        page.wait_for_selector("#texto-s2 .gap", timeout=15000)
+        page.wait_for_timeout(1200)
+        check("la Sala 2 (signos y mayúsculas) no escribe nada en la base", len(coleccion("colocaciones")) == 0)
+        page.evaluate("() => { estado.sala = 2; estado.paso = 0; estado.vista = 'sala'; render(); }")  # las ideas y colocaciones ahora viven en la Sala 3
         page.wait_for_selector("#nueva-idea")
-        page.wait_for_selector("#mar[data-listo='1'] #n-titulo", state="attached", timeout=20000)
+        page.wait_for_selector("#mar[data-listo='1'] #p1-a", state="attached", timeout=20000)
 
         print("Ideas y colocaciones")
         page.fill("#nueva-idea", "Agua")
@@ -283,9 +287,9 @@ def main():
         check("«Agua» ya existía: ahora cuenta 2 personas", agua and campo(agua[0], "personas") == "2", agua and campo(agua[0], "personas"))
         propia = [d for d in coleccion("conceptos") if d["name"].endswith("/idea%20propia%20de%20prueba") or "propia" in d["name"]]
         check("la idea propia se creó con 1 persona", propia and campo(propia[0], "personas") == "1")
-        soltar(page, "n-titulo", "t-titulo")
+        soltar(page, "p1-a", "t-pares-1")
         page.wait_for_timeout(800)
-        check("1 colocación guardada (Sala 2)", len(coleccion("colocaciones")) == 1, len(coleccion("colocaciones")))
+        check("1 colocación guardada (Sala 3)", len(coleccion("colocaciones")) == 1, len(coleccion("colocaciones")))
         page.evaluate("() => { estado.vista = 'cierre-form'; render(); }")
         page.wait_for_selector("#form-registro")
         page.wait_for_timeout(500)

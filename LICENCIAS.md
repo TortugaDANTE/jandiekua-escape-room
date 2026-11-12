@@ -17,6 +17,7 @@ Fecha de la auditoría: 12 de noviembre de 2026 (rama `imagen-institucional`). L
 | 6 | **Logotipo de la Revista Jandiekua**: se usa el archivo **publicado por la revista** (`assets/logos/jandiekua_homepageImage_en_US.png`), tal cual, sobre una tarjeta blanca en la portada. Su fuente es pública, pero **no hay licencia de uso del logotipo declarada**. | Media | Confirmar con el equipo editorial de la Revista Jandiekua el permiso de uso de su identidad gráfica (los artículos son CC BY-NC-ND 4.0; eso no cubre necesariamente el logotipo) **[POR DEFINIR]**. Pedir un SVG o una versión en blanco oficial si se quiere usar sobre fondo oscuro. |
 | 7 | **Tipografías**: Montserrat y Fraunces son SIL OFL 1.1 y se alojan en el sitio. Faltaban los textos de licencia; **ya se incluyeron** (`assets/fonts/OFL-*.txt`). La nota anterior decía «recortes»; en realidad son variables con subconjunto latino (permitido por la OFL). | Resuelto | — |
 | 8 | **Clave de API de Firebase** visible en `js/datos.js`. Es una clave pública de cliente (no es un secreto), pero conviene limitarla. | Informativa | En Google Cloud Console → Credenciales, restringirla por referente HTTP al dominio del juego y a las API de Firestore, Identity Toolkit y Token Service. |
+| 9 | **Fragmentos de la Revista Jandiekua en la Sala 2** (`js/textos_sala2.js`): son citas breves y textuales de artículos publicados en leka.uaslp.mx, que declaran la licencia **CC BY-NC-ND 4.0** (Atribución-NoComercial-SinDerivadas). Atribución y uso no comercial se cumplen (fuente en pantalla y en `terminos.html`), pero el juego **muestra versiones alteradas** (se les quitan signos y mayúsculas para que se restituyan), lo que podría considerarse una adaptación y la cláusula SinDerivadas no la permite sin autorización. | Media | Obtener permiso escrito del equipo editorial de la Revista y de las personas autoras **[POR DEFINIR]**, o sustituir por textos propios / con licencia que permita adaptaciones. |
 
 Sin problemas de licencia: no hay bibliotecas JavaScript ni CDN, no hay Google Fonts, no hay sonidos, no hay íconos de terceros.
 
@@ -57,6 +58,23 @@ Los logotipos también aparecen dentro de las capturas (`preview/*`, `assets/dis
 | `docs/fuentes/banner4_stand_mockup.jpg` | **Origen desconocido** (foto de pantalla del stand) | **Desconocida → VERIFICAR** |
 | Íconos / sprites / emojis de terceros | No hay | — |
 
+## 4b. Fragmentos de texto de la Revista Jandiekua (Sala 2)
+
+Cada partida muestra 4 de estos 10 fragmentos, **copiados sin cambios** de los resúmenes publicados en <https://leka.uaslp.mx/index.php/jandiekua/> (consultados el 2026-11-12). Los artículos declaran la licencia **CC BY-NC-ND 4.0**; los derechos son de sus autores. Se usan citas breves, con fuente visible en el juego («Fragmento de Jandiekua, vol. X, núm. Y (año)»), con fines educativos y no comerciales. En pantalla se les quitan algunos signos de puntuación o una mayúscula para el ejercicio; ver el hallazgo 9 (SinDerivadas). Verificación textual: `python3 scripts/verificar_textos_sala2.py`.
+
+| Id | Artículo | Autoría | Número | URL |
+| --- | --- | --- | --- | --- |
+| `f272` | Integrando saberes en el proyecto Ambientarte: Educación Ambiental y Expresión Artística | María Herminia Ostoa Escudero | vol. 7, núm. 9 (2023) | <https://leka.uaslp.mx/index.php/jandiekua/article/view/272> |
+| `f616` | Resiliencia de las áreas naturales protegidas ante las especies invasoras: desafíos para la conservación de la biodiversidad | Jorge E. Ramírez-Albores, Marlín Pérez-Suárez | vol. 8, núm. 10 (2024) | <https://leka.uaslp.mx/index.php/jandiekua/article/view/616> |
+| `f406` | Mejorar la gestión de residuos a través de la educación ambiental estratégica | Emily Miner, Marcos Algara Siller, Johannes Hamhaber, Leonardo Ernesto Márquez Mireles | vol. 7, núm. 9 (2023) | <https://leka.uaslp.mx/index.php/jandiekua/article/view/406> |
+| `f840` | Introducción al Dossier "Claves para la formación de científicos ambientales" | Gerardo Morales Jasso, Mariana Buendía Oliva | vol. 9, núm. especial (2025) | <https://leka.uaslp.mx/index.php/jandiekua/article/view/840> |
+| `f794` | Concurso de fotografía "Ingenieros en el ambiente" | Marlene Retes Quistian, Jorge Puente, Karla Daniela García Silva | vol. 8, núm. 10 (2024) | <https://leka.uaslp.mx/index.php/jandiekua/article/view/794> |
+| `f834` | Afrontar la complejidad promoviendo comunidad en un posgrado en Ciencias Ambientales. Mi experiencia como coordinador. | Javier Fortanelli Martínez | vol. 9, núm. especial (2025) | <https://leka.uaslp.mx/index.php/jandiekua/article/view/834> |
+| `f833` | El lirio acuático en una presa: una oportunidad de experimentación educativa | Grupo Laboratorio Extramuros IPICYT | vol. 9, núm. especial (2025) | <https://leka.uaslp.mx/index.php/jandiekua/article/view/833> |
+| `f837` | Reflexiones sobre la formación de científicos ambientales desde la química | Luis Felipe Cházaro | vol. 9, núm. especial (2025) | <https://leka.uaslp.mx/index.php/jandiekua/article/view/837> |
+| `f184` | EVALUACIÓN DE LOS PROYECTOS AMBIENTALES ESCOLARES (PRAE) EN COLOMBIA | Diana Espinosa Rojas | vol. 5, núm. 7 (2020) | <https://leka.uaslp.mx/index.php/jandiekua/article/view/184> |
+| `f361` | La pedagogía culturalmente sostenible en la promoción de literacidades indígenas | Anuschka van t Hooft | vol. 6, núm. especial (2023) | <https://leka.uaslp.mx/index.php/jandiekua/article/view/361> |
+
 ## 5. Sonido
 
 No hay archivos de audio ni efectos de sonido.
@@ -79,13 +97,13 @@ No existe `LICENSE`. **No se eligió ni se añadió ninguna**. La propuesta, con
 Generado con `python3 scripts/inventario_licencias.py`. «OK*» = propio del proyecto, pendiente solo de declarar licencia o titularidad.
 
 <!-- INVENTARIO -->
-Archivos versionados: 154 (OK: 8 · OK*: 130 · PENDIENTE: 11 · VERIFICAR: 5).
+Archivos versionados: 159 (OK: 8 · OK*: 134 · PENDIENTE: 11 · VERIFICAR: 6).
 
 | Archivo | Tipo | Tamaño | Origen | Licencia | Estado | SHA-256 (10) |
 | --- | --- | ---: | --- | --- | --- | --- |
 | `.gitignore` | Configuración | 0 KB | Proyecto | Sin relevancia (configuración) | OK | `32dae3052f` |
-| `LICENCIAS.md` | Documento | 39 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `a3ef02a0e8` |
-| `README.md` | Documento | 7 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `b1d254a3a7` |
+| `LICENCIAS.md` | Documento | 43 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `d4df3ca33c` |
+| `README.md` | Documento | 8 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `16e62801ac` |
 | `assets/disenografico/NOTA_DISENO.md` | Documento | 32 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `263b3ebf64` |
 | `assets/disenografico/acuario_mar.svg` | Ilustración SVG | 3 KB | Equipo de diseño del proyecto, generada con scripts propios | Derechos reservados del proyecto [POR DEFINIR cesión] | OK* | `e513bbaccb` |
 | `assets/disenografico/barra_institucional.svg` | Barra con logotipos | 30 KB | Compuesta con los logotipos institucionales incrustados | Signo institucional: autorización interna [POR DEFINIR] | PENDIENTE | `a6bb08ad9e` |
@@ -184,7 +202,7 @@ Archivos versionados: 154 (OK: 8 · OK*: 130 · PENDIENTE: 11 · VERIFICAR: 5).
 | `assets/logos/logo_banner_blanco.png` | Logotipo institucional | 201 KB | UASLP / Agenda Ambiental UASLP (versión en blanco de la fuente institucional) | Signo institucional, no abierto: autorización interna [POR DEFINIR] | PENDIENTE | `99444a4bee` |
 | `assets/logos/logo_uaslp_blanco.svg` | Logotipo institucional | 12 KB | UASLP / Agenda Ambiental UASLP (versión en blanco de la fuente institucional) | Signo institucional, no abierto: autorización interna [POR DEFINIR] | PENDIENTE | `4c9c6b6b27` |
 | `aviso-privacidad.html` | Código del juego | 21 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `3a8f68a37e` |
-| `css/juego.css` | Código del juego | 43 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `a8ef35cbb9` |
+| `css/juego.css` | Código del juego | 47 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `4ef5d36c2a` |
 | `css/legal.css` | Código del juego | 8 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `8afe62e45c` |
 | `css/mar_ideas.css` | Código del juego | 3 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `1352c196e1` |
 | `docs/BRIEF_FASE_DISENO.md` | Documento | 4 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `0104bcd776` |
@@ -200,12 +218,14 @@ Archivos versionados: 154 (OK: 8 · OK*: 130 · PENDIENTE: 11 · VERIFICAR: 5).
 | `firebase/firestore.indexes.json` | Reglas y pruebas de Firestore | 0 KB | Proyecto (reglas propias; sin código de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `6742255415` |
 | `firebase/firestore.rules` | Reglas y pruebas de Firestore | 13 KB | Proyecto (reglas propias; sin código de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `f8123d5e11` |
 | `firebase/test_reglas_emulador.py` | Reglas y pruebas de Firestore | 17 KB | Proyecto (reglas propias; sin código de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `67b8028c87` |
-| `index.html` | Código del juego | 4 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `9da62dcb97` |
+| `index.html` | Código del juego | 4 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `7a0d43ae15` |
 | `js/datos.js` | Código del juego | 32 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `fbcb6fecc5` |
-| `js/juego.js` | Código del juego | 94 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `021b91324b` |
+| `js/juego.js` | Código del juego | 105 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `736f6d748b` |
 | `js/legal.js` | Código del juego | 2 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `8ec015be2e` |
 | `js/mar_ideas.js` | Código del juego | 21 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `2fa95df225` |
-| `js/peces.js` | Código del juego | 23 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `b1b4f7c41e` |
+| `js/peces.js` | Código del juego | 24 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `5257e58628` |
+| `js/signos.js` | Código del juego | 4 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `2c7ffe46d1` |
+| `js/textos_sala2.js` | Datos: citas de la Revista Jandiekua | 9 KB | 10 fragmentos textuales de artículos de la Revista Jandiekua (leka.uaslp.mx), con su fuente | CC BY-NC-ND 4.0 de sus autores; el juego muestra versiones alteradas (SinDerivadas): permiso por confirmar [POR DEFINIR] | VERIFICAR | `00ce9cd772` |
 | `js/titulo.js` | Código del juego | 8 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `26cc829b20` |
 | `preview/certificado_v3.png` | Captura | 266 KB | Del proyecto (capturas del juego; muestran los logotipos) | Derechos reservados del proyecto; logotipos: ver arriba | OK* | `57560b0a4d` |
 | `preview/cierre.png` | Captura | 551 KB | Del proyecto (capturas del juego; muestran los logotipos) | Derechos reservados del proyecto; logotipos: ver arriba | OK* | `07fdf8d60e` |
@@ -227,14 +247,17 @@ Archivos versionados: 154 (OK: 8 · OK*: 130 · PENDIENTE: 11 · VERIFICAR: 5).
 | `preview/sala4_v2.png` | Captura | 912 KB | Del proyecto (capturas del juego; muestran los logotipos) | Derechos reservados del proyecto; logotipos: ver arriba | OK* | `d974332a9d` |
 | `preview/sala4_v3.png` | Captura | 914 KB | Del proyecto (capturas del juego; muestran los logotipos) | Derechos reservados del proyecto; logotipos: ver arriba | OK* | `cf00254edf` |
 | `prototipo/index.html` | Código del juego | 0 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `9fdcb13dc4` |
-| `scripts/e2e_legal.py` | Script de pruebas / render | 25 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `ee00d144b2` |
-| `scripts/e2e_recorrido.py` | Script de pruebas / render | 9 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `656b33b74c` |
-| `scripts/e2e_sala1.py` | Script de pruebas / render | 19 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `64dcdaa6e4` |
-| `scripts/inventario_licencias.py` | Script de pruebas / render | 5 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `741096b6f4` |
+| `scripts/e2e_legal.py` | Script de pruebas / render | 26 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `8d94dc2016` |
+| `scripts/e2e_recorrido.py` | Script de pruebas / render | 10 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `00316a08a0` |
+| `scripts/e2e_sala1.py` | Script de pruebas / render | 19 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `6ae77acffa` |
+| `scripts/e2e_sala2.py` | Script de pruebas / render | 14 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `c45dddbc3a` |
+| `scripts/e2e_sala2_todos.py` | Script de pruebas / render | 2 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `75f0682bfb` |
+| `scripts/inventario_licencias.py` | Script de pruebas / render | 5 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `e23db0e5a7` |
 | `scripts/render_ideas_y_viewports.py` | Script de pruebas / render | 9 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `29fa5a1d8f` |
 | `scripts/render_jk_v3_previews.py` | Script de pruebas / render | 19 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `1cbed1d925` |
 | `scripts/render_preview.py` | Script de pruebas / render | 2 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `9c7ed4d585` |
 | `scripts/render_v2.py` | Script de pruebas / render | 2 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `95b9c93542` |
 | `scripts/render_v3.py` | Script de pruebas / render | 6 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `c6757c008e` |
-| `terminos.html` | Código del juego | 10 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `37d6e01502` |
+| `scripts/verificar_textos_sala2.py` | Script de pruebas / render | 3 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `7468e8e1e3` |
+| `terminos.html` | Código del juego | 14 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `0221f59038` |
 <!-- /INVENTARIO -->

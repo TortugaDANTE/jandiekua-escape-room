@@ -1,5 +1,7 @@
-import * as DatosMod from './datos.js?v=20261113a';
-import * as Titulo from './titulo.js?v=20261113a';
+import * as DatosMod from './datos.js?v=20261113b';
+import * as Titulo from './titulo.js?v=20261113b';
+import * as Signos from './signos.js?v=20261113b';
+import { FRAGMENTOS } from './textos_sala2.js?v=20261113b';
 const Datos = Object.assign({}, DatosMod.default || {}, DatosMod, { normalizar: DatosMod.claveDe });
 window.Datos = Datos;
 
@@ -9,7 +11,7 @@ window.Datos = Datos;
 const ANCHO = 1080;
 const ALTO = 2022;
 const ACUARIO_SVG = '<svg class="acuario-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 605" preserveAspectRatio="none" aria-hidden="true">\n  <defs>\n    <linearGradient id="arena" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#C59B27" stop-opacity=".0"/>\n      <stop offset=".45" stop-color="#8A6A12" stop-opacity=".18"/>\n      <stop offset="1" stop-color="#5C4A18" stop-opacity=".45"/>\n    </linearGradient>\n    <linearGradient id="rayo" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#D8E8DF" stop-opacity=".16"/>\n      <stop offset="1" stop-color="#D8E8DF" stop-opacity="0"/>\n    </linearGradient>\n    <linearGradient id="alga" x1="0" y1="1" x2="0" y2="0">\n      <stop offset="0" stop-color="#2E6B4E"/>\n      <stop offset="1" stop-color="#4A8B68" stop-opacity=".85"/>\n    </linearGradient>\n  </defs>\n  <!-- caustics / refraction bands -->\n  <g opacity=".22" fill="none" stroke="#D8E8DF" stroke-width="1.2">\n    <path d="M0 90 Q180 70 360 100 T720 90 T1080 110" opacity=".7"/>\n    <path d="M0 130 Q200 150 400 120 T800 140 T1080 125" opacity=".45"/>\n    <path d="M0 170 Q160 155 320 180 T640 165 T1080 185" opacity=".35"/>\n  </g>\n  <!-- light rays -->\n  <g fill="url(#rayo)">\n    <polygon points="220,-10 310,-10 260,400 170,400" opacity=".8"/>\n    <polygon points="520,-10 590,-10 560,360 490,360" opacity=".55"/>\n    <polygon points="820,-10 900,-10 870,420 790,420" opacity=".65"/>\n  </g>\n  <!-- sand bottom -->\n  <path fill="url(#arena)" d="M0 500 C80 488 160 520 260 505 C360 488 470 525 580 508 C700 490 820 528 930 510 C1000 500 1040 518 1080 508 L1080 605 L0 605 Z"/>\n  <g fill="#C59B27" opacity=".2">\n    <circle cx="90" cy="560" r="4"/><circle cx="140" cy="575" r="3"/><circle cx="320" cy="568" r="3.5"/>\n    <circle cx="510" cy="580" r="4"/><circle cx="700" cy="565" r="3"/><circle cx="880" cy="578" r="4"/>\n    <circle cx="990" cy="555" r="2.5"/>\n  </g>\n  <!-- seaweed / coral, left -->\n  <g fill="url(#alga)" opacity=".85">\n    <path d="M70 605 C60 540 90 520 70 460 C50 400 95 390 80 330 C88 400 55 420 85 480 C100 530 55 550 70 605Z"/>\n    <path d="M110 605 C125 530 95 510 120 440 C140 380 100 370 115 320 C108 380 145 400 108 470 C90 530 130 560 110 605Z"/>\n    <path d="M40 605 C30 550 55 530 38 480 C22 430 58 425 48 390 C52 440 20 455 50 510 C62 545 28 565 40 605Z"/>\n  </g>\n  <!-- right -->\n  <g fill="url(#alga)" opacity=".8">\n    <path d="M1010 605 C1022 540 990 520 1015 455 C1038 400 990 390 1008 335 C1000 400 1040 420 1000 485 C985 535 1028 555 1010 605Z"/>\n    <path d="M1050 605 C1062 550 1038 535 1055 485 C1072 435 1038 428 1050 390 C1045 440 1078 455 1048 510 C1036 545 1068 565 1050 605Z"/>\n    <path d="M970 605 C955 545 990 525 968 470 C948 415 990 410 975 360 C980 420 945 435 985 500 C1000 545 958 560 970 605Z"/>\n  </g>\n  <!-- small coral clusters -->\n  <g fill="#C59B27" opacity=".35">\n    <path d="M200 600 l8-28 8 14 7-22 7 22 8-14 8 28z"/>\n    <path d="M860 600 l6-22 7 11 6-18 6 18 7-11 6 22z"/>\n  </g>\n  <!-- two slow fish silhouettes (animated via CSS on groups) -->\n  <g class="pez pez-a" fill="#102438" opacity=".28">\n    <ellipse cx="0" cy="0" rx="22" ry="10"/>\n    <polygon points="18,0 34,-9 34,9"/>\n    <circle cx="-8" cy="-2" r="1.4" fill="#D8E8DF" opacity=".8"/>\n  </g>\n  <g class="pez pez-b" fill="#102438" opacity=".2">\n    <ellipse cx="0" cy="0" rx="16" ry="7"/>\n    <polygon points="-14,0 -26,-7 -26,7"/>\n    <circle cx="6" cy="-1.5" r="1.1" fill="#D8E8DF" opacity=".8"/>\n  </g>\n</svg>\n';
-const VERSION = "20261113a";
+const VERSION = "20261113b";
 // Versión de los textos legales que la persona acepta (Términos y Aviso de privacidad).
 const VERSION_LEGAL = "v1-borrador-20261112";
 
@@ -68,32 +70,12 @@ const SALAS = [
     nombre: "Laberinto del Formato",
     kicker: "Sala 2 de 4",
     llave: "Llave de Estructura",
-    modo: "orden",
-    instruccion: "Coloca cada parte del manuscrito en su compartimento, en el orden habitual de un artículo.",
-    reto: "Un artículo científico suele abrirse con título, resumen y palabras clave; desarrollar el cuerpo en la secuencia IMRyD (Introducción, Metodología, Resultados y Discusión); y cerrar con las referencias. Encaja cada pieza en su lugar.",
-    etiqueta: "Norma de estructura",
-    tanques: [
-      { id: "t-titulo", etiqueta: "1. Título", acepta: "n-titulo" },
-      { id: "t-resumen", etiqueta: "2. Resumen", acepta: "n-resumen" },
-      { id: "t-palabras", etiqueta: "3. Palabras clave", acepta: "n-palabras" },
-      { id: "t-intro", etiqueta: "4. Introducción", acepta: "n-intro" },
-      { id: "t-metodo", etiqueta: "5. Metodología", acepta: "n-metodo" },
-      { id: "t-resultados", etiqueta: "6. Resultados", acepta: "n-resultados" },
-      { id: "t-discusion", etiqueta: "7. Discusión", acepta: "n-discusion" },
-      { id: "t-referencias", etiqueta: "8. Referencias", acepta: "n-referencias" }
-    ],
-    nodos: [
-      { id: "n-titulo", texto: "Título", valido: true, tanque: "t-titulo" },
-      { id: "n-resumen", texto: "Resumen", valido: true, tanque: "t-resumen" },
-      { id: "n-palabras", texto: "Palabras clave", valido: true, tanque: "t-palabras" },
-      { id: "n-intro", texto: "Introducción", valido: true, tanque: "t-intro" },
-      { id: "n-metodo", texto: "Metodología", valido: true, tanque: "t-metodo" },
-      { id: "n-resultados", texto: "Resultados", valido: true, tanque: "t-resultados" },
-      { id: "n-discusion", texto: "Discusión", valido: true, tanque: "t-discusion" },
-      { id: "n-referencias", texto: "Referencias", valido: true, tanque: "t-referencias" },
-      { id: "n-dedicatoria", texto: "Dedicatoria informal", valido: false, error: "La dedicatoria informal no forma parte de la estructura formal del artículo." },
-      { id: "n-anuncio", texto: "Anuncio publicitario", valido: false, error: "Un anuncio no pertenece al manuscrito científico." }
-    ]
+    modo: "signos",
+    instruccion: "Arrastra del tanque los signos que faltan y suéltalos entre las palabras.",
+    reto: "",
+    etiqueta: "Texto",
+    tanques: [],
+    nodos: []
   },
   {
     id: "pares",
@@ -183,7 +165,8 @@ const estado = {
   parteSeq: 0,
   pecesSoltados: 0,
   consentimiento: null,
-  conceptosUnicos: 0
+  conceptosUnicos: 0,
+  s2: null
 };
 
 const nodosVivos = [];
@@ -296,7 +279,8 @@ function guardar() {
       tituloPartes: estado.tituloPartes,
       parteSeq: estado.parteSeq,
       pecesSoltados: estado.pecesSoltados,
-      consentimiento: estado.consentimiento
+      consentimiento: estado.consentimiento,
+      s2: estado.s2
     }));
   } catch (err) { /* almacenamiento no disponible */ }
 }
@@ -368,7 +352,7 @@ function render() {
     franja.hidden = completa;
   }
   svgLlaves();
-  if (estado.vista === "sala") return esSalaPeces() ? renderSalaPeces() : renderSala();
+  if (estado.vista === "sala") return !esSalaPeces() ? renderSala() : (salaActual().modo === "signos" ? renderSalaSignos() : renderSalaPeces());
   else if (estado.vista === "cierre-form") renderFormulario();
   else if (estado.vista === "cierre-diploma") renderDiploma();
 }
@@ -424,6 +408,7 @@ function renderPortada() {
     estado.tituloPartes = [];
     estado.parteSeq = 0;
     estado.pecesSoltados = 0;
+    estado.s2 = null;
     estado.llaves = [false, false, false, false];
     estado.tema = "";
     estado.consentimiento = null;
@@ -578,8 +563,271 @@ const ICONO_PEZ = '<svg class="ico-pez" viewBox="0 0 56 34" aria-hidden="true"><
 const s1 = { chips: null, entrada: null, pop: null, popId: null, enviando: false, llaveAvisada: false, pescados: {}, seq: 0 };
 
 function esSalaPeces() {
-  return estado.vista === "sala" && SALAS[estado.sala] && SALAS[estado.sala].modo === "peces";
+  return estado.vista === "sala" && !!SALAS[estado.sala] && (SALAS[estado.sala].modo === "peces" || SALAS[estado.sala].modo === "signos");
 }
+
+/* =====================================================================================
+   SALA 2 · Laberinto del Formato (signos y mayúsculas)
+   Cuatro fragmentos de la propia Revista Jandiekua, elegidos al azar entre los de textos_sala2.js, a los que les faltan
+   signos de puntuación o alguna mayúscula. Cada hueco entre palabras recibe signos que se arrastran desde el tanque.
+   Cuando un texto queda igual al original, avanza solo al siguiente; al corregir los cuatro se obtiene la llave.
+   ===================================================================================== */
+const S2_FAM = { ",": "q", ".": "q", ";": "q", ":": "q", "«": "qu", "»": "qu", "“": "qu", "”": "qu", "\"": "qu", "¿": "d", "?": "d", "¡": "d", "!": "d", "(": "c", ")": "c", "—": "c" };
+const S2_ELEM = { q: "que", qu: "quien", d: "donde", c: "cuando" };
+const S2_REGLA_FAM = { "las comas": "q", "paréntesis": "c", "las comillas": "qu", "¿ ?": "d", "el punto": "q", "los dos puntos": "q", "el punto y coma": "q" };
+const S2_REGLA_CORTA = { "las comas": "comas", "paréntesis": "paréntesis", "las comillas": "comillas", "¿ ?": "¿ ?", "el punto": "punto", "los dos puntos": "dos puntos", "el punto y coma": "punto y coma" };
+const S2_BASE = { ",": 2, ".": 2, ";": 1, ":": 1, "«": 1, "»": 1, "“": 1, "”": 1, "¿": 1, "?": 1, "¡": 1, "!": 1, "(": 1, ")": 1, "—": 1, "Aa": 1 };
+const S2_DIVERSION = ["…", "~", "★", "☺", "&"];
+const S2_PAUSA_MS = 1700;
+const s2 = { frag: null, m: null, act: [], propios: [], mayus: [], bloqueado: false, total: 0, hechos: 0, pend: 0, temporizador: 0, clave: 0 };
+
+const s2Esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function s2PrepararElegidos() {
+  const ok = estado.s2 && Array.isArray(estado.s2.ids) && estado.s2.ids.length === 4 && estado.s2.ids.every((n) => Number.isInteger(n) && n >= 0 && n < FRAGMENTOS.length);
+  if (ok) { estado.s2.i = Math.max(0, Math.min(4, Number(estado.s2.i) || 0)); estado.s2.hecho = !!estado.s2.hecho; return; }
+  const q = new URLSearchParams(location.search).get("textos"); // solo para pruebas: ?textos=0,3,5,7 (índices)
+  let ids = q ? q.split(",").map(Number).filter((n, i, a) => Number.isInteger(n) && n >= 0 && n < FRAGMENTOS.length && a.indexOf(n) === i).slice(0, 4) : [];
+  if (ids.length !== 4) ids = Signos.elegir(FRAGMENTOS.length, 4, rnd);
+  estado.s2 = { ids, i: 0, hecho: false };
+  guardar();
+}
+const s2Fragmento = (i) => FRAGMENTOS[estado.s2.ids[i]];
+const s2Fam = (reg) => S2_REGLA_FAM[reg] || "q";
+
+async function renderSalaSignos() {
+  const s = salaActual();
+  s2PrepararElegidos();
+  clearTimeout(s2.temporizador);
+  s2.bloqueado = false; s2.pend = 0; s2.clave = 0;
+  s2.hechos = estado.s2.hecho ? 4 : estado.s2.i;
+  const pills = estado.s2.ids.map((id, i) => `<div class="ind ${s2Fam(FRAGMENTOS[id].regla)}" data-i="${i}"><span class="t"><i></i>Texto ${i + 1}</span><small>${S2_REGLA_CORTA[FRAGMENTOS[id].regla] || FRAGMENTOS[id].regla}</small></div>`).join("");
+  const segs = [0, 1, 2, 3].map((i) => `<div class="seg"><i data-i="${i}"></i></div>`).join("");
+  escena.innerHTML = `
+    <section class="sala sala-peces sala-signos" data-sala="${s.id}">
+      <div class="arriba">
+        <p class="mini">Sala 2 · <span>${s.nombre}</span></p>
+        <div class="barra-titulo tarjeta" id="tarjeta-texto">
+          <div class="llavefila" id="llavefila" hidden></div>
+          <div class="rotulo2"><span id="rotulo-texto">Texto 1 de 4</span></div>
+          <div class="texto" id="texto-s2" role="group" aria-label="Texto por corregir"></div>
+          <p class="fuente-t" id="fuente-t" hidden></p>
+        </div>
+        <p class="guia" id="guia-s2">Arrastra del tanque los signos que faltan y suéltalos entre las palabras</p>
+        <div class="avance" aria-label="Avance de la sala">
+          <div class="fila"><span>Avance</span><b id="avance-n" aria-live="polite">0 de 4 textos corregidos</b></div>
+          <div class="pistas" id="pistas">${segs}</div>
+        </div>
+        <div class="indic" id="indic" role="list" aria-label="Textos de la sala">${pills}</div>
+      </div>
+      <div class="tanque-peces" id="tanque-peces">
+        <div class="acuario" aria-hidden="true">${ACUARIO_SVG}
+          <div class="acuario-burbujas"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div id="peces-caja"></div>
+        <button type="button" class="btn-m on flota-continuar" id="btn-continuar" hidden>Continuar</button>
+      </div>
+    </section>`;
+  $("#btn-continuar").addEventListener("click", avanzar);
+  await (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve());
+  const tanque = $("#tanque-peces"), tarjeta = $("#tarjeta-texto");
+  Peces.montar({
+    tanque, lienzo, ANCHO, foto, puntoLocal, barra: tarjeta,
+    sobreBarra: (p) => dentroDe(tarjeta, p, 30),
+    sobreTanque: (p) => dentroDe(tanque, p, 0),
+    alMover: (p, f) => s2Resaltar(p, f),
+    alPescar: (f, p) => s2Soltar(f, p),
+    alToque: () => mostrarToast("Arrastra el signo hasta el hueco del texto donde falta.")
+  });
+  if (estado.s2.hecho) { s2CargarTexto(3, true); s2Terminar(); }
+  else s2CargarTexto(estado.s2.i, false);
+}
+
+function s2CargarTexto(i, resuelto) {
+  const frag = s2Fragmento(i);
+  s2.frag = frag; s2.m = Signos.modelo(frag);
+  const m = s2.m;
+  s2.act = m.actual.map((a) => a.slice());
+  s2.propios = m.actual.map((a) => a.map(() => false));
+  s2.mayus = m.mayus.map(() => false);
+  s2.bloqueado = false;
+  if (resuelto) { // texto ya corregido (al volver a la sala con la llave): se restituye lo que faltaba
+    m.esperado.forEach((e, k) => e.forEach((x) => {
+      if (s2.act[k].filter((y) => y === x).length < e.filter((y) => y === x).length) { const r = Signos.insertar(e, s2.act[k], x); s2.act[k] = r.lista; s2.propios[k].splice(r.pos, 0, true); }
+    }));
+    s2.mayus = m.mayus.slice();
+  }
+  s2.total = Object.values(Signos.faltan(m).signos).reduce((a, b) => a + b, 0) + Signos.faltan(m).mayus;
+  s2.pend = resuelto ? 0 : s2.total;
+  const tarjeta = $("#tarjeta-texto"), texto = $("#texto-s2");
+  tarjeta.classList.remove("bien", "ok");
+  const fila = $("#llavefila"); fila.hidden = true; fila.classList.remove("reg"); fila.innerHTML = "";
+  texto.className = "texto" + (frag.original.length > 220 ? " t-38" : frag.original.length > 170 ? " t-40" : "");
+  $("#rotulo-texto").textContent = `Texto ${i + 1} de 4`;
+  const fu = $("#fuente-t"), f = frag.fuente;
+  fu.hidden = false; fu.textContent = `Fragmento de Jandiekua, vol. ${f.volumen}, núm. ${/^\d+$/.test(f.numero) ? f.numero : f.numero.toLowerCase()} (${f.anio})`;
+  fu.title = `${f.titulo} — ${f.autores.join(", ")}. ${f.url}`;
+  s2PintarTexto();
+  s2Avance();
+  Peces.recalcular && Peces.recalcular();
+  if (Peces.medirOrigen) Peces.medirOrigen();
+  Peces.claves().forEach((c) => Peces.quitar(c));
+  Peces.bloquear(false);
+  if (!resuelto) s2SoltarPeces();
+}
+
+function s2PintarTexto() {
+  const m = s2.m, texto = $("#texto-s2");
+  let h = "";
+  for (let k = 0; k <= m.n; k++) {
+    const items = Signos.disponer(m.esperado[k], s2.act[k], m.lado[k], s2.propios[k]);
+    const chip = (x) => x.propio ? `<span class="sg ${S2_FAM[x.s] || "q"}">${s2Esc(x.s)}</span>` : `<span class="sf">${s2Esc(x.s)}</span>`;
+    const antes = items.filter((x) => x.antes).map(chip).join("");
+    const despues = items.filter((x) => !x.antes).map(chip).join("");
+    // los signos «antes» van pegados a la palabra anterior; los «después», a la siguiente (así no se separan al cambiar de línea)
+    if (k > 0) { h += antes + "</span>"; }
+    h += `<span class="gap${s2.bloqueado ? " cerrado" : ""}" data-k="${k}"></span>`;
+    if (k < m.n) {
+      const nuc = s2.mayus[k] ? `<span class="cap">${s2Esc(m.nucleoOrig[k][0])}</span>${s2Esc(m.nucleoOrig[k].slice(1))}` : s2Esc(m.nucleoErr[k]);
+      h += `<wbr><span class="w" data-w="${k}">` + despues + nuc;
+    } else h += "";
+  }
+  texto.innerHTML = h;
+}
+
+function s2SoltarPeces() {
+  const f = Signos.faltan(s2.m);
+  const cuenta = Object.assign({}, S2_BASE);
+  Object.entries(f.signos).forEach(([sg, n]) => { cuenta[sg] = (cuenta[sg] || 0) + n; });
+  cuenta.Aa = (cuenta.Aa || 0) + f.mayus;
+  const dive = S2_DIVERSION.slice().sort(() => rnd() - 0.5).slice(0, 4);
+  dive.forEach((d) => { cuenta[d] = 1; });
+  const lista = [];
+  Object.entries(cuenta).forEach(([sg, n]) => { for (let j = 0; j < n; j++) lista.push(sg); });
+  lista.sort(() => rnd() - 0.5);
+  lista.forEach((sg) => {
+    const fam = sg === "Aa" ? "qu" : (S2_FAM[sg] || "n");
+    const d = Peces.agregar({ clave: `${sg}#${++s2.clave}`, texto: sg, etiqueta: sg === "Aa" ? "mayúscula" : sg, glifo: true, elemento: fam === "n" ? null : S2_ELEM[fam], datos: { signo: sg } }, { caer: false, sinTope: true });
+    if (d && d.el) d.el.classList.add("entra");
+  });
+}
+
+// ---- puntería: el pez suelta su signo en el hueco (o la mayúscula en la palabra) más cercano a su centro
+function s2Rects(sel) {
+  const lr = lienzo.getBoundingClientRect(), sc = lr.width / ANCHO;
+  return Array.from($("#texto-s2").querySelectorAll(sel)).map((el) => {
+    const r = el.getBoundingClientRect();
+    return { el, x0: (r.left - lr.left) / sc, x1: (r.right - lr.left) / sc, y0: (r.top - lr.top) / sc, y1: (r.bottom - lr.top) / sc };
+  });
+}
+function s2Cercano(p, esMayus) {
+  const lista = s2Rects(esMayus ? ".w" : ".gap");
+  let mejor = null;
+  lista.forEach((r) => {
+    const dx = Math.max(r.x0 - p.x, 0, p.x - r.x1), dy = Math.max(r.y0 - p.y, 0, p.y - r.y1);
+    const d = Math.hypot(dx, dy * 1.15) + (esMayus ? 0 : Math.abs(p.x - (r.x0 + r.x1) / 2) * 0.1);
+    if (!mejor || d < mejor.d) mejor = { d, el: r.el };
+  });
+  return mejor && mejor.d <= (esMayus ? 34 : 54) ? mejor.el : null;
+}
+function s2Resaltar(p, f) {
+  const texto = $("#texto-s2"); if (!texto) return;
+  texto.querySelectorAll(".hot").forEach((e) => e.classList.remove("hot"));
+  if (!p || s2.bloqueado) return;
+  const obj = s2Cercano(p, f && f.datos && f.datos.signo === "Aa");
+  if (obj) obj.classList.add("hot");
+}
+function s2Mal(el) {
+  if (!el) return;
+  el.classList.remove("mal"); void el.offsetWidth; el.classList.add("mal");
+  setTimeout(() => el.classList.remove("mal"), 520);
+}
+function s2Soltar(f, p) {
+  const texto = $("#texto-s2");
+  texto.querySelectorAll(".hot").forEach((e) => e.classList.remove("hot"));
+  $("#tarjeta-texto").classList.remove("recibiendo");
+  if (s2.bloqueado) return false;
+  const sg = f.datos && f.datos.signo;
+  const esMayus = sg === "Aa";
+  const obj = s2Cercano(p, esMayus);
+  if (!obj) return false;
+  const m = s2.m;
+  if (esMayus) {
+    const i = Number(obj.dataset.w);
+    if (m.mayus[i] && !s2.mayus[i]) { s2.mayus[i] = true; }
+    else { s2Mal(obj); return false; }
+  } else {
+    const k = Number(obj.dataset.k);
+    const r = Signos.insertar(m.esperado[k], s2.act[k], sg);
+    if (!r) { s2Mal(obj); return false; }
+    s2.act[k] = r.lista;
+    s2.propios[k].splice(r.pos, 0, true);
+  }
+  Peces.quitar(f.clave);
+  s2.pend = Math.max(0, s2.pend - 1);
+  s2PintarTexto();
+  s2Avance();
+  if (Signos.completo(m, s2.act, s2.mayus)) s2Completo();
+  return true;
+}
+
+function s2Avance() {
+  const hechos = s2.hechos;
+  const n = $("#avance-n"); if (n) n.textContent = `${hechos} de 4 textos corregidos`;
+  const act = estado.s2.hecho ? 4 : estado.s2.i;
+  document.querySelectorAll("#pistas .seg i").forEach((b) => {
+    const i = Number(b.dataset.i);
+    let w = 0;
+    if (i < hechos) w = 100;
+    else if (i === act && s2.total > 0) w = Math.round(100 * (s2.total - s2.pend) / s2.total);
+    b.style.width = w + "%";
+  });
+  document.querySelectorAll("#indic .ind").forEach((el) => {
+    const i = Number(el.dataset.i), on = i < hechos;
+    el.classList.toggle("on", on);
+    el.classList.toggle("hoy", i === act && !on);
+    const ic = el.querySelector(".t i");
+    if (ic) { ic.className = on ? "ok-i" : ""; ic.textContent = on ? "✓" : ""; }
+  });
+}
+
+function s2Completo() {
+  s2.bloqueado = true;
+  Peces.bloquear(true);
+  s2.hechos = estado.s2.i + 1;
+  estado.s2.i = Math.min(4, estado.s2.i + 1);
+  if (estado.s2.i >= 4) { estado.s2.hecho = true; estado.llaves[1] = true; }
+  guardar();
+  const tarjeta = $("#tarjeta-texto");
+  tarjeta.classList.add("bien", "ok");
+  s2PintarTexto();
+  s2Avance();
+  if (estado.s2.hecho) { s2Terminar(); return; }
+  const fila = $("#llavefila");
+  fila.hidden = false; fila.classList.add("reg");
+  fila.innerHTML = `<span class="tick">✓</span>¡Texto ${estado.s2.i} corregido!`;
+  s2.temporizador = setTimeout(() => {
+    if (!$("#texto-s2") || estado.vista !== "sala" || estado.sala !== 1) return;
+    s2CargarTexto(estado.s2.i, false);
+  }, S2_PAUSA_MS);
+}
+
+function s2Terminar() {
+  s2.bloqueado = true; s2.hechos = 4;
+  estado.llaves[1] = true;
+  Peces.bloquear(true);
+  const tarjeta = $("#tarjeta-texto");
+  tarjeta.classList.add("bien", "ok");
+  const fila = $("#llavefila");
+  fila.hidden = false; fila.classList.add("reg");
+  fila.innerHTML = `<img src="assets/disenografico/llave_2_estructura.svg" alt="">¡Llave de Estructura obtenida!`;
+  $("#guia-s2").textContent = "Corregiste los cuatro textos. Abre la siguiente sala con tu llave.";
+  s2PintarTexto();
+  s2Avance();
+  svgLlaves();
+  $("#btn-continuar").hidden = false;
+}
+
 function nuevaParte(texto, tipo, elemento, auto, extra) {
   estado.parteSeq = (estado.parteSeq || 0) + 1;
   return Object.assign({ id: "p" + estado.parteSeq, texto, tipo, elemento, auto: auto !== false }, extra || {});
@@ -2017,6 +2265,7 @@ function aplicarVistaDesdeURL() {
     estado.tituloListo = estado.sala !== 0;
     estado.tituloPartes = [];
     estado.pecesSoltados = 0;
+    estado.s2 = null;
     if (estado.sala === 0) estado.consentimiento = estado.consentimiento || { version: VERSION_LEGAL, aceptado: new Date().toISOString() };
     estado.sesion = "preview-jandiekua";
     return true;
