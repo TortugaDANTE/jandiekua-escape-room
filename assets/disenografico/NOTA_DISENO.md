@@ -164,3 +164,57 @@ Las razones de las fichas (texto `#102438` sobre blanco y espuma) no cambian con
 ## 9. Regenerar o ajustar
 Los SVG salen de `src/generar_assets.py` (Python sin dependencias): `python3 src/generar_assets.py`. Los PNG de `preview/` salen de `src/render_previews.py` (Chrome headless con Playwright) y la hoja de contacto de `src/hoja_contacto.py`.
 Las capas de `fondo_mar.svg` se pueden quitar borrando su grupo (`#capa-algas`, `#capa-plancton`, `#capa-isobatas`) si se quiere aún más calma.
+
+## 10. Imagen institucional (logos UASLP y Agenda Ambiental)
+
+**Qué había.** El juego ya mostraba logos: un solo PNG raster (`assets/logos/logo_banner_blanco.png`, 2890×590) centrado en la barra, con los dos logos y un filete vertical entre ellos, juntos en el centro y a 110 px de alto; el certificado PNG repetía ese mismo banner centrado (`js/juego.js`, `dibujarCertificado`). No es el patrón de la serie: la serie lleva **UASLP a la izquierda y Agenda Ambiental a la derecha, a la misma altura**, con los archivos SVG blancos oficiales (los de `ar-conexion-natural` y `ar-residuos-proserem`). La propuesta pone eso, a los dos extremos de la barra azul, y no modifica ningún logo (solo escala proporcional).
+
+**Archivos (en `assets/disenografico/`)**
+- `logos/logo_uaslp_blanco.svg` (192×74) y `logos/logo_aa_blanco.svg` (300×127): copias byte a byte de los de `/workspace/ar-conexion-natural/assets/logos/` (idénticas a las de `ar-residuos-proserem`; comprobado con md5). El escudo, "UASLP" y "Universidad Autónoma de San Luis Potosí" van juntos en el logo UASLP oficial.
+- `logos/hd/logo_uaslp_blanco.png` (1557×600) y `logos/hd/logo_aa_blanco.png` (1417×600): el mismo arte en blanco, a mayor resolución (copias de `/workspace/uaslp/infografia_economia_circular/cartel/assets/`). Solo para el certificado PNG de 1080 px.
+- `barra_institucional.svg` (1080×148, 30 KB): la barra completa como imagen autocontenida, con el `<image>` de cada logo incrustado tal cual (mismos píxeles). Útil para pósters, para el QR del stand o para un `drawImage`. Para la página usar mejor el HTML de abajo (dos `<img>` apuntando a los archivos).
+- Previews: `preview/propuesta_institucional_portada.png`, `_sala1.png`, `_cierre.png` y `preview/institucional_resumen.png`.
+
+**Aviso de calidad.** Los SVG "oficiales" son un PNG incrustado de 192×74 y 300×127 px (según la guía de identidad del paquete de videos, los vectores verdaderos siguen **[POR DEFINIR]**). A 100 px de alto en el lienzo de 1080 px, el logo UASLP se amplía 1.35× y se ve algo suave si se exporta a tamaño nativo (en celular se reduce y no se nota). Si se quiere nitidez total en la barra, cambiar las dos rutas por las de `logos/hd/` (`.png`, mismas proporciones y mismo CSS).
+
+**Integración exacta (HTML).** En `index.html`, dentro de `<header class="barra">` (hoy línea 22), reemplazar la `<img>` única por:
+```html
+<header class="barra">
+  <img class="logo-uaslp" src="assets/logos/logo_uaslp_blanco.svg" width="192" height="74" alt="Universidad Autónoma de San Luis Potosí">
+  <img class="logo-aa" src="assets/logos/logo_aa_blanco.svg" width="300" height="127" alt="Agenda Ambiental UASLP">
+</header>
+```
+Copiar `logos/logo_uaslp_blanco.svg` y `logos/logo_aa_blanco.svg` a `assets/logos/` del repo (y `logos/hd/` a `assets/logos/hd/` si se usa el certificado HD). El PNG `logo_banner_blanco.png` queda sin uso; se puede borrar.
+
+**CSS.** En `css/juego.css`, regla `.barra img` (hoy líneas 123–127), dejar:
+```css
+.barra { justify-content: space-between; padding: 0 40px; }   /* UASLP a la izquierda, AA a la derecha */
+.barra img {
+  height: 100px;      /* misma altura para los dos; el ancho sale solo, proporcional */
+  width: auto;
+  max-width: none;    /* quita el tope de 980 px del banner */
+}
+```
+(`.barra` ya tiene `height: var(--barra)` de 148 px, `align-items: center` y el filete tricolor de 4 px en `::after`; no cambian). Resultado: UASLP de 259×100 px a x = 40 y AA de 236×100 px que termina en x = 1040; 44 px de aire arriba y abajo; el centro de la barra queda libre. Zona de resguardo provisional (guía del paquete de videos: altura de la letra mayor del logo): se respeta con 40 px de margen lateral y 22 px verticales, y no hay otros elementos junto a los logos. La zona de resguardo oficial sigue **[POR DEFINIR]**.
+
+**Certificado PNG.** En `js/juego.js`, `dibujarCertificado()`: cargar los dos logos HD en lugar del banner y dibujarlos a los extremos del encabezado azul de 210 px:
+```js
+const logoU = new Image(); logoU.src = "assets/logos/hd/logo_uaslp_blanco.png";
+const logoA = new Image(); logoA.src = "assets/logos/hd/logo_aa_blanco.png";
+// en el Promise.all existente, esperar también:
+//   new Promise((res, rej) => { logoU.onload = res; logoU.onerror = rej; }),
+//   new Promise((res, rej) => { logoA.onload = res; logoA.onerror = rej; }),
+// y en lugar de las líneas de logoH / logoW / drawImage(logo, ...):
+const logoH = 112;                                  // misma altura; solo escala proporcional
+const wU = logoH * (logoU.width / logoU.height);
+const wA = logoH * (logoA.width / logoA.height);
+ctx.drawImage(logoU, 56, (210 - logoH) / 2, wU, logoH);
+ctx.drawImage(logoA, W - 56 - wA, (210 - logoH) / 2, wA, logoH);
+```
+Mientras tanto, el `const logo` y su `onload` del banner se eliminan. La pantalla de cierre (insignia + certificado) hereda la barra azul superior, así que muestra los logos dos veces: en la barra y dentro del certificado, como en la serie.
+
+**Pie `ext. 7200 y 7210`.** Ya existe en el juego (`.pie` en `index.html` y en el certificado). **No aparece en `docs/fuentes/`** (las tres fuentes editoriales solo piden "datos de contacto: correo editorial, teléfono y redes oficiales" de la revista, sin números). Sale de la regla de la serie AR que dio Dante y de la guía de identidad ("Extensiones 7200 y 7210, dato proporcionado por la usuaria/usuario"), y está en `docs/BRIEF_FASE_DISENO.md`. Lo dejé sin cambios. Son las extensiones de la **Agenda Ambiental**, no necesariamente de la Revista Jandiekua: si Dante prefiere que el pie no sugiera contacto editorial, conviene aclararlo o quitarlo del certificado.
+
+**Pendientes.** Logo de la Revista Jandiekua (el recuadro `[LOGO JANDIEKUA]` de la portada y del certificado sigue como placeholder, no se inventó isotipo). Nota: el árbol de trabajo del repo ya tiene la v2 de Académico (fondo, tanques, llaves) sin commit; las líneas que cito de `index.html`, `css/juego.css` y `js/juego.js` son las de ese árbol al 11-nov 23:58 y pueden moverse. Las líneas de las secciones 2 a 4 de esta nota corresponden al código original.
+
+**Regenerar.** `python3 src/generar_barra.py` (crea `barra_institucional.svg` a partir de `logos/`) y `python3 src/montar_mock_institucional.py --screens` (copia el árbol actual a `/tmp/jmock`, aplica solo estos cambios y renderiza las tres capturas).
