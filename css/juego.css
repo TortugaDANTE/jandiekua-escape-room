@@ -61,8 +61,10 @@ button { cursor: pointer; color: inherit; }
 img { display: block; max-width: 100%; height: auto; }
 
 #escenario {
+  position: relative;
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
   display: grid;
   place-items: center;
   background:
@@ -72,7 +74,9 @@ img { display: block; max-width: 100%; height: auto; }
 #lienzo {
   width: var(--ancho);
   height: var(--alto);
-  position: relative;
+  position: absolute;
+  left: 50%;
+  top: 50%;
   overflow: hidden;
   background: var(--abismo);
   transform-origin: center center;

@@ -190,7 +190,7 @@ const escena = $("#escena");
 
 function escalaLienzo() {
   const s = Math.min(window.innerWidth / ANCHO, window.innerHeight / ALTO);
-  lienzo.style.transform = `scale(${s})`;
+  lienzo.style.transform = `translate(-50%, -50%) scale(${s})`;
 }
 function puntoLocal(e) {
   const r = lienzo.getBoundingClientRect();
