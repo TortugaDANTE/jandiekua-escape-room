@@ -1,0 +1,3 @@
+Montserrat (Julieta Ulanovsky et al.) y Fraunces (Undercase Type / Phaedra Charles y Flavia Zimbardi)
+se distribuyen bajo la SIL Open Font License 1.1: https://scripts.sil.org/OFL
+Se incluyen solo los recortes tipográficos necesarios para esta interfaz.
