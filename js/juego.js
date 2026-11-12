@@ -1,4 +1,4 @@
-import * as DatosMod from './datos.js?v=20261112i';
+import * as DatosMod from './datos.js?v=20261112j';
 const Datos = Object.assign({}, DatosMod.default || {}, DatosMod, { normalizar: DatosMod.claveDe });
 window.Datos = Datos;
 
@@ -8,7 +8,7 @@ window.Datos = Datos;
 const ANCHO = 1080;
 const ALTO = 2022;
 const ACUARIO_SVG = '<svg class="acuario-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 605" preserveAspectRatio="none" aria-hidden="true">\n  <defs>\n    <linearGradient id="arena" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#C59B27" stop-opacity=".0"/>\n      <stop offset=".45" stop-color="#8A6A12" stop-opacity=".18"/>\n      <stop offset="1" stop-color="#5C4A18" stop-opacity=".45"/>\n    </linearGradient>\n    <linearGradient id="rayo" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#D8E8DF" stop-opacity=".16"/>\n      <stop offset="1" stop-color="#D8E8DF" stop-opacity="0"/>\n    </linearGradient>\n    <linearGradient id="alga" x1="0" y1="1" x2="0" y2="0">\n      <stop offset="0" stop-color="#2E6B4E"/>\n      <stop offset="1" stop-color="#4A8B68" stop-opacity=".85"/>\n    </linearGradient>\n  </defs>\n  <!-- caustics / refraction bands -->\n  <g opacity=".22" fill="none" stroke="#D8E8DF" stroke-width="1.2">\n    <path d="M0 90 Q180 70 360 100 T720 90 T1080 110" opacity=".7"/>\n    <path d="M0 130 Q200 150 400 120 T800 140 T1080 125" opacity=".45"/>\n    <path d="M0 170 Q160 155 320 180 T640 165 T1080 185" opacity=".35"/>\n  </g>\n  <!-- light rays -->\n  <g fill="url(#rayo)">\n    <polygon points="220,-10 310,-10 260,400 170,400" opacity=".8"/>\n    <polygon points="520,-10 590,-10 560,360 490,360" opacity=".55"/>\n    <polygon points="820,-10 900,-10 870,420 790,420" opacity=".65"/>\n  </g>\n  <!-- sand bottom -->\n  <path fill="url(#arena)" d="M0 500 C80 488 160 520 260 505 C360 488 470 525 580 508 C700 490 820 528 930 510 C1000 500 1040 518 1080 508 L1080 605 L0 605 Z"/>\n  <g fill="#C59B27" opacity=".2">\n    <circle cx="90" cy="560" r="4"/><circle cx="140" cy="575" r="3"/><circle cx="320" cy="568" r="3.5"/>\n    <circle cx="510" cy="580" r="4"/><circle cx="700" cy="565" r="3"/><circle cx="880" cy="578" r="4"/>\n    <circle cx="990" cy="555" r="2.5"/>\n  </g>\n  <!-- seaweed / coral, left -->\n  <g fill="url(#alga)" opacity=".85">\n    <path d="M70 605 C60 540 90 520 70 460 C50 400 95 390 80 330 C88 400 55 420 85 480 C100 530 55 550 70 605Z"/>\n    <path d="M110 605 C125 530 95 510 120 440 C140 380 100 370 115 320 C108 380 145 400 108 470 C90 530 130 560 110 605Z"/>\n    <path d="M40 605 C30 550 55 530 38 480 C22 430 58 425 48 390 C52 440 20 455 50 510 C62 545 28 565 40 605Z"/>\n  </g>\n  <!-- right -->\n  <g fill="url(#alga)" opacity=".8">\n    <path d="M1010 605 C1022 540 990 520 1015 455 C1038 400 990 390 1008 335 C1000 400 1040 420 1000 485 C985 535 1028 555 1010 605Z"/>\n    <path d="M1050 605 C1062 550 1038 535 1055 485 C1072 435 1038 428 1050 390 C1045 440 1078 455 1048 510 C1036 545 1068 565 1050 605Z"/>\n    <path d="M970 605 C955 545 990 525 968 470 C948 415 990 410 975 360 C980 420 945 435 985 500 C1000 545 958 560 970 605Z"/>\n  </g>\n  <!-- small coral clusters -->\n  <g fill="#C59B27" opacity=".35">\n    <path d="M200 600 l8-28 8 14 7-22 7 22 8-14 8 28z"/>\n    <path d="M860 600 l6-22 7 11 6-18 6 18 7-11 6 22z"/>\n  </g>\n  <!-- two slow fish silhouettes (animated via CSS on groups) -->\n  <g class="pez pez-a" fill="#102438" opacity=".28">\n    <ellipse cx="0" cy="0" rx="22" ry="10"/>\n    <polygon points="18,0 34,-9 34,9"/>\n    <circle cx="-8" cy="-2" r="1.4" fill="#D8E8DF" opacity=".8"/>\n  </g>\n  <g class="pez pez-b" fill="#102438" opacity=".2">\n    <ellipse cx="0" cy="0" rx="16" ry="7"/>\n    <polygon points="-14,0 -26,-7 -26,7"/>\n    <circle cx="6" cy="-1.5" r="1.1" fill="#D8E8DF" opacity=".8"/>\n  </g>\n</svg>\n';
-const VERSION = "20261112i";
+const VERSION = "20261112j";
 
 const NOM_LLAVE = ["pertinencia", "estructura", "validacion", "definitiva"];
 
@@ -217,7 +217,10 @@ function debePersistir() {
 async function cargarConceptosLista() {
   if (!window.Datos || !Datos.cargarConceptos) return [];
   try {
-    const r = await Datos.cargarConceptos();
+    const r = await Promise.race([
+      Datos.cargarConceptos(),
+      new Promise((resolve) => setTimeout(() => resolve({ ok: false, conceptos: [] }), 4000))
+    ]);
     if (Array.isArray(r)) return r;
     return (r && r.conceptos) || [];
   } catch (err) {
@@ -339,12 +342,12 @@ function render() {
   if (capa) capa.innerHTML = "";
   lienzo.classList.remove("arrastrando");
   const franja = $("#franja-llaves");
-  if (estado.vista === "portada") {
+  if (estado.vista === "portada" || estado.vista === "cierre-form" || estado.vista === "cierre-diploma") {
     franja.hidden = true;
-    renderPortada();
-    return;
+    if (estado.vista === "portada") { renderPortada(); return; }
+  } else {
+    franja.hidden = false;
   }
-  franja.hidden = false;
   svgLlaves();
   if (estado.vista === "sala") return renderSala();
   else if (estado.vista === "cierre-form") renderFormulario();
@@ -395,13 +398,21 @@ async function renderSala() {
         <div class="carta-reto">
           <p class="etiqueta">${s.etiqueta}</p>
           <p>${p.reto}</p>
-          ${s.tema ? `<div class="campo-tema">
+          ${s.tema && !estado.tituloListo ? `<div class="campo-tema">
             <label for="tema">Título de tu investigación</label>
-            <input id="tema" type="text" required maxlength="180" value="${escapeAttr(estado.tema)}" placeholder="Escríbelo para habilitar el tanque y el Mar de Ideas.">
+            <div class="fila-titulo">
+              <input id="tema" type="text" required maxlength="180" value="${escapeAttr(estado.tema)}" placeholder="Escríbelo para habilitar el tanque y el Mar de Ideas.">
+              <button type="button" class="btn-principal" id="btn-registrar-titulo">Registrar título</button>
+            </div>
             <p class="ayuda-titulo">Es el primer paso del juego y aparecerá en tu reconocimiento con la etiqueta «Título».</p>
-            ${estado.tituloListo ? "" : `<button type="button" class="btn-principal" id="btn-registrar-titulo">Registrar título</button>`}
           </div>` : ""}
+          ${s.tema && estado.tituloListo ? `<p class="titulo-registrado">Título: ${escapeAttr(estado.tema)}</p>` : ""}
         </div>
+        ${!(s.tema && !estado.tituloListo) ? `<form class="form-idea" id="form-idea">
+          <label class="visually-hidden" for="nueva-idea">Escribe una idea</label>
+          <input id="nueva-idea" name="idea" type="text" maxlength="180" autocomplete="off" placeholder="Escribe una idea y suéltala al mar">
+          <button type="submit" class="btn-idea">Enviar al mar</button>
+        </form>` : ""}
       </div>
       <div class="zona zona-tanques${s.tema && !estado.tituloListo ? " bloqueado" : ""}" id="zona-tanques">
         ${tanques.map((t) => `
@@ -416,11 +427,6 @@ async function renderSala() {
           <div class="acuario-burbujas"><span></span><span></span><span></span><span></span><span></span><span></span></div>
         </div>
         <p class="instruccion">${s.instruccion}</p>
-        <form class="form-idea" id="form-idea">
-          <label class="visually-hidden" for="nueva-idea">Escribe una idea</label>
-          <input id="nueva-idea" name="idea" type="text" maxlength="180" autocomplete="off" placeholder="Escribe una idea y suéltala al mar">
-          <button type="submit" class="btn-idea">Enviar al mar</button>
-        </form>
         <div id="mar"></div>
         <div class="acciones-sala" id="acciones-sala" hidden>
           <button type="button" class="btn-seguir" id="btn-seguir">Continuar</button>
@@ -429,19 +435,23 @@ async function renderSala() {
     </section>`;
 
   if (s.tema) {
-    $("#tema").addEventListener("input", (e) => {
-      estado.tema = e.target.value;
-      guardar();
-    });
-    $("#tema").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") { e.preventDefault(); registrarTitulo(); }
-    });
+    const tema = $("#tema");
+    if (tema) {
+      tema.addEventListener("input", (e) => {
+        estado.tema = e.target.value;
+        guardar();
+      });
+      tema.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); registrarTitulo(); }
+      });
+    }
     const btnT = $("#btn-registrar-titulo");
     if (btnT) btnT.addEventListener("click", registrarTitulo);
-    if (!estado.tituloListo) setTimeout(() => $("#tema") && $("#tema").focus(), 200);
+    if (!estado.tituloListo && tema) setTimeout(() => $("#tema") && $("#tema").focus(), 200);
   }
 
-  $("#form-idea").addEventListener("submit", (e) => {
+  const formIdea = $("#form-idea");
+  if (formIdea) formIdea.addEventListener("submit", (e) => {
     e.preventDefault();
     const input = $("#nueva-idea");
     const texto = (input.value || "").trim();
@@ -498,8 +508,31 @@ function registrarTitulo() {
   const zm = document.querySelector(".zona-mar");
   if (zt) zt.classList.remove("bloqueado");
   if (zm) zm.classList.remove("bloqueado");
-  const btn = $("#btn-registrar-titulo");
-  if (btn) btn.remove();
+  const campo = document.querySelector(".campo-tema");
+  if (campo) {
+    const p = document.createElement("p");
+    p.className = "titulo-registrado";
+    p.textContent = "Título: " + v;
+    campo.replaceWith(p);
+  }
+  if (!$("#form-idea")) {
+    const zona = document.querySelector(".zona-reto");
+    if (zona) {
+      zona.insertAdjacentHTML("beforeend", `<form class="form-idea" id="form-idea">
+          <label class="visually-hidden" for="nueva-idea">Escribe una idea</label>
+          <input id="nueva-idea" name="idea" type="text" maxlength="180" autocomplete="off" placeholder="Escribe una idea y suéltala al mar">
+          <button type="submit" class="btn-idea">Enviar al mar</button>
+        </form>`);
+      $("#form-idea").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const input = $("#nueva-idea");
+        const texto = (input.value || "").trim();
+        if (!texto) return;
+        input.value = "";
+        agregarIdea(texto);
+      });
+    }
+  }
   mostrarToast("Título registrado. Ya puedes usar el tanque y el Mar de Ideas.");
   return true;
 }
@@ -602,24 +635,11 @@ function crearNodoMar(data, concepto) {
 async function poblarMar(s, p) {
   const mar = $("#mar");
   if (!mar) return;
-  const conceptos = await cargarConceptosLista();
-  estado.conceptosUnicos = conceptos.length;
   const usados = new Set();
   p.nodos.filter((n) => !estado.colocados[n.id]).forEach((n) => {
     const clave = normalizarTexto(n.texto);
     usados.add(clave);
-    const c = conceptos.find((x) => x.clave === clave);
-    nodosVivos.push(crearNodoMar(n, c));
-  });
-  conceptos.forEach((c) => {
-    if (!c || !c.clave || usados.has(c.clave)) return;
-    usados.add(c.clave);
-    nodosVivos.push(crearNodoMar({
-      id: "concepto-" + String(c.clave).replace(/\s+/g, "-").slice(0, 48),
-      texto: c.texto || c.clave,
-      libre: true,
-      valido: false
-    }, c));
+    nodosVivos.push(crearNodoMar(n, { clave, personas: 1, texto: n.texto }));
   });
   if (ideasPreview > 0) {
     for (let i = 0; i < ideasPreview; i++) {
@@ -649,7 +669,30 @@ async function poblarMar(s, p) {
       mostrarToast("Toca el tanque para colocar esta idea.");
     }
   });
-  mar.dataset.listo = '1';
+  mar.dataset.listo = "1";
+  const conceptos = await cargarConceptosLista();
+  estado.conceptosUnicos = conceptos.length;
+  conceptos.forEach((c) => {
+    if (!c || !c.clave) return;
+    const vivo = nodosVivos.find((v) => v.clave === c.clave && v.estado !== "fuera");
+    if (vivo) {
+      vivo.personas = c.personas || vivo.personas || 1;
+      insigniaPersonas(vivo.el, vivo.personas);
+      usados.add(c.clave);
+      return;
+    }
+    if (usados.has(c.clave)) return;
+    usados.add(c.clave);
+    const v = crearNodoMar({
+      id: "concepto-" + String(c.clave).replace(/\s+/g, "-").slice(0, 48),
+      texto: c.texto || c.clave,
+      libre: true,
+      valido: false
+    }, c);
+    nodosVivos.push(v);
+    if (window.MarIdeas && MarIdeas.agregar) MarIdeas.agregar(v);
+  });
+  aplicarEscalaIdeas(false);
 }
 
 async function agregarIdea(texto, op = {}) {
@@ -661,7 +704,7 @@ async function agregarIdea(texto, op = {}) {
   }
   const s = salaActual();
   const claveLocal = normalizarTexto(t);
-  let res = { ok: false, clave: claveLocal, personas: 1, nuevo: true };
+  let res = { ok: true, clave: claveLocal, personas: 1, nuevo: true };
   if (!op.local && debePersistir() && window.Datos && Datos.aportarConcepto) {
     res = await Datos.aportarConcepto({
       texto: t,
@@ -675,8 +718,14 @@ async function agregarIdea(texto, op = {}) {
       console.warn("aportarConcepto", res.error);
       res = { ok: false, clave: claveLocal, personas: 1, nuevo: true };
     }
-  } else if (op.local) {
-    res = { ok: true, clave: claveLocal, personas: 1, nuevo: true };
+  }
+  if (op.local || !debePersistir() || (res && res.ok === false)) {
+    const vivoPrev = nodosVivos.find((v) => v.clave === claveLocal && v.estado !== "fuera");
+    if (vivoPrev) {
+      res = { ok: true, clave: claveLocal, personas: (vivoPrev.personas || 1) + 1, nuevo: false };
+    } else {
+      res = { ok: true, clave: claveLocal, personas: 1, nuevo: true };
+    }
   }
   if (res && res.clave && estado.aportados && !estado.aportados.includes(res.clave)) {
     estado.aportados.push(res.clave);
@@ -882,28 +931,17 @@ function avanzar() {
 function renderFormulario() {
   escena.innerHTML = `
     <section class="cierre">
-      <h2>Registro de interés</h2>
       <p class="aviso-termino">¡Terminaste el juego!</p>
-      <p class="lead">Completaste las cuatro salas. Para emitir el reconocimiento, registra tus datos en este dispositivo. El envío al equipo editorial está [POR DEFINIR].</p>
       <form class="registro" id="form-registro">
-        <label>Nombre completo
-          <input name="nombre" type="text" required maxlength="120" value="${escapeAttr(estado.registro.nombre)}">
+        <label>¿Cómo te llamas, amigo? Es para darte tu reconocimiento.
+          <input name="nombre" type="text" required maxlength="120" value="${escapeAttr(estado.registro.nombre)}" autocomplete="name">
         </label>
-        <label>Institución o facultad de adscripción
-          <input name="institucion" type="text" required maxlength="160" value="${escapeAttr(estado.registro.institucion)}">
-        </label>
-        <label>Correo electrónico
-          <input name="correo" type="email" required maxlength="120" value="${escapeAttr(estado.registro.correo)}">
-        </label>
-        <label>Teléfono o WhatsApp
-          <input name="telefono" type="tel" required maxlength="40" value="${escapeAttr(estado.registro.telefono)}">
-        </label>
-        <label>Título
-          <input name="titulo" type="text" required maxlength="180" value="${escapeAttr(estado.tema)}" placeholder="El título que registraste en la primera sala">
+        <label>Procedencia
+          <input name="institucion" type="text" required maxlength="160" value="${escapeAttr(estado.registro.institucion)}" placeholder="Institución o facultad de adscripción" autocomplete="organization">
         </label>
         <label class="aviso">
           <input name="aviso" type="checkbox" ${estado.registro.aviso ? "checked" : ""} required>
-          <span>Aviso de privacidad: tus datos personales (nombre, correo electrónico, teléfono y título de investigación) serían recabados por la Revista Jandiekua (Agenda Ambiental – UASLP) con la única finalidad de brindar seguimiento editorial y enviarte convocatorias académicas. El aviso integral está [POR DEFINIR]. En esta versión del juego los datos solo se guardan en este dispositivo y no se envían a ningún servidor.</span>
+          <span>Aviso de privacidad: tu nombre, procedencia y título de investigación serían recabados por la Revista Jandiekua (Agenda Ambiental – UASLP) con la única finalidad de emitir este reconocimiento. El aviso integral está [POR DEFINIR]. En esta versión del juego los datos solo se guardan en este dispositivo y no se envían a ningún servidor.</span>
         </label>
         <button type="submit" class="btn-principal">Generar reconocimiento</button>
         <p class="nota-local">El envío real está [POR DEFINIR].</p>
@@ -915,11 +953,11 @@ function renderFormulario() {
     estado.registro = {
       nombre: fd.get("nombre").trim(),
       institucion: fd.get("institucion").trim(),
-      correo: fd.get("correo").trim(),
-      telefono: fd.get("telefono").trim(),
+      correo: estado.registro.correo || "",
+      telefono: estado.registro.telefono || "",
       aviso: true
     };
-    estado.tema = (fd.get("titulo") || fd.get("tema") || "").trim();
+    estado.tema = estado.tema || "";
     estado.vista = "cierre-diploma";
     guardar();
     if (debePersistir() && window.Datos && Datos.registrarParticipante) {
@@ -1027,18 +1065,17 @@ async function dibujarCertificado() {
   ctx.strokeRect(56, 248, W - 112, H - 336);
 
   ctx.fillStyle = "#003B71";
-  ctx.font = "italic 56px Fraunces";
   ctx.textAlign = "center";
-  ctx.fillText("Mar de las Ideas", W / 2, 330);
-  ctx.font = "600 22px Montserrat";
+  ctx.font = "700 22px Montserrat";
+  ctx.fillText("Reconocimiento", W / 2, 318);
+  ctx.font = "italic 44px Fraunces";
+  ctx.fillText("Mar de las Ideas · Revista Jandiekua", W / 2, 372);
+  ctx.font = "600 20px Montserrat";
   ctx.fillStyle = "#2E6B4E";
-  ctx.fillText("ESCAPE ROOM VIRTUAL", W / 2, 372);
-  ctx.font = "italic 34px Fraunces";
-  ctx.fillStyle = "#003B71";
-  ctx.fillText("Revista Jandiekua", W / 2, 430);
-  ctx.font = "700 20px Montserrat";
+  ctx.fillText("ESCAPE ROOM VIRTUAL", W / 2, 408);
+  ctx.font = "700 22px Montserrat";
   ctx.fillStyle = "#2E6B4E";
-  ctx.fillText("Juego formativo", W / 2, 462);
+  ctx.fillText("Juego formativo", W / 2, 442);
   ctx.font = "500 20px Montserrat";
   ctx.fillStyle = "#102438";
   ctx.fillText("Revista Mexicana de Educación Ambiental", W / 2, 492);

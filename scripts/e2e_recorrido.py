@@ -76,7 +76,7 @@ def main():
             args=["--headless=new", "--no-sandbox", "--disable-gpu"],
         )
         page = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&v=20261112i", wait_until="networkidle")
+        page.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&v=20261112j", wait_until="networkidle")
         page.evaluate("localStorage.clear()")
         page.reload(wait_until="networkidle")
         page.wait_for_timeout(400)
@@ -86,7 +86,7 @@ def main():
         page.fill("#tema", "PRUEBA título e2e local 2026-11-12")
         page.locator("#btn-registrar-titulo").click()
         page.wait_for_function("() => !document.querySelector('.zona-tanques.bloqueado')")
-        page.wait_for_selector("#mar[data-listo='1'] #s1-a", timeout=20000)
+        page.wait_for_selector("#mar[data-listo='1'] #s1-a", state="attached", timeout=20000)
         print("sala 1")
 
         soltar(page, "s1-e", "tanque-originalidad", debe_aceptar=False)
@@ -152,11 +152,11 @@ def main():
 
         print("formulario")
         page.wait_for_selector("#form-registro")
+        if "¿Cómo te llamas, amigo? Es para darte tu reconocimiento." not in page.inner_text("#form-registro"):
+            ok = False
+            errores.append("falta la pregunta de nombre en el cierre")
         page.fill("input[name=nombre]", "Persona de prueba")
         page.fill("input[name=institucion]", "Institución de prueba")
-        page.fill("input[name=correo]", "prueba@example.com")
-        page.fill("input[name=telefono]", "0000000000")
-        page.fill("input[name=titulo]", "PRUEBA título e2e local 2026-11-12")
         page.check("input[name=aviso]")
         page.locator("#form-registro button[type=submit]").click()
 
@@ -172,8 +172,8 @@ def main():
 
         print("estres 200 ideas")
         page2 = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page2.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&vista=sala1&v=20261112i", wait_until="networkidle")
-        page2.wait_for_selector("#mar[data-listo='1'] #s1-a", timeout=20000)
+        page2.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&vista=sala1&v=20261112j", wait_until="networkidle")
+        page2.wait_for_selector("#mar[data-listo='1'] #s1-a", state="attached", timeout=20000)
         page2.wait_for_timeout(400)
         page2.evaluate("""async () => {
           const textos = Array.from({length: 200}, (_, i) => "Aporte del consorcio número " + (i + 1));
