@@ -420,8 +420,11 @@ async function leerConcepto(clave) {
  * guarda un título sin deduplicar. Requiere consentimiento previo.
  * @returns {Promise<{ok:boolean, clave?:string, personas?:number, nuevo?:boolean, titulo?:boolean, id?:string}>}
  */
+const ELEMENTOS_OK = ['que', 'quien', 'donde', 'cuando'];
+
 export async function aportarConcepto(args = {}, _reintento = false) {
   const { texto, sala, salaNombre, tipo, sesion, tituloInvestigacion } = args;
+  const elemento = ELEMENTOS_OK.includes(args.elemento) ? args.elemento : null;
   try {
     const t = recortar(texto, 180);
     if (!t) return { ok: false, error: 'texto vacío' };
@@ -471,6 +474,8 @@ export async function aportarConcepto(args = {}, _reintento = false) {
         personas: iv(1),
         ultimoSesion: sv(sesion),
       };
+      // Sala 1 (peces): qué | quién | dónde | cuándo. Solo se fija al crear el pez.
+      if (elemento) fieldsConcepto.elemento = sv(elemento);
       const fieldsAporte = {
         sesion: sv(sesion),
         sala: iv(salaN),
@@ -557,6 +562,7 @@ export async function cargarConceptos() {
           texto: d.texto,
           personas: Number(d.personas || 0),
           salas: Array.isArray(d.salas) ? d.salas : [],
+          elemento: ELEMENTOS_OK.includes(d.elemento) ? d.elemento : null,
           creado: d.creado || null,
           actualizado: d.actualizado || null,
         });

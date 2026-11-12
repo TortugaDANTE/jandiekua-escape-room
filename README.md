@@ -4,7 +4,7 @@ Experiencia de inducción a la publicación científica de la **Revista Jandieku
 
 El lienzo está pensado para una pantalla vertical de **1080 × 2022 px** (proporción 102:191), la medida de exportación del Banner 4 del stand virtual. En un recuadro de 102 × 191 px probablemente solo quepa una imagen fija o un póster con un código QR que abra el juego; eso queda **[POR DEFINIR]** según la plataforma del stand.
 
-Dirección de diseño y prototipo jugable en este repositorio. No se inventan datos institucionales: lo que aún no está definido se marca **[POR DEFINIR]** (entre ello el logo de Jandiekua, el nombre de la insignia, la URL de envío de manuscritos y el envío real del formulario).
+Dirección de diseño y prototipo jugable en este repositorio. No se inventan datos institucionales: lo que aún no está definido se marca **[POR DEFINIR]** (entre ello el nombre de la insignia, la URL de envío de manuscritos y el envío real del formulario).
 
 ## Cómo abrir el prototipo
 
@@ -53,9 +53,18 @@ El pie institucional es `ext. 7200 y 7210`. Los logos de la barra solo se escala
 
 Mar de las Ideas es una **herramienta de recolección de datos en formato lúdico**: lo que la persona escribe (título, ideas, colocaciones y, al final, nombre y procedencia) se guarda en la base de datos de la Revista Jandiekua.
 
-- **Consentimiento:** casilla sin marcar en la sala 1; sin ella no se envía nada. Se guarda la versión del texto (`v1-borrador-20261112`) y la fecha.
+- **Consentimiento:** casilla sin marcar en la **portada** (con enlaces a Términos y Aviso); el botón «Entrar al juego» queda bloqueado hasta marcarla y sin ella no se envía nada. Se guarda la versión del texto (`v1-borrador-20261112`) y la fecha.
 - **Aviso de almacenamiento:** el sitio no usa cookies; solo `localStorage`. No hay analítica, CDN ni tipografías de terceros.
 - **Boletín:** casilla opcional al final («Quiero recibir noticias de la Revista Jandiekua»); el correo se pide solo si se marca. Cada correo debe llevar el pie de `docs/pie_correo_baja.html`.
 - **Descargar y borrar:** en la pantalla final, en JSON o CSV, y borrado con confirmación.
-- **Reglas de Firestore (`firestore.rules` v4):** requieren Firebase Authentication anónima y consentimiento; se prueban en el emulador (`test_reglas_emulador.py`, 50 pruebas) y con `scripts/e2e_legal.py`. **No están desplegadas en producción.**
+- **Reglas de Firestore (`firestore.rules` v4):** requieren Firebase Authentication anónima y consentimiento; se prueban en el emulador (`test_reglas_emulador.py`, 50 pruebas) y con `scripts/e2e_legal.py`. **No están desplegadas en producción.** La Sala 1 (peces) guarda además el campo `elemento` (`que|quien|donde|cuando`) en cada concepto: la regla correspondiente ya está en `firestore.rules` y en las pruebas, pero **tampoco está desplegada**.
 - **Todo texto legal es borrador** y debe ser revisado por la Unidad de Transparencia / área jurídica de la UASLP.
+
+## Portada y Sala 1 «Túnel de la Originalidad» (v5 · peces)
+
+- **Portada:** logotipo de Jandiekua sobre tarjeta blanca (archivo oficial sin alterar; ver `LICENCIAS.md`), tarjeta de consentimiento con casilla, enlaces y nota de recolección de datos, tarjeta del aviso de almacenamiento local y botón «Entrar al juego» bloqueado hasta aceptar. Las salas ya no llevan casilla ni enlaces legales.
+- **Sala 1:** el título se escribe palabra por palabra (o se arrastran peces del tanque) en una barra de chips. Cuatro indicadores (Qué, Quién, Dónde, Cuándo; criterio de Sampieri) se encienden según lo que el título expresa; tocar un chip abre una ventana para elegir su elemento (hay sugerencia, la persona decide). Con los cuatro elementos se obtiene la Llave de Pertinencia y aparece «Soltar mi título al mar»: los conceptos del título (sin conectores, con bigramas razonables) se vuelven peces que caen al tanque.
+- **Tanque:** ocupa toda la altura restante. Empieza **vacío** («Aún no hay peces: ¡tu título será el primero!»); los peces vienen de la colección `conceptos` de Firestore (solo los que traen `elemento`). Con ?sinred=1 no se lee ni se escribe nada; `&peces=demo` (o `&peces=N`) siembra peces de ejemplo solo en ese modo.
+- **Código:** `js/titulo.js` (lógica del título: conectores, elementos, bigramas), `js/peces.js` (peces nadando, arrastre, estela) y `js/juego.js` (pantallas). Pruebas: `scripts/e2e_sala1.py` (sin red), `scripts/e2e_recorrido.py` (cuatro salas, sin red) y `scripts/e2e_legal.py` (emulador).
+- Con más de ~100 peces el tanque se llena: los menos populares quedan «fuera de vista» (se indica «+N peces más nadan fuera de vista») para que las palabras sigan legibles (≥ 12 px reales).
+- Los scripts `scripts/render_ideas_y_viewports.py` y `scripts/render_jk_v3_previews.py` son anteriores y describen la Sala 1 antigua (tanque de originalidad con fichas): ya no aplican a la Sala 1.

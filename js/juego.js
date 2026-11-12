@@ -1,4 +1,5 @@
-import * as DatosMod from './datos.js?v=20261112m';
+import * as DatosMod from './datos.js?v=20261113a';
+import * as Titulo from './titulo.js?v=20261113a';
 const Datos = Object.assign({}, DatosMod.default || {}, DatosMod, { normalizar: DatosMod.claveDe });
 window.Datos = Datos;
 
@@ -8,7 +9,7 @@ window.Datos = Datos;
 const ANCHO = 1080;
 const ALTO = 2022;
 const ACUARIO_SVG = '<svg class="acuario-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 605" preserveAspectRatio="none" aria-hidden="true">\n  <defs>\n    <linearGradient id="arena" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#C59B27" stop-opacity=".0"/>\n      <stop offset=".45" stop-color="#8A6A12" stop-opacity=".18"/>\n      <stop offset="1" stop-color="#5C4A18" stop-opacity=".45"/>\n    </linearGradient>\n    <linearGradient id="rayo" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#D8E8DF" stop-opacity=".16"/>\n      <stop offset="1" stop-color="#D8E8DF" stop-opacity="0"/>\n    </linearGradient>\n    <linearGradient id="alga" x1="0" y1="1" x2="0" y2="0">\n      <stop offset="0" stop-color="#2E6B4E"/>\n      <stop offset="1" stop-color="#4A8B68" stop-opacity=".85"/>\n    </linearGradient>\n  </defs>\n  <!-- caustics / refraction bands -->\n  <g opacity=".22" fill="none" stroke="#D8E8DF" stroke-width="1.2">\n    <path d="M0 90 Q180 70 360 100 T720 90 T1080 110" opacity=".7"/>\n    <path d="M0 130 Q200 150 400 120 T800 140 T1080 125" opacity=".45"/>\n    <path d="M0 170 Q160 155 320 180 T640 165 T1080 185" opacity=".35"/>\n  </g>\n  <!-- light rays -->\n  <g fill="url(#rayo)">\n    <polygon points="220,-10 310,-10 260,400 170,400" opacity=".8"/>\n    <polygon points="520,-10 590,-10 560,360 490,360" opacity=".55"/>\n    <polygon points="820,-10 900,-10 870,420 790,420" opacity=".65"/>\n  </g>\n  <!-- sand bottom -->\n  <path fill="url(#arena)" d="M0 500 C80 488 160 520 260 505 C360 488 470 525 580 508 C700 490 820 528 930 510 C1000 500 1040 518 1080 508 L1080 605 L0 605 Z"/>\n  <g fill="#C59B27" opacity=".2">\n    <circle cx="90" cy="560" r="4"/><circle cx="140" cy="575" r="3"/><circle cx="320" cy="568" r="3.5"/>\n    <circle cx="510" cy="580" r="4"/><circle cx="700" cy="565" r="3"/><circle cx="880" cy="578" r="4"/>\n    <circle cx="990" cy="555" r="2.5"/>\n  </g>\n  <!-- seaweed / coral, left -->\n  <g fill="url(#alga)" opacity=".85">\n    <path d="M70 605 C60 540 90 520 70 460 C50 400 95 390 80 330 C88 400 55 420 85 480 C100 530 55 550 70 605Z"/>\n    <path d="M110 605 C125 530 95 510 120 440 C140 380 100 370 115 320 C108 380 145 400 108 470 C90 530 130 560 110 605Z"/>\n    <path d="M40 605 C30 550 55 530 38 480 C22 430 58 425 48 390 C52 440 20 455 50 510 C62 545 28 565 40 605Z"/>\n  </g>\n  <!-- right -->\n  <g fill="url(#alga)" opacity=".8">\n    <path d="M1010 605 C1022 540 990 520 1015 455 C1038 400 990 390 1008 335 C1000 400 1040 420 1000 485 C985 535 1028 555 1010 605Z"/>\n    <path d="M1050 605 C1062 550 1038 535 1055 485 C1072 435 1038 428 1050 390 C1045 440 1078 455 1048 510 C1036 545 1068 565 1050 605Z"/>\n    <path d="M970 605 C955 545 990 525 968 470 C948 415 990 410 975 360 C980 420 945 435 985 500 C1000 545 958 560 970 605Z"/>\n  </g>\n  <!-- small coral clusters -->\n  <g fill="#C59B27" opacity=".35">\n    <path d="M200 600 l8-28 8 14 7-22 7 22 8-14 8 28z"/>\n    <path d="M860 600 l6-22 7 11 6-18 6 18 7-11 6 22z"/>\n  </g>\n  <!-- two slow fish silhouettes (animated via CSS on groups) -->\n  <g class="pez pez-a" fill="#102438" opacity=".28">\n    <ellipse cx="0" cy="0" rx="22" ry="10"/>\n    <polygon points="18,0 34,-9 34,9"/>\n    <circle cx="-8" cy="-2" r="1.4" fill="#D8E8DF" opacity=".8"/>\n  </g>\n  <g class="pez pez-b" fill="#102438" opacity=".2">\n    <ellipse cx="0" cy="0" rx="16" ry="7"/>\n    <polygon points="-14,0 -26,-7 -26,7"/>\n    <circle cx="6" cy="-1.5" r="1.1" fill="#D8E8DF" opacity=".8"/>\n  </g>\n</svg>\n';
-const VERSION = "20261112m";
+const VERSION = "20261113a";
 // Versión de los textos legales que la persona acepta (Términos y Aviso de privacidad).
 const VERSION_LEGAL = "v1-borrador-20261112";
 
@@ -55,22 +56,12 @@ const SALAS = [
     nombre: "Túnel de la Originalidad",
     kicker: "Sala 1 de 4",
     llave: "Llave de Pertinencia",
-    modo: "filtro",
-    instruccion: "Arrastra al tanque las ideas que sostienen un trabajo original, o tócalas y luego toca el tanque.",
-    reto: "Jandiekua publica investigación en educación ambiental. Para cruzar el túnel hay que distinguir un aporte inédito y bien citado de las prácticas que constituyen plagio, autoplagio o un tema ajeno a la revista.",
-    etiqueta: "Reto editorial",
-    tema: true,
-    tanques: [{ id: "tanque-originalidad", etiqueta: "Tanque de originalidad" }],
-    nodos: [
-      { id: "s1-a", texto: "Identificar un vacío de conocimiento", valido: true, tanque: "tanque-originalidad", ok: "Sí: un vacío claramente planteado sostiene la pertinencia del trabajo." },
-      { id: "s1-b", texto: "Citar las fuentes que se consultan", valido: true, tanque: "tanque-originalidad", ok: "Sí: citar con precisión es la base de la originalidad." },
-      { id: "s1-c", texto: "Aportar un enfoque inédito al campo", valido: true, tanque: "tanque-originalidad", ok: "Sí: el aporte inédito es el corazón de un manuscrito original." },
-      { id: "s1-d", texto: "Alinear el tema con la educación ambiental", valido: true, tanque: "tanque-originalidad", ok: "Sí: la pertinencia temática con la línea de la revista es indispensable." },
-      { id: "s1-e", texto: "Copiar un párrafo sin comillas ni cita", valido: false, error: "Eso es plagio. Aunque el dato sea correcto, el texto ajeno debe citarse y, si se reproduce de forma literal, ir entre comillas." },
-      { id: "s1-f", texto: "Republicar un artículo propio sin declararlo", valido: false, error: "Eso es autoplagio. Un trabajo previo puede retomarse solo si se declara y se aporta algo nuevo." },
-      { id: "s1-g", texto: "Traducir un artículo ajeno y firmarlo como propio", valido: false, error: "Traducir no transfiere la autoría. Ese uso requiere autorización y atribución explícita." },
-      { id: "s1-h", texto: "Proponer un tema ajeno a la educación ambiental", valido: false, error: "Un manuscrito puede ser original y, aun así, quedar fuera de la línea editorial de la revista." }
-    ]
+    modo: "peces",
+    instruccion: "Escribe el título de tu investigación o arrastra peces del tanque a la barra.",
+    reto: "",
+    etiqueta: "Título",
+    tanques: [],
+    nodos: []
   },
   {
     id: "formato",
@@ -188,6 +179,9 @@ const estado = {
   sesion: "",
   aportados: [],
   tituloListo: false,
+  tituloPartes: [],
+  parteSeq: 0,
+  pecesSoltados: 0,
   consentimiento: null,
   conceptosUnicos: 0
 };
@@ -219,6 +213,7 @@ function debePersistir() {
   catch (_) { return true; }
 }
 async function cargarConceptosLista() {
+  if (!debePersistir()) return []; // ?sinred=1: ni lee ni escribe en la red
   if (!window.Datos || !Datos.cargarConceptos) return [];
   try {
     const r = await Promise.race([
@@ -249,6 +244,11 @@ function escalaLienzo() {
   const s = esPortraitEstrecho() ? (w / ANCHO) : Math.min(w / ANCHO, h / ALTO);
   lienzo.style.transform = `translate(-50%, 0) scale(${s})`;
   escenario.style.setProperty("--escala", String(s));
+  // Sala 1 (peces): el tanque ocupa toda la pantalla hasta el borde inferior
+  const completa = lienzo.classList.contains("sala-completa");
+  const alto = completa && esPortraitEstrecho() ? Math.max(1500, Math.round(h / s)) : ALTO;
+  escenario.style.setProperty("--alto", alto + "px");
+  if (completa && window.Peces) { clearTimeout(escalaLienzo._t); escalaLienzo._t = setTimeout(() => Peces.recalcular(), 120); }
   return s;
 }
 function puntoLocal(e) {
@@ -293,6 +293,9 @@ function guardar() {
       sesion: estado.sesion,
       aportados: estado.aportados,
       tituloListo: estado.tituloListo,
+      tituloPartes: estado.tituloPartes,
+      parteSeq: estado.parteSeq,
+      pecesSoltados: estado.pecesSoltados,
       consentimiento: estado.consentimiento
     }));
   } catch (err) { /* almacenamiento no disponible */ }
@@ -309,6 +312,7 @@ function cargar() {
     if (!Array.isArray(estado.ideasJugador)) estado.ideasJugador = [];
     if (!Array.isArray(estado.predefIds)) estado.predefIds = [];
     if (!Array.isArray(estado.aportados)) estado.aportados = [];
+    if (!Array.isArray(estado.tituloPartes)) estado.tituloPartes = [];
     if (!estado.ideaSeq) estado.ideaSeq = estado.ideasJugador.length;
     estado.colocados = {};
   } catch (err) { /* ignorar */ }
@@ -351,18 +355,31 @@ function render() {
   if (capa) capa.innerHTML = "";
   lienzo.classList.remove("arrastrando");
   const franja = $("#franja-llaves");
+  if (window.Peces) Peces.desmontar();
+  document.removeEventListener("pointerdown", cerrarPopFuera, true);
+  const completa = esSalaPeces();
+  lienzo.classList.toggle("sala-completa", completa);
+  lienzo.dataset.vista = estado.vista === "sala" ? "sala" : estado.vista;
+  escalaLienzo();
   if (estado.vista === "portada" || estado.vista === "cierre-form" || estado.vista === "cierre-diploma") {
     franja.hidden = true;
     if (estado.vista === "portada") { renderPortada(); return; }
   } else {
-    franja.hidden = false;
+    franja.hidden = completa;
   }
   svgLlaves();
-  if (estado.vista === "sala") return renderSala();
+  if (estado.vista === "sala") return esSalaPeces() ? renderSalaPeces() : renderSala();
   else if (estado.vista === "cierre-form") renderFormulario();
   else if (estado.vista === "cierre-diploma") renderDiploma();
 }
 
+const CLAVE_AVISO_ALMACENAMIENTO = "jandiekua_aviso_almacenamiento_v1";
+function avisoAlmacenamientoVisto() {
+  try { const v = JSON.parse(localStorage.getItem(CLAVE_AVISO_ALMACENAMIENTO) || "null"); return !!(v && v.v === "1"); } catch (_) { return false; }
+}
+function recordarAvisoAlmacenamiento(valor) {
+  try { localStorage.setItem(CLAVE_AVISO_ALMACENAMIENTO, JSON.stringify({ v: "1", valor, fecha: new Date().toISOString() })); } catch (_) { /* sin almacenamiento */ }
+}
 function renderPortada() {
   escena.innerHTML = `
     <section class="portada">
@@ -370,18 +387,29 @@ function renderPortada() {
       <h1>Mar de las <span>Ideas</span></h1>
       <p class="revista">Revista Jandiekua</p>
       <p class="subtitulo">Revista Mexicana de Educación Ambiental<br>Agenda Ambiental · UASLP</p>
-      <div class="logo-pendiente">[LOGO JANDIEKUA]<br>[POR DEFINIR]</div>
+      <div class="logo-jandiekua"><img src="assets/logos/jandiekua_homepageImage_en_US.png" width="500" height="150" alt="Jandiekua, Revista Mexicana de Educación Ambiental"></div>
       <p class="entradilla">Cuatro salas para comprender la originalidad, el formato, la revisión por pares y la ética científica antes de postular un manuscrito.</p>
       <p class="aviso-juego">Mar de las Ideas es un juego formativo. No sustituye el proceso formal de envío y dictaminación de la Revista Jandiekua.</p>
-      <p class="aviso-datos">Es una herramienta de recolección de datos en formato lúdico: tus aportes se guardan en la base de datos de la Revista Jandiekua.</p>
-      <button type="button" class="btn-entrar" id="btn-entrar">Entrar al consorcio</button>
-      <p class="enlaces-legales" id="enlaces-portada">
-        <a href="aviso-privacidad.html" target="_blank" rel="noopener">Aviso de privacidad</a>
-        <span aria-hidden="true">·</span>
-        <a href="terminos.html" target="_blank" rel="noopener">Términos y condiciones</a>
-      </p>
-    </section>`;
-  $("#btn-entrar").addEventListener("click", () => {
+      <div class="consent-card" id="consent-card">${bloqueConsentimiento("acepto-terminos", false)}</div>
+      <button type="button" class="btn-entrar bloqueado" id="btn-entrar" aria-disabled="true" aria-describedby="ayuda-consentimiento">Entrar al juego</button>
+      <p class="pista-entrar" id="pista-entrar">Marca la casilla para poder entrar.</p>
+    </section>
+    <aside class="cookies" id="aviso-cookies" role="region" aria-label="Aviso de almacenamiento local"${avisoAlmacenamientoVisto() ? " hidden" : ""}>
+      <p><strong>Usamos almacenamiento local</strong> de tu navegador solo para guardar tu avance. Sin cookies de publicidad ni rastreo. <a href="aviso-privacidad.html#almacenamiento" target="_blank" rel="noopener">Más información</a></p>
+      <button type="button" id="cookies-ok">Entendido</button>
+    </aside>`;
+  const caja = $("#acepto-terminos"), btn = $("#btn-entrar");
+  const sync = () => {
+    const ok = caja.checked;
+    btn.classList.toggle("bloqueado", !ok);
+    btn.setAttribute("aria-disabled", ok ? "false" : "true");
+    $("#pista-entrar").hidden = ok;
+  };
+  caja.checked = false; sync();
+  caja.addEventListener("change", sync);
+  $("#cookies-ok").addEventListener("click", () => { recordarAvisoAlmacenamiento("entendido"); $("#aviso-cookies").hidden = true; });
+  btn.addEventListener("click", () => {
+    if (!caja.checked) { mostrarToast("Marca la casilla de Términos y Aviso de privacidad para entrar.", true); caja.focus(); return; }
     estado.vista = "sala";
     estado.sala = 0;
     estado.paso = 0;
@@ -393,10 +421,15 @@ function renderPortada() {
     asegurarSesion();
     estado.aportados = [];
     estado.tituloListo = false;
+    estado.tituloPartes = [];
+    estado.parteSeq = 0;
+    estado.pecesSoltados = 0;
+    estado.llaves = [false, false, false, false];
     estado.tema = "";
     estado.consentimiento = null;
     datosBorrados = false;
     estado.conceptosUnicos = 0;
+    registrarConsentimiento();
     guardar();
     render();
   });
@@ -532,6 +565,460 @@ function registrarConsentimiento() {
       });
   }
   return Promise.resolve({ ok: true, local: true });
+}
+
+
+/* =====================================================================================
+   Sala 1 · Túnel de la Originalidad (v5): título por etiquetas y tanque de peces
+   Barra de título (palabras escritas + peces arrastrados) → 4 elementos de Sampieri →
+   llave → «Soltar mi título al mar»: sus conceptos se vuelven peces que caen al tanque.
+   ===================================================================================== */
+const PISTA_VACIO = "Aún no hay peces: ¡tu título será el primero!";
+const ICONO_PEZ = '<svg class="ico-pez" viewBox="0 0 56 34" aria-hidden="true"><path d="M10 17 L1 4 Q5 17 1 30Z" fill="currentColor"/><path d="M10 17 C16 1 40 1 55 17 C40 33 16 33 10 17Z" fill="#fff" stroke="currentColor" stroke-width="3"/><circle cx="44" cy="14" r="2.6" fill="#102438"/></svg>';
+const s1 = { chips: null, entrada: null, pop: null, popId: null, enviando: false, llaveAvisada: false, pescados: {}, seq: 0 };
+
+function esSalaPeces() {
+  return estado.vista === "sala" && SALAS[estado.sala] && SALAS[estado.sala].modo === "peces";
+}
+function nuevaParte(texto, tipo, elemento, auto, extra) {
+  estado.parteSeq = (estado.parteSeq || 0) + 1;
+  return Object.assign({ id: "p" + estado.parteSeq, texto, tipo, elemento, auto: auto !== false }, extra || {});
+}
+function claseElemento(el) { return el && Titulo.ELEMENTO_INFO[el] ? Titulo.ELEMENTO_INFO[el].clase : "sin"; }
+
+async function renderSalaPeces() {
+  const s = salaActual();
+  const listo = !!estado.tituloListo;
+  if (!Array.isArray(estado.tituloPartes)) estado.tituloPartes = [];
+  s1.enviando = false; s1.llaveAvisada = listo; s1.pescados = {}; s1.popId = null;
+  const pills = Titulo.ELEMENTOS.map((k) => {
+    const i = Titulo.ELEMENTO_INFO[k];
+    return `<div class="ind ${i.clase}" data-el="${k}"><span class="t"><i></i>${i.nombre}</span><small>${i.pista}</small></div>`;
+  }).join("");
+  escena.innerHTML = `
+    <section class="sala sala-peces" data-sala="${s.id}">
+      <div class="arriba">
+        <p class="mini">Sala 1 · <span>${s.nombre}</span></p>
+        <div class="barra-titulo" id="barra-titulo">
+          <div class="llavefila" id="llavefila" hidden></div>
+          <div class="chips" id="chips" aria-live="polite"></div>
+          <button type="button" class="btn-m on" id="btn-soltar" hidden>Soltar mi título al mar</button>
+        </div>
+        <p class="guia">Un buen título según Sampieri dice qué, quién, dónde y cuándo</p>
+        <div class="indic" id="indic" role="list" aria-label="Elementos de un buen título">${pills}</div>
+      </div>
+      <div class="tanque-peces" id="tanque-peces">
+        <div class="acuario" aria-hidden="true">${ACUARIO_SVG}
+          <div class="acuario-burbujas"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <div id="peces-caja"></div>
+        <div class="hint-vacio" id="hint-vacio" hidden>
+          <svg viewBox="0 0 190 80" fill="none" stroke="#D8E8DF" stroke-width="3" stroke-dasharray="7 7" stroke-linecap="round" aria-hidden="true"><path d="M36 40 L8 12 Q20 40 8 68 Z"/><path d="M36 40 C54 6 130 6 176 40 C130 74 54 74 36 40Z"/><circle cx="150" cy="33" r="5" fill="#D8E8DF" stroke="none"/></svg>
+          <p>${PISTA_VACIO}</p>
+          <small>Cuando alguien registre un título, sus palabras nadarán aquí.</small>
+        </div>
+        <div class="mas-peces" id="mas-peces" hidden></div>
+        <button type="button" class="btn-m on flota-continuar" id="btn-continuar" hidden>Continuar</button>
+      </div>
+      <div class="pop" id="pop-elemento" hidden role="dialog" aria-modal="false" aria-labelledby="pop-titulo"></div>
+    </section>`;
+  s1.chips = $("#chips");
+  const entrada = document.createElement("input");
+  entrada.id = "entrada-titulo"; entrada.type = "text"; entrada.maxLength = 120;
+  entrada.autocomplete = "off"; entrada.setAttribute("autocapitalize", "none"); entrada.setAttribute("autocorrect", "off");
+  entrada.spellcheck = false; entrada.enterKeyHint = "done";
+  entrada.setAttribute("aria-label", "Escribe tu título o añade peces del tanque");
+  s1.entrada = entrada; s1.pop = $("#pop-elemento");
+  entrada.addEventListener("input", () => { if (/[\s,;]$/.test(entrada.value)) confirmarEntrada(); });
+  entrada.addEventListener("paste", () => setTimeout(confirmarEntrada, 0));
+  entrada.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); confirmarEntrada(); }
+    else if (e.key === "Backspace" && !entrada.value && estado.tituloPartes.length) {
+      e.preventDefault(); quitarParte(estado.tituloPartes[estado.tituloPartes.length - 1].id);
+    }
+  });
+  entrada.addEventListener("blur", () => { if (entrada.value.trim()) confirmarEntrada(); });
+  $("#btn-soltar").addEventListener("click", soltarTitulo);
+  $("#btn-continuar").addEventListener("click", avanzar);
+  s1.chips.addEventListener("pointerdown", chipPointerDown);
+  s1.chips.addEventListener("dblclick", (e) => {
+    const c = e.target.closest(".chip"); if (!c || estado.tituloListo) return;
+    const p = estado.tituloPartes.find((x) => x.id === c.dataset.id);
+    if (p && /\s/.test(p.texto.trim())) separarParte(p.id);
+  });
+  document.addEventListener("pointerdown", cerrarPopFuera, true);
+
+  await (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve());
+  const tanque = $("#tanque-peces");
+  Peces.montar({
+    tanque, lienzo, ANCHO, foto, puntoLocal, barra: $("#barra-titulo"),
+    sobreBarra: (p) => dentroDe($("#barra-titulo"), p, 36),
+    sobreTanque: (p) => dentroDe(tanque, p, 0),
+    alPescar: (f, p) => pescar(f, indiceInsercion(p)),
+    alToque: (f) => pescar(f, estado.tituloPartes.length),
+    alPartir: (f) => partirPez(f),
+    alOcultos: (n) => { const m = $("#mas-peces"); if (!m) return; m.hidden = n <= 0; m.textContent = n > 0 ? `+${n} peces más nadan fuera de vista` : ""; }
+  });
+  Peces.bloquear(listo);
+  renderChips();
+  if (listo) { mostrarRegistrado(); }
+  await cargarPeces();
+  if (listo) { /* los peces propios ya están cargados del servidor o se agregaron al soltar */ }
+  quitarPecesEnBarra();
+  $("#hint-vacio").hidden = Peces.total() > 0;
+  if (!listo && !estado.tituloPartes.length) setTimeout(() => s1.entrada && s1.entrada.focus({ preventScroll: true }), 150);
+}
+
+function dentroDe(el, p, margen) {
+  if (!el) return false;
+  const r = el.getBoundingClientRect(), lr = lienzo.getBoundingClientRect(), sc = lr.width / ANCHO;
+  const x = (r.left - lr.left) / sc, y = (r.top - lr.top) / sc, w = r.width / sc, h = r.height / sc;
+  return p.x >= x - margen && p.x <= x + w + margen && p.y >= y - margen && p.y <= y + h + margen;
+}
+
+// ------------------------------------------------------------------ carga de peces
+function pecesDemo(spec) {
+  const base = [
+    ["Educación ambiental", "que", 7], ["Estudiantes", "quien", 5], ["San Luis Potosí", "donde", 4], ["Cambio climático", "que", 4],
+    ["espacios urbanos", "que", 3], ["Huertos escolares", "que", 3], ["2026", "cuando", 3], ["Docentes", "quien", 2], ["Agricultura urbana", "que", 2],
+    ["producción agrourbana", "que", 2], ["Huasteca", "donde", 2], ["Jóvenes", "quien", 2], ["2020–2025", "cuando", 2], ["Diagnóstico", "que", 1],
+    ["Residuos sólidos", "que", 1], ["Zona metropolitana", "donde", 1], ["Comunidades rurales", "quien", 1], ["Compostaje", "que", 1], ["México", "donde", 1],
+    ["Percepción", "que", 1], ["Biodiversidad", "que", 1], ["Pandemia", "cuando", 1], ["Impacto", "que", 1], ["Agua", "que", 1]
+  ];
+  const n = Number(spec);
+  if (!Number.isFinite(n) || n <= 0) return base.map(([texto, elemento, personas]) => ({ texto, elemento, personas }));
+  const pal = ["Agua", "Suelo", "Aire", "Huerto", "Bosque", "Río", "Semilla", "Energía", "Residuos", "Clima", "Escuela", "Barrio", "Cuenca", "Sequía", "Reciclaje",
+    "Compost", "Fauna", "Flora", "Océano", "Ciudad", "Campo", "Cultivo", "Riego", "Humedal", "Sierra", "Mercado", "Transporte", "Vivienda", "Paisaje", "Saberes"];
+  const adj = ["urbano", "rural", "local", "ambiental", "social", "comunitario", "sostenible", "regional"];
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const w = pal[i % pal.length], a = adj[Math.floor(i / pal.length) % adj.length];
+    const texto = i < pal.length ? w : (i % 3 === 0 ? w + " " + a : w + " " + (Math.floor(i / pal.length) + 1));
+    out.push({ texto, elemento: Titulo.ELEMENTOS[i % 4], personas: i % 9 === 0 ? 3 : (i % 5 === 0 ? 2 : 1) });
+  }
+  return out;
+}
+async function cargarPeces() {
+  let lista = [];
+  if (debePersistir()) {
+    const cs = await cargarConceptosLista();
+    lista = cs.filter((c) => c && c.clave && c.elemento && Titulo.ELEMENTOS.includes(c.elemento))
+      .map((c) => ({ clave: c.clave, texto: c.texto || c.clave, elemento: c.elemento, personas: c.personas || 1 }));
+  } else {
+    const demo = new URLSearchParams(location.search).get("peces");
+    if (demo) lista = pecesDemo(demo === "demo" ? "" : demo);
+  }
+  estado.conceptosUnicos = lista.length;
+  lista.forEach((d) => Peces.agregar(d, { caer: false }));
+  if (window.Peces && Peces.recalcular) Peces.recalcular();
+}
+// al volver a una partida con chips-pez en la barra, esos peces no deben nadar también en el tanque
+function quitarPecesEnBarra() {
+  (estado.tituloPartes || []).forEach((p) => {
+    if (p.tipo !== "pez" || !p.clave || estado.tituloListo) return;
+    const f = Peces.quitar(p.clave);
+    if (f) s1.pescados[p.clave] = { texto: f.texto, elemento: f.elemento, personas: f.personas };
+  });
+}
+
+// ------------------------------------------------------------------ chips de la barra
+function renderChips() {
+  const cont = s1.chips; if (!cont) return;
+  const listo = !!estado.tituloListo;
+  const nodos = estado.tituloPartes.map((p) => {
+    const c = document.createElement("span");
+    c.className = "chip " + (p.tipo === "enlace" ? "con" : claseElemento(p.elemento)) + (p.tipo === "pez" ? " fish" : "") + (s1.popId === p.id ? " sel" : "");
+    c.dataset.id = p.id;
+    if (p.tipo === "pez") c.insertAdjacentHTML("afterbegin", ICONO_PEZ);
+    c.appendChild(document.createTextNode(p.texto));
+    if (p.tipo !== "enlace" && !listo) {
+      c.tabIndex = 0; c.setAttribute("role", "button");
+      c.setAttribute("aria-label", `${p.texto}: ${p.elemento ? Titulo.ELEMENTO_INFO[p.elemento].nombre : "sin elemento"}. Toca para elegir su elemento.`);
+      c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrirPop(p.id); } });
+    }
+    return c;
+  });
+  if (listo) cont.replaceChildren(...nodos);
+  else cont.replaceChildren(...nodos, s1.entrada);
+  if (s1.entrada) s1.entrada.placeholder = estado.tituloPartes.length ? "" : "Escribe tu título o arrastra peces hasta aquí";
+  actualizarIndicadores();
+}
+function confirmarEntrada() {
+  const v = s1.entrada.value;
+  if (!v.trim()) { s1.entrada.value = ""; return; }
+  s1.entrada.value = "";
+  const prev = estado.tituloPartes.length ? estado.tituloPartes[estado.tituloPartes.length - 1] : null;
+  Titulo.partesDeTexto(v, prev).forEach((p) => { estado.tituloPartes.push(nuevaParte(p.texto, p.tipo, p.elemento, true)); });
+  guardar(); renderChips();
+  s1.entrada.focus({ preventScroll: true });
+}
+function quitarParte(id) {
+  const i = estado.tituloPartes.findIndex((x) => x.id === id);
+  if (i < 0) return;
+  const [p] = estado.tituloPartes.splice(i, 1);
+  if (p.tipo === "pez" && p.clave && s1.pescados[p.clave]) {
+    const d = s1.pescados[p.clave]; delete s1.pescados[p.clave];
+    Peces.devolver({ clave: p.clave, texto: d.texto, elemento: d.elemento, personas: d.personas });
+    $("#hint-vacio").hidden = true;
+  }
+  if (s1.popId === id) cerrarPop();
+  guardar(); renderChips();
+}
+function pescar(f, indice) {
+  if (estado.tituloListo) return;
+  const q = Peces.quitar(f.clave);
+  if (!q) return;
+  s1.pescados[q.clave] = { texto: q.texto, elemento: q.elemento, personas: q.personas };
+  const parte = nuevaParte(q.texto, "pez", q.elemento || Titulo.sugerirElemento(q.texto), true, { clave: q.clave });
+  estado.tituloPartes.splice(Math.min(Math.max(indice, 0), estado.tituloPartes.length), 0, parte);
+  guardar(); renderChips();
+  $("#hint-vacio").hidden = Peces.total() > 0 || false;
+  if (Peces.total() === 0) $("#hint-vacio").hidden = false;
+}
+function partirPez(f) {
+  if (estado.tituloListo) return;
+  const palabras = Titulo.tokenizar(f.texto);
+  if (palabras.length < 2) { pescar(f, estado.tituloPartes.length); return; }
+  Titulo.partesDeTexto(f.texto, null).forEach((p) => {
+    estado.tituloPartes.push(nuevaParte(p.texto, p.tipo, p.tipo === "enlace" ? null : (p.elemento === "que" ? (f.elemento || p.elemento) : p.elemento), true));
+  });
+  guardar(); renderChips();
+  mostrarToast("Palabras añadidas por separado. El pez sigue en el tanque.");
+}
+function separarParte(id) {
+  const i = estado.tituloPartes.findIndex((x) => x.id === id);
+  if (i < 0) return;
+  const p = estado.tituloPartes[i];
+  const nuevas = Titulo.partesDeTexto(p.texto, null).map((x) => nuevaParte(x.texto, x.tipo, x.tipo === "enlace" ? null : (p.auto ? x.elemento : p.elemento), p.auto));
+  if (p.tipo === "pez" && p.clave && s1.pescados[p.clave]) {
+    const d = s1.pescados[p.clave]; delete s1.pescados[p.clave];
+    Peces.devolver({ clave: p.clave, texto: d.texto, elemento: d.elemento, personas: d.personas });
+  }
+  estado.tituloPartes.splice(i, 1, ...nuevas);
+  cerrarPop(); guardar(); renderChips();
+}
+function unirConSiguiente(id) {
+  const i = estado.tituloPartes.findIndex((x) => x.id === id);
+  const a = estado.tituloPartes[i], b = estado.tituloPartes[i + 1];
+  if (!a || !b || a.tipo === "enlace" || b.tipo === "enlace") return;
+  [a, b].forEach((x) => {
+    if (x.tipo === "pez" && x.clave && s1.pescados[x.clave]) {
+      const d = s1.pescados[x.clave]; delete s1.pescados[x.clave];
+      Peces.devolver({ clave: x.clave, texto: d.texto, elemento: d.elemento, personas: d.personas });
+    }
+  });
+  const elemento = a.auto === false ? a.elemento : (b.auto === false ? b.elemento : Titulo.sugerirElemento(a.texto + " " + b.texto));
+  const fusion = nuevaParte(a.texto + " " + b.texto, "palabra", elemento, a.auto !== false && b.auto !== false);
+  estado.tituloPartes.splice(i, 2, fusion);
+  cerrarPop(); guardar(); renderChips();
+}
+
+// índice de inserción según el punto (filas y columnas de chips)
+function indiceInsercion(p, excluirId) {
+  const lr = lienzo.getBoundingClientRect(), sc = lr.width / ANCHO;
+  const chips = [...s1.chips.querySelectorAll(".chip")].filter((c) => c.dataset.id !== excluirId);
+  for (let k = 0; k < chips.length; k++) {
+    const r = chips[k].getBoundingClientRect();
+    const top = (r.top - lr.top) / sc, bottom = (r.bottom - lr.top) / sc, cx = ((r.left + r.right) / 2 - lr.left) / sc;
+    if (p.y < top || (p.y <= bottom && p.x < cx)) {
+      const id = chips[k].dataset.id;
+      return estado.tituloPartes.findIndex((x) => x.id === id);
+    }
+  }
+  return estado.tituloPartes.length;
+}
+
+// arrastre para reordenar chips (o sacarlos de la barra hacia el tanque)
+function chipPointerDown(e) {
+  if (estado.tituloListo) return;
+  const c = e.target.closest(".chip"); if (!c) return;
+  const id = c.dataset.id;
+  const x0 = e.clientX, y0 = e.clientY;
+  let fantasma = null, movido = false, pid = e.pointerId;
+  const lr0 = () => lienzo.getBoundingClientRect();
+  const mover = (ev) => {
+    if (ev.pointerId !== pid) return;
+    if (!movido && Math.hypot(ev.clientX - x0, ev.clientY - y0) > 8) {
+      movido = true; cerrarPop();
+      fantasma = c.cloneNode(true);
+      fantasma.classList.add("chip-fantasma");
+      fantasma.removeAttribute("id");
+      $("#capa-arrastre").appendChild(fantasma);
+      c.classList.add("levantado");
+      lienzo.classList.add("arrastrando");
+    }
+    if (movido) {
+      const p = puntoLocal(ev);
+      fantasma.style.left = p.x + "px"; fantasma.style.top = (p.y - 70) + "px";
+      s1.chips.querySelectorAll(".antes").forEach((n) => n.classList.remove("antes"));
+      const tk = $("#tanque-peces");
+      tk.classList.toggle("recibiendo-chip", dentroDe(tk, p, 0));
+      if (!dentroDe(tk, p, 0)) {
+        const idx = indiceInsercion(p, id);
+        const resto = estado.tituloPartes.filter((x) => x.id !== id);
+        const objetivo = resto[idx > estado.tituloPartes.findIndex((x) => x.id === id) ? idx - 1 : idx];
+        const nodo = objetivo && s1.chips.querySelector(`.chip[data-id="${objetivo.id}"]`);
+        if (nodo) nodo.classList.add("antes"); else s1.entrada.classList.add("antes");
+      }
+    }
+  };
+  const fin = (ev, cancel) => {
+    if (ev.pointerId !== pid) return;
+    window.removeEventListener("pointermove", mover); window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", can);
+    s1.chips.querySelectorAll(".antes").forEach((n) => n.classList.remove("antes"));
+    s1.entrada.classList.remove("antes");
+    lienzo.classList.remove("arrastrando"); $("#tanque-peces").classList.remove("recibiendo-chip");
+    if (!movido) { if (!cancel) abrirPop(id); return; }
+    const p = puntoLocal(ev);
+    if (fantasma) fantasma.remove();
+    c.classList.remove("levantado");
+    if (cancel) return;
+    if (dentroDe($("#tanque-peces"), p, 0)) { quitarParte(id); mostrarToast("Palabra devuelta al tanque."); return; }
+    if (dentroDe($("#barra-titulo"), p, 36)) {
+      const desde = estado.tituloPartes.findIndex((x) => x.id === id);
+      let hasta = indiceInsercion(p, id);
+      const [parte] = estado.tituloPartes.splice(desde, 1);
+      if (hasta > desde) hasta -= 1;
+      estado.tituloPartes.splice(Math.max(0, Math.min(hasta, estado.tituloPartes.length)), 0, parte);
+      guardar(); renderChips();
+    }
+  };
+  const up = (ev) => fin(ev, false), can = (ev) => fin(ev, true);
+  window.addEventListener("pointermove", mover); window.addEventListener("pointerup", up); window.addEventListener("pointercancel", can);
+}
+
+// ------------------------------------------------------------------ indicadores, llave y botón
+function actualizarIndicadores() {
+  const cub = Titulo.cubiertos(estado.tituloPartes);
+  document.querySelectorAll("#indic .ind").forEach((n) => n.classList.toggle("on", cub.has(n.dataset.el)));
+  const completo = cub.size === 4;
+  const barra = $("#barra-titulo"), fila = $("#llavefila"), btn = $("#btn-soltar");
+  if (!barra) return;
+  const listo = !!estado.tituloListo;
+  barra.classList.toggle("ok", completo || listo);
+  if (listo) return;
+  if (completo) {
+    fila.hidden = false;
+    fila.innerHTML = `<img src="assets/disenografico/llave_1_pertinencia.svg" alt="">¡Llave de Pertinencia obtenida!`;
+    btn.hidden = false;
+    if (!s1.llaveAvisada) { s1.llaveAvisada = true; mostrarToast("Tu título expresa los 4 elementos. Ya puedes soltarlo al mar."); }
+  } else {
+    fila.hidden = true; btn.hidden = true;
+    s1.llaveAvisada = false;
+  }
+}
+function mostrarRegistrado() {
+  const fila = $("#llavefila"), btn = $("#btn-soltar");
+  const n = Number(estado.pecesSoltados) || 0;
+  fila.hidden = false; fila.classList.add("reg");
+  fila.innerHTML = `<span class="tick">✓</span>Título registrado${n ? " · " + n + (n === 1 ? " pez" : " peces") + " al mar" : ""}`;
+  btn.hidden = true;
+  $("#btn-continuar").hidden = false;
+  $("#barra-titulo").classList.add("ok", "bloqueada");
+  document.querySelectorAll("#indic .ind").forEach((x) => x.classList.remove("on"));
+  actualizarIndicadores();
+  Peces.bloquear(true);
+}
+
+// ------------------------------------------------------------------ popover de elemento
+function abrirPop(id) {
+  if (estado.tituloListo) return;
+  const p = estado.tituloPartes.find((x) => x.id === id);
+  if (!p || p.tipo === "enlace") return;
+  s1.popId = id;
+  const sug = p.tipo === "pez" && p.elemento && p.auto ? p.elemento : Titulo.sugerirElemento(p.texto);
+  const i = estado.tituloPartes.findIndex((x) => x.id === id);
+  const sig = estado.tituloPartes[i + 1];
+  const puedeUnir = sig && sig.tipo !== "enlace";
+  const multi = /\s/.test(p.texto.trim());
+  const botones = Titulo.ELEMENTOS.map((k) => {
+    const inf = Titulo.ELEMENTO_INFO[k];
+    return `<button type="button" class="b-${inf.clase}${k === sug ? " sug" : ""}${k === p.elemento ? " actual" : ""}" data-el="${k}">${k === p.elemento ? "✓ " : ""}${inf.nombre}${k === sug ? " <small>(sugerido)</small>" : ""}</button>`;
+  }).join("");
+  s1.pop.innerHTML = `<h4 id="pop-titulo">¿Qué es «${escapeAttr(p.texto)}»? <span>Tú decides.</span></h4>
+    <div class="op">${botones}</div>
+    <div class="op2">
+      <button type="button" class="sec" data-acc="quitar">Quitar</button>
+      ${multi ? `<button type="button" class="sec" data-acc="separar">Separar palabras</button>` : (puedeUnir ? `<button type="button" class="sec" data-acc="unir">Unir con «${escapeAttr(sig.texto)}»</button>` : "")}
+    </div>`;
+  s1.pop.querySelectorAll("button[data-el]").forEach((b) => b.addEventListener("click", () => {
+    p.elemento = b.dataset.el; p.auto = false; cerrarPop(); guardar(); renderChips();
+  }));
+  s1.pop.querySelector('[data-acc="quitar"]').addEventListener("click", () => { cerrarPop(); quitarParte(id); });
+  const sepB = s1.pop.querySelector('[data-acc="separar"]'); if (sepB) sepB.addEventListener("click", () => separarParte(id));
+  const uniB = s1.pop.querySelector('[data-acc="unir"]'); if (uniB) uniB.addEventListener("click", () => unirConSiguiente(id));
+  // posición: bajo los indicadores
+  const sala = $(".sala-peces"), ind = $("#indic");
+  const lr = lienzo.getBoundingClientRect(), sc = lr.width / ANCHO;
+  const top = (ind.getBoundingClientRect().bottom - lr.top) / sc - (sala.getBoundingClientRect().top - lr.top) / sc + 24;
+  s1.pop.style.top = Math.round(top) + "px";
+  s1.pop.hidden = false;
+  renderChips();
+}
+function cerrarPop() {
+  if (!s1.pop) return;
+  s1.pop.hidden = true; s1.popId = null;
+  document.querySelectorAll("#chips .chip.sel").forEach((n) => n.classList.remove("sel"));
+}
+function cerrarPopFuera(e) {
+  if (!s1.pop || s1.pop.hidden) return;
+  if (e.target.closest && (e.target.closest("#pop-elemento") || e.target.closest("#chips .chip"))) return;
+  cerrarPop();
+}
+
+// ------------------------------------------------------------------ soltar el título: sus conceptos se vuelven peces
+async function persistirTermino(t) {
+  if (!(debePersistir() && window.Datos && Datos.aportarConcepto)) return { ok: true, local: true };
+  try {
+    return await Datos.aportarConcepto({
+      texto: t.texto, sala: 1, salaNombre: SALAS[0].nombre, tipo: "jugador", sesion: asegurarSesion(),
+      tituloInvestigacion: estado.tema, elemento: t.elemento
+    });
+  } catch (err) { console.warn("pez", err); return { ok: false }; }
+}
+async function soltarTitulo() {
+  if (s1.enviando || estado.tituloListo) return;
+  const cub = Titulo.cubiertos(estado.tituloPartes);
+  if (cub.size < 4) { mostrarToast("Falta cubrir los 4 elementos del título.", true); return; }
+  if (!estado.consentimiento) { mostrarToast("Para continuar regresa a la portada y acepta los Términos y el Aviso de privacidad.", true); return; }
+  s1.enviando = true;
+  cerrarPop();
+  if (s1.entrada && s1.entrada.value.trim()) confirmarEntrada();
+  const conocidos = new Set([...Peces.claves(), ...Object.keys(s1.pescados)].filter((c) => c.includes(" ")));
+  const terminos = Titulo.unirTerminos(estado.tituloPartes, conocidos).map((t) => Object.assign(t, { clave: Datos.claveDe(t.texto) || t.clave }));
+  estado.tema = estado.tituloPartes.map((p) => p.texto).join(" ").replace(/\s+/g, " ").trim().slice(0, 180);
+  estado.tituloListo = true;
+  estado.pecesSoltados = terminos.length;
+  estado.llaves[estado.sala] = true;
+  guardar();
+  // el título completo (privado) y los conceptos (públicos) se guardan en segundo plano
+  const hecho = (async () => {
+    if (debePersistir() && window.Datos && Datos.aportarConcepto) {
+      try {
+        await Datos.aportarConcepto({ texto: estado.tema, sala: 1, salaNombre: SALAS[0].nombre, tipo: "titulo", sesion: asegurarSesion(), tituloInvestigacion: estado.tema });
+      } catch (err) { console.warn("titulo", err); }
+    }
+  })();
+  renderChips();
+  mostrarRegistrado();
+  mostrarToast(`Has obtenido la ${SALAS[0].llave}.`);
+  terminos.forEach((t, i) => {
+    const previo = Peces.obtener(t.clave) || s1.pescados[t.clave];
+    const personas = previo ? (previo.personas || 1) + 1 : 1;
+    const dato = { clave: t.clave, texto: previo ? previo.texto : t.texto, elemento: (previo && previo.elemento) || t.elemento, personas };
+    if (Peces.visible(t.clave)) Peces.actualizar(t.clave, { personas, elemento: dato.elemento });
+    else Peces.agregar(dato, { caer: true, retardo: i * 0.28 });
+  });
+  s1.pescados = {};
+  $("#hint-vacio").hidden = true;
+  await hecho;
+  for (const t of terminos) {
+    const res = await persistirTermino(t);
+    if (res && res.ok && res.personas && Peces.visible(t.clave)) {
+      const f = Peces.obtener(t.clave);
+      if (f && f.personas !== res.personas) Peces.actualizar(t.clave, { personas: res.personas });
+    }
+  }
 }
 
 function tituloListoAhora() {
@@ -1527,7 +2014,10 @@ function aplicarVistaDesdeURL() {
     estado.predefIds = [];
     estado.ideaSeq = 0;
     estado.aportados = [];
-    estado.tituloListo = true;
+    estado.tituloListo = estado.sala !== 0;
+    estado.tituloPartes = [];
+    estado.pecesSoltados = 0;
+    if (estado.sala === 0) estado.consentimiento = estado.consentimiento || { version: VERSION_LEGAL, aceptado: new Date().toISOString() };
     estado.sesion = "preview-jandiekua";
     return true;
   }
@@ -1569,7 +2059,7 @@ function cargarFondoIlustrado() {
 
 Object.assign(window, {
   estado, agregarIdea, agregarIdeasLote, totalIdeasSesion, render, aplicarVistaDesdeURL,
-  ANCHO, ALTO, VERSION, VERSION_LEGAL, Datos
+  ANCHO, ALTO, VERSION, VERSION_LEGAL, Datos, Titulo
 });
 if (typeof dibujarCertificado === "function") window.dibujarCertificado = dibujarCertificado;
 

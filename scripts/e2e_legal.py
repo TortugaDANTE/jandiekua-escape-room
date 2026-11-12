@@ -23,7 +23,7 @@ from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
-from e2e_recorrido import SALA1_VALIDOS, soltar  # noqa: E402
+from e2e_recorrido import soltar  # noqa: E402
 
 OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("/workspace/jk_v4_legal")
 OUT.mkdir(parents=True, exist_ok=True)
@@ -31,7 +31,7 @@ PORT = 8894
 EMU = "http://127.0.0.1:8080"
 PROJECT = "jandiekua-escape-room"
 DOCS = f"{EMU}/v1/projects/{PROJECT}/databases/(default)/documents"
-CB = "20261112m"
+CB = "20261113a"
 RESULTADOS = []
 PETICIONES = []     # (método, host, ruta, ¿con Authorization?)
 BLOQUEADAS = []
@@ -204,58 +204,73 @@ def main():
         page.goto(f"{base}/index.html?v={CB}", wait_until="networkidle")
         page.evaluate("localStorage.clear()")
         page.reload(wait_until="networkidle")
-        page.wait_for_selector("#aviso-almacenamiento")
+        page.wait_for_selector("#aviso-cookies")
         page.wait_for_timeout(700)
-        check("el banner aparece la primera vez", page.locator("#aviso-almacenamiento").is_visible())
-        check("el banner enlaza al aviso", page.locator("#aviso-almacenamiento a").get_attribute("href").startswith("aviso-privacidad.html"))
-        alto_btn = page.locator("#aviso-almacenamiento-ok").bounding_box()["height"]
-        check("botón del banner ≥ 44 px", alto_btn >= 44, alto_btn)
-        check("la portada enlaza aviso y términos", page.locator("#enlaces-portada a").count() == 2)
-        check("el pie enlaza aviso y términos", page.locator(".pie a").count() == 2)
-        page.screenshot(path=str(OUT / "01_portada_con_banner.png"))
-        page.click("#aviso-almacenamiento-ok")
-        check("el banner se cierra", page.locator("#aviso-almacenamiento").count() == 0)
+        check("la tarjeta de almacenamiento aparece la primera vez", page.locator("#aviso-cookies").is_visible())
+        check("la tarjeta enlaza al aviso (apartado de almacenamiento)", page.locator("#aviso-cookies a").get_attribute("href").startswith("aviso-privacidad.html"))
+        alto_btn = page.locator("#cookies-ok").bounding_box()["height"]
+        check("botón de la tarjeta ≥ 44 px", alto_btn >= 44, alto_btn)
+        check("la portada enlaza Términos y Aviso en la casilla", page.locator(".consent-etiqueta a").count() == 2)
+        page.screenshot(path=str(OUT / "01_portada_con_aviso.png"))
+        page.click("#cookies-ok")
+        check("la tarjeta se cierra", page.locator("#aviso-cookies").is_hidden())
         page.reload(wait_until="networkidle")
         page.wait_for_timeout(500)
-        check("la elección se recuerda (no vuelve a salir)", page.locator("#aviso-almacenamiento").count() == 0)
+        check("la elección se recuerda (no vuelve a salir)", page.locator("#aviso-cookies").is_hidden())
         check("sin cookies", ctx.cookies() == [], ctx.cookies())
 
-        print("Sala 1: casilla de consentimiento")
+        print("Portada: casilla de consentimiento")
         escrituras0 = len([x for x in PETICIONES if x[0] == "POST" and x[1] in ("firestore", "identitytoolkit")])
-        page.click("#btn-entrar")
-        page.wait_for_selector("#tema")
-        page.fill("#tema", "Educación ambiental en escuelas rurales (título de prueba)")
         chk = page.locator("#acepto-terminos")
         check("la casilla empieza sin marcar", not chk.is_checked())
-        check("el botón está bloqueado (aria-disabled)", page.locator("#btn-registrar-titulo").get_attribute("aria-disabled") == "true")
-        page.locator("#btn-registrar-titulo").click(force=True)  # aria-disabled: Playwright no lo deja pulsar sin force
+        check("el botón está bloqueado (aria-disabled)", page.locator("#btn-entrar").get_attribute("aria-disabled") == "true")
+        page.locator("#btn-entrar").click(force=True)
         page.wait_for_timeout(500)
-        check("sin casilla no avanza (el título no se registra)", page.evaluate("() => !estado.tituloListo && !estado.consentimiento"))
-        check("sin casilla se muestra el aviso", "marca la casilla" in page.locator("#toast").inner_text())
+        check("sin casilla no entra", page.evaluate("() => estado.vista === 'portada' && !estado.consentimiento"))
+        check("sin casilla se muestra el aviso", "casilla" in page.locator("#toast").inner_text())
         escrituras1 = len([x for x in PETICIONES if x[0] == "POST" and x[1] in ("firestore", "identitytoolkit")])
         check("sin casilla no se envía NADA a Firestore ni a Auth", escrituras1 == escrituras0, f"{escrituras0}->{escrituras1}")
         check("no hay participantes en la base", len(coleccion("participantes")) == 0)
-        page.screenshot(path=str(OUT / "02_sala1_casilla_bloqueado.png"))
         links = page.locator(".consent-etiqueta a")
         check("la casilla enlaza Términos y Aviso",
               [links.nth(i).get_attribute("href") for i in range(links.count())] == ["terminos.html", "aviso-privacidad.html"])
-        alto_label = page.locator(".consent-etiqueta").bounding_box()["height"]
-        check("el área de la casilla ≥ 44 px", alto_label >= 44, alto_label)
         chk.check()
-        check("con la casilla el botón se habilita", page.locator("#btn-registrar-titulo").get_attribute("aria-disabled") == "false")
-        page.wait_for_timeout(200)
-        page.screenshot(path=str(OUT / "03_sala1_casilla_habilitado.png"))
-        page.locator("#btn-registrar-titulo").click()
-        page.wait_for_function("() => !document.querySelector('.zona-tanques.bloqueado')")
-        page.wait_for_selector("#mar[data-listo='1'] #s1-a", state="attached", timeout=20000)
-        page.wait_for_timeout(800)
+        page.wait_for_function("() => document.querySelector('#toast').hidden", timeout=8000)
+        page.screenshot(path=str(OUT / "02_portada_habilitada.png"))
+        page.click("#btn-entrar")
+        page.wait_for_selector("#entrada-titulo")
+        page.wait_for_timeout(1200)
         ps = coleccion("participantes")
-        check("se creó el participante con consentimiento", len(ps) == 1)
+        check("se creó el participante con consentimiento", len(ps) == 1, len(ps))
         cons = ps[0]["fields"]["consentimiento"]["mapValue"]["fields"] if ps else {}
         check("consentimiento: versión y fecha del servidor",
               cons.get("version", {}).get("stringValue") == "v1-borrador-20261112" and "timestampValue" in cons.get("aceptado", {}), cons)
-        check("el título se guardó (privado)", len(coleccion("titulos")) == 1)
-        check("la ayuda pretítulo ya no tapa los tanques", page.evaluate("() => !document.querySelector('.sala.pretitulo')"))
+        check("el tanque empieza vacío (nada con «elemento» en la base)", page.evaluate("() => Peces.total()") == 0)
+
+        print("Sala 1: título → peces guardados con su elemento")
+        page.focus("#entrada-titulo")
+        page.keyboard.type("Metodología para adaptación de espacios urbanos para la producción agrourbana en SLP MX con comunidades periurbanas durante 2026", delay=5)
+        page.keyboard.press("Enter")
+        page.wait_for_selector("#btn-soltar", state="visible")
+        page.click("#btn-soltar")
+        page.wait_for_function("() => estado.tituloListo")
+        page.wait_for_timeout(5000)
+        check("el título se guardó (privado)", len(coleccion("titulos")) == 1, len(coleccion("titulos")))
+        from urllib.parse import unquote
+        cs = {unquote(d["name"].split("/")[-1]): d for d in coleccion("conceptos")}
+        esperados = {"metodologia": "que", "adaptacion": "que", "espacios urbanos": "que", "produccion agrourbana": "que",
+                     "slp": "donde", "mx": "donde", "comunidades periurbanas": "quien", "2026": "cuando"}
+        hallados = {k: (campo(cs[k], "elemento") if k in cs else None) for k in esperados}
+        check("los 8 conceptos se guardaron con su elemento", hallados == esperados, hallados)
+        check("«Agua» sembrado sin elemento sigue intacto", campo(cs["agua"], "elemento") is None and campo(cs["agua"], "personas") == "1")
+        page.reload(wait_until="networkidle")
+        page.wait_for_selector("#btn-continuar", timeout=15000)
+        page.wait_for_timeout(2500)
+        check("al recargar los peces vuelven del servidor (solo los que tienen elemento)", page.evaluate("() => Peces.total()") == 8, page.evaluate("() => Peces.total()"))
+        page.screenshot(path=str(OUT / "03_sala1_peces_del_servidor.png"))
+        page.click("#btn-continuar")
+        page.wait_for_selector("#nueva-idea")
+        page.wait_for_selector("#mar[data-listo='1'] #n-titulo", state="attached", timeout=20000)
 
         print("Ideas y colocaciones")
         page.fill("#nueva-idea", "Agua")
@@ -268,10 +283,9 @@ def main():
         check("«Agua» ya existía: ahora cuenta 2 personas", agua and campo(agua[0], "personas") == "2", agua and campo(agua[0], "personas"))
         propia = [d for d in coleccion("conceptos") if d["name"].endswith("/idea%20propia%20de%20prueba") or "propia" in d["name"]]
         check("la idea propia se creó con 1 persona", propia and campo(propia[0], "personas") == "1")
-        for nid in SALA1_VALIDOS:
-            soltar(page, nid, "tanque-originalidad")
+        soltar(page, "n-titulo", "t-titulo")
         page.wait_for_timeout(800)
-        check("4 colocaciones guardadas", len(coleccion("colocaciones")) == 4, len(coleccion("colocaciones")))
+        check("1 colocación guardada (Sala 2)", len(coleccion("colocaciones")) == 1, len(coleccion("colocaciones")))
         page.evaluate("() => { estado.vista = 'cierre-form'; render(); }")
         page.wait_for_selector("#form-registro")
         page.wait_for_timeout(500)
@@ -321,7 +335,7 @@ def main():
         data = json.loads(Path(d.value.path()).read_text(encoding="utf-8"))
         check("JSON: incluye participación, título, aportes y colocaciones",
               data["participaciones"][0]["nombre"] == "Persona de prueba" and len(data["titulos"]) == 1
-              and len(data["colocaciones"]) == 4 and {a["concepto"] for a in data["aportes"]} >= {"Agua", "Idea propia de prueba"}, str(data)[:300])
+              and len(data["colocaciones"]) == 1 and {a["concepto"] for a in data["aportes"]} >= {"Agua", "Idea propia de prueba"}, str(data)[:300])
         check("JSON: no incluye el uid de Firebase", "uid" not in json.dumps(data))
         check("JSON: trae la versión de consentimiento", data["participaciones"][0]["consentimiento"]["version"] == "v1-borrador-20261112")
         check("JSON: viene del servidor", "servidor" in page.locator("#estado-datos").inner_text() or "guardados" in page.locator("#estado-datos").inner_text())
@@ -389,17 +403,16 @@ def main():
         pg = ctx2.new_page()
         antes = len(PETICIONES)
         pg.goto(f"{base}/index.html?sinred=1&v={CB}", wait_until="networkidle")
-        pg.click("#aviso-almacenamiento-ok")
-        pg.click("#btn-entrar")
-        pg.fill("#tema", "Título en modo de prueba")
-        pg.locator("#btn-registrar-titulo").click(force=True)
-        check("sinred: sin casilla tampoco avanza", pg.evaluate("() => !estado.tituloListo"))
         pg.check("#acepto-terminos")
-        pg.locator("#btn-registrar-titulo").click()
+        pg.click("#btn-entrar")
+        pg.wait_for_selector("#entrada-titulo")
+        pg.focus("#entrada-titulo")
+        pg.keyboard.type("Título de prueba sin red en SLP durante 2026 con comunidades", delay=5)
+        pg.keyboard.press("Enter")
+        pg.wait_for_selector("#btn-soltar", state="visible")
+        pg.click("#btn-soltar")
         pg.wait_for_function("() => estado.tituloListo")
-        pg.fill("#nueva-idea", "Idea de prueba sin red")
-        pg.press("#nueva-idea", "Enter")
-        pg.wait_for_timeout(800)
+        pg.wait_for_timeout(1500)
         pg.evaluate("() => { estado.vista = 'cierre-diploma'; estado.registro = {nombre:'N', institucion:'I', correo:'', telefono:'', aviso:true}; render(); }")
         pg.wait_for_selector("#btn-datos-borrar")
         nuevas = [x for x in PETICIONES[antes:]]
@@ -408,7 +421,7 @@ def main():
         with pg.expect_download() as d:
             pg.click("#btn-datos-json")
         local = json.loads(Path(d.value.path()).read_text(encoding="utf-8"))
-        check("sinred: la descarga es la copia local", local["participaciones"][0]["tituloInvestigacion"] == "Título en modo de prueba")
+        check("sinred: la descarga es la copia local", local["participaciones"][0]["tituloInvestigacion"].startswith("Título de prueba sin red"))
         ctx2.close()
 
         print("Terceros y errores")

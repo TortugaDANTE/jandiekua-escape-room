@@ -116,13 +116,14 @@ def participante(ses, uid, version="2026-11-12"):
         ts=("creado", "consentimiento.aceptado"))
 
 
-def aportar(clave, ses, uid, sala=1, personas_previas=None, salas=None, texto=None):
+def aportar(clave, ses, uid, sala=1, personas_previas=None, salas=None, texto=None, elemento=None):
     ap = w_create(path("conceptos", clave, "aportes", ses),
                   {"sesion": sv(ses), "sala": iv(sala), "uid": sv(uid)})
     if personas_previas is None:
         c = w_create(path("conceptos", clave),
                      {"texto": sv(texto or clave), "clave": sv(clave), "salas": arr([sala]),
-                      "personas": iv(1), "ultimoSesion": sv(ses)}, ts=("creado", "actualizado"))
+                      "personas": iv(1), "ultimoSesion": sv(ses),
+                      **({"elemento": sv(elemento)} if elemento else {})}, ts=("creado", "actualizado"))
     else:
         c = w_update(path("conceptos", clave),
                      {"personas": iv(personas_previas + 1), "ultimoSesion": sv(ses), "salas": arr(salas or [sala])},
@@ -291,6 +292,30 @@ def main():
         s2, _ = call("DELETE", f"{HOST}/v1/{path('conceptos', k)}", None, A)
         bien &= ok(s) and ok(s2)
     check("borrado de 40 conceptos propios (aporte+conteo, luego limpieza)", bien)
+
+    print("Peces: elemento de Sampieri (sala 1)")
+    E1, E2, E3 = "uidDDDDDDDD", "uidEEEEEEEE", "uidFFFFFFFF"
+    S1, S2, S3 = "sesionPez0001", "sesionPez0002", "sesionPez0003"
+    for ses, uid in ((S1, E1), (S2, E2), (S3, E3)):
+        commit([participante(ses, uid)], uid)
+    s, b = commit(aportar("pezuno", S1, E1, elemento="donde"), E1)
+    check("se crea un pez con elemento válido", ok(s), f"{s} {b}")
+    check("el elemento queda guardado", get(path("conceptos", "pezuno"))[1].get("fields", {}).get("elemento", {}).get("stringValue") == "donde")
+    s, b = commit(aportar("pezdos", S1, E1, elemento="otro"), E1)
+    check("un elemento inválido se rechaza", denegado(s, b), f"{s}")
+    s, b = commit(aportar("peztres", S1, E1), E1)
+    check("un concepto sin elemento sigue siendo válido (conceptos anteriores)", ok(s), f"{s}")
+    s, b = commit(aportar("pezuno", S2, E2, personas_previas=1, salas=[1]), E2)
+    check("otra persona suma al pez sin tocar el elemento", ok(s) and personas("pezuno") == 2, f"{s} {b}")
+    check("el elemento no cambió al sumar", get(path("conceptos", "pezuno"))[1]["fields"]["elemento"]["stringValue"] == "donde")
+    cambio = [w_update(path("conceptos", "pezuno"),
+                       {"personas": iv(3), "ultimoSesion": sv(S3), "salas": arr([1]), "elemento": sv("que")},
+                       ["personas", "ultimoSesion", "salas", "elemento"], ts=("actualizado",)),
+              w_create(path("conceptos", "pezuno", "aportes", S3), {"sesion": sv(S3), "sala": iv(1), "uid": sv(E3)})]
+    s, b = commit(cambio, E3)
+    check("no se puede cambiar el elemento de un pez existente", denegado(s, b), f"{s}")
+    s, b = commit(borrar_aporte("pezuno", S2, 2, [1]), E2)
+    check("al borrar, el elemento se conserva", ok(s) and get(path("conceptos", "pezuno"))[1]["fields"]["elemento"]["stringValue"] == "donde", f"{s}")
 
     fallos = [n for n, c in RES if not c]
     print(f"\n{len(RES) - len(fallos)}/{len(RES)} pruebas correctas")

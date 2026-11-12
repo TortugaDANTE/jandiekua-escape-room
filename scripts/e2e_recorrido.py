@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prueba de punta a punta: completar las cuatro salas y llegar al cierre."""
+"""Prueba de punta a punta: portada, Sala 1 (peces) y las salas 2 a 4 hasta el cierre. Solo con ?sinred=1."""
 import http.server
 import socketserver
 import threading
@@ -79,55 +79,29 @@ def main():
             args=["--headless=new", "--no-sandbox", "--disable-gpu"],
         )
         page = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&v=20261112m", wait_until="networkidle")
+        page.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&v=20261113a", wait_until="networkidle")
         page.evaluate("localStorage.clear()")
         page.reload(wait_until="networkidle")
         page.wait_for_timeout(400)
 
-        page.locator("#btn-entrar").click()
-        page.wait_for_selector("#tema")
-        page.fill("#tema", "PRUEBA título e2e local 2026-11-12")
         page.check("#acepto-terminos")
-        page.locator("#btn-registrar-titulo").click()
-        page.wait_for_function("() => !document.querySelector('.zona-tanques.bloqueado')")
-        page.wait_for_selector("#mar[data-listo='1'] #s1-a", state="attached", timeout=20000)
-        print("sala 1")
-
-        soltar(page, "s1-e", "tanque-originalidad", debe_aceptar=False)
-        lleno = page.locator("#tanque-originalidad").evaluate("el => el.classList.contains('lleno')")
-        nivel = page.locator("#tanque-originalidad").evaluate("el => el.style.getPropertyValue('--nivel')")
-        if lleno or (nivel not in ("", "0")):
+        page.locator("#btn-entrar").click()
+        page.wait_for_selector("#entrada-titulo")
+        print("sala 1 (peces)")
+        page.focus("#entrada-titulo")
+        page.keyboard.type("Metodología para adaptación de espacios urbanos para la producción agrourbana en SLP MX con comunidades periurbanas durante 2026", delay=5)
+        page.keyboard.press("Enter")
+        page.wait_for_selector("#btn-soltar", state="visible")
+        page.locator("#btn-soltar").click()
+        page.wait_for_function("() => estado.tituloListo && estado.llaves[0]")
+        page.wait_for_selector("#btn-continuar", state="visible")
+        n = page.evaluate("() => Peces.total()")
+        if n != 8:
             ok = False
-            errores.append(f"tras un rechazo, lleno={lleno} nivel={nivel!r}")
-            print("  FALLO rechazo", lleno, nivel)
+            errores.append(f"sala 1: se esperaban 8 peces y hay {n}")
         else:
-            print("  rechazo ok, sin .lleno")
-
-        soltar(page, SALA1_VALIDOS[0], "tanque-originalidad")
-        lleno = page.locator("#tanque-originalidad").evaluate("el => el.classList.contains('lleno')")
-        nivel = float(page.locator("#tanque-originalidad").evaluate("el => el.style.getPropertyValue('--nivel') || '0'"))
-        if lleno:
-            ok = False
-            errores.append("sala 1: .lleno se activó con la primera ficha")
-            print("  FALLO .lleno con la primera ficha")
-        elif abs(nivel - 0.25) > 0.01:
-            ok = False
-            errores.append(f"sala 1: --nivel tras 1/4 = {nivel}")
-            print("  FALLO nivel", nivel)
-        else:
-            print("  primera ficha ok: nivel 0.25, sin .lleno")
-
-        for nid in SALA1_VALIDOS[1:]:
-            soltar(page, nid, "tanque-originalidad")
-        lleno = page.locator("#tanque-originalidad").evaluate("el => el.classList.contains('lleno')")
-        nivel = float(page.locator("#tanque-originalidad").evaluate("el => el.style.getPropertyValue('--nivel') || '0'"))
-        if not lleno or abs(nivel - 1) > 0.01:
-            ok = False
-            errores.append(f"sala 1 al completar: lleno={lleno} nivel={nivel}")
-            print("  FALLO al completar", lleno, nivel)
-        else:
-            print("  completa: .lleno y nivel 1")
-        page.locator("#btn-seguir").click(force=True)
+            print("  título soltado: 8 peces, llave obtenida")
+        page.locator("#btn-continuar").click()
 
         print("sala 2")
         page.wait_for_selector("#t-titulo")
@@ -175,8 +149,8 @@ def main():
 
         print("estres 200 ideas")
         page2 = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page2.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&vista=sala1&v=20261112m", wait_until="networkidle")
-        page2.wait_for_selector("#mar[data-listo='1'] #s1-a", state="attached", timeout=20000)
+        page2.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&vista=sala2&v=20261113a", wait_until="networkidle")
+        page2.wait_for_selector("#mar[data-listo='1'] #n-titulo", state="attached", timeout=20000)
         page2.wait_for_timeout(400)
         page2.evaluate("""async () => {
           const textos = Array.from({length: 200}, (_, i) => "Aporte del consorcio número " + (i + 1));
@@ -190,7 +164,7 @@ def main():
         }""")
         print("  ", info)
         antes = info["n"]
-        page2.evaluate("() => agregarIdea('Identificar un vacío de conocimiento', { local: true })")
+        page2.evaluate("() => agregarIdea('Título', { local: true })")
         page2.wait_for_timeout(600)
         despues = page2.evaluate("() => document.querySelectorAll('#mar .nodo').length")
         print("  dedup", antes, "->", despues)
@@ -205,8 +179,8 @@ def main():
             errores.append(f"estres: fuente {info['font']} px, debería ser muy pequeña")
         # Arrastre programático sobre #s1-a (el montón cubre el centro visual).
         page2.evaluate("""() => {
-          const el = document.getElementById('s1-a');
-          const tank = document.getElementById('tanque-originalidad');
+          const el = document.getElementById('n-titulo');
+          const tank = document.getElementById('t-titulo');
           if (!el || !tank) return;
           const r = el.getBoundingClientRect();
           const t = tank.getBoundingClientRect();
@@ -222,8 +196,8 @@ def main():
           }
           ev('pointerup', x1, y1);
         }""")
-        page2.wait_for_function("() => !!document.querySelector('#tanque-originalidad .ficha')", timeout=5000)
-        hay = page2.evaluate("() => !!document.querySelector('#tanque-originalidad .ficha')")
+        page2.wait_for_function("() => !!document.querySelector('#t-titulo .ficha')", timeout=5000)
+        hay = page2.evaluate("() => !!document.querySelector('#t-titulo .ficha')")
         print("  arrastre predefinida", hay)
         if not hay:
             ok = False

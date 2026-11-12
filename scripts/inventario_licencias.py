@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 REGLAS = [
     (r"^assets/fonts/.*\.woff$", "Tipografía", "Montserrat / Fraunces (proyectos de código abierto)", "SIL OFL 1.1", "OK"),
     (r"^assets/fonts/(OFL-.*\.txt|LICENCIAS\.txt)$", "Texto de licencia", "Copia de los textos oficiales de las fuentes", "—", "OK"),
+    (r"^assets/logos/jandiekua_homepageImage_en_US\.png$", "Logotipo de la revista", "Revista Jandiekua (leka.uaslp.mx/public/journals/3/homepageImage_en_US.png), copia sin alterar sobre fondo blanco", "Licencia del logotipo no declarada [POR DEFINIR]", "PENDIENTE"),
     (r"^assets/(logos|disenografico/logos)/.*", "Logotipo institucional", "UASLP / Agenda Ambiental UASLP (versión en blanco de la fuente institucional)", "Signo institucional, no abierto: autorización interna [POR DEFINIR]", "PENDIENTE"),
     (r"^assets/disenografico/barra_institucional\.svg$", "Barra con logotipos", "Compuesta con los logotipos institucionales incrustados", "Signo institucional: autorización interna [POR DEFINIR]", "PENDIENTE"),
     (r"^assets/disenografico/[^/]+\.svg$", "Ilustración SVG", "Equipo de diseño del proyecto, generada con scripts propios", "Derechos reservados del proyecto [POR DEFINIR cesión]", "OK*"),

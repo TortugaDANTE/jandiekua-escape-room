@@ -5,6 +5,8 @@
    recuerda que lo cerraste con una clave más en localStorage. Se carga como script clásico. */
 (function () {
   "use strict";
+  // En el juego la portada trae su propio aviso (tarjeta de almacenamiento); este banner es para las páginas legales.
+  if (document.getElementById("lienzo")) return;
   var CLAVE = "jandiekua_aviso_almacenamiento_v1";
   var VERSION_AVISO = "1";
 

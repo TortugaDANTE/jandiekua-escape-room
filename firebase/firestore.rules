@@ -73,7 +73,16 @@ service cloud.firestore {
     }
 
     function conceptoKeys(d) {
-      return d.keys().hasOnly(['texto', 'clave', 'salas', 'personas', 'ultimoSesion', 'creado', 'actualizado']);
+      return d.keys().hasOnly(['texto', 'clave', 'salas', 'personas', 'ultimoSesion', 'creado', 'actualizado', 'elemento']);
+    }
+
+    // Sala 1 (peces): el elemento de Sampieri del concepto, opcional, solo al crearlo.
+    function elementoOk(d) {
+      return !('elemento' in d) || d.elemento in ['que', 'quien', 'donde', 'cuando'];
+    }
+
+    function elementoIgual(d, r) {
+      return d.get('elemento', null) == r.get('elemento', null);
     }
 
     function salasValidas(arr) {
@@ -112,6 +121,7 @@ service cloud.firestore {
       allow read: if true;
 
       allow create: if conceptoKeys(request.resource.data)
+        && elementoOk(request.resource.data)
         && textoOk(request.resource.data.texto)
         && request.resource.data.clave == key
         && claveOk(request.resource.data.clave)
@@ -131,6 +141,7 @@ service cloud.firestore {
       function incrementoOk(key) {
         return conceptoKeys(request.resource.data)
         && request.resource.data.texto == resource.data.texto
+        && elementoIgual(request.resource.data, resource.data)
         && request.resource.data.clave == resource.data.clave
         && request.resource.data.clave == key
         && request.resource.data.creado == resource.data.creado
@@ -153,6 +164,7 @@ service cloud.firestore {
       function decrementoOk(key) {
         return conceptoKeys(request.resource.data)
           && request.resource.data.texto == resource.data.texto
+          && elementoIgual(request.resource.data, resource.data)
           && request.resource.data.clave == resource.data.clave
           && request.resource.data.creado == resource.data.creado
           && request.resource.data.salas == resource.data.salas
