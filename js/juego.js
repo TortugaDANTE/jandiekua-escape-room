@@ -752,12 +752,15 @@ async function dibujarCertificado() {
     document.fonts.load("600 32px Montserrat"),
     document.fonts.ready
   ]);
-  const logo = new Image();
-  logo.src = "assets/logos/logo_banner_blanco.png";
+  const logoU = new Image();
+  logoU.src = "assets/logos/hd/logo_uaslp_blanco.png";
+  const logoA = new Image();
+  logoA.src = "assets/logos/hd/logo_aa_blanco.png";
   const sello = new Image();
   sello.src = "assets/disenografico/insignia_sello.svg";
   await Promise.all([
-    new Promise((res, rej) => { logo.onload = res; logo.onerror = rej; }),
+    new Promise((res, rej) => { logoU.onload = res; logoU.onerror = rej; }),
+    new Promise((res, rej) => { logoA.onload = res; logoA.onerror = rej; }),
     new Promise((res, rej) => { sello.onload = res; sello.onerror = rej; })
   ]);
 
@@ -777,9 +780,11 @@ async function dibujarCertificado() {
   ctx.fillStyle = oro;
   ctx.fillRect(0, 210, W, 6);
 
-  const logoH = 130;
-  const logoW = logoH * (2890 / 590);
-  ctx.drawImage(logo, (W - logoW) / 2, 40, logoW, logoH);
+  const logoH = 112;
+  const wU = logoH * (logoU.width / logoU.height);
+  const wA = logoH * (logoA.width / logoA.height);
+  ctx.drawImage(logoU, 56, (210 - logoH) / 2, wU, logoH);
+  ctx.drawImage(logoA, W - 56 - wA, (210 - logoH) / 2, wA, logoH);
 
   // marco ornamental
   ctx.strokeStyle = "#C59B27";
