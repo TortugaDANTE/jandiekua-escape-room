@@ -17,7 +17,7 @@ Fecha de la auditoría: 12 de noviembre de 2026 (rama `imagen-institucional`). L
 | 6 | **Logotipo de la Revista Jandiekua**: se usa el archivo **publicado por la revista** (`assets/logos/jandiekua_homepageImage_en_US.png`), tal cual, sobre una tarjeta blanca en la portada. Su fuente es pública, pero **no hay licencia de uso del logotipo declarada**. | Media | Confirmar con el equipo editorial de la Revista Jandiekua el permiso de uso de su identidad gráfica (los artículos son CC BY-NC-ND 4.0; eso no cubre necesariamente el logotipo) **[POR DEFINIR]**. Pedir un SVG o una versión en blanco oficial si se quiere usar sobre fondo oscuro. |
 | 7 | **Tipografías**: Montserrat y Fraunces son SIL OFL 1.1 y se alojan en el sitio. Faltaban los textos de licencia; **ya se incluyeron** (`assets/fonts/OFL-*.txt`). La nota anterior decía «recortes»; en realidad son variables con subconjunto latino (permitido por la OFL). | Resuelto | — |
 | 8 | **Clave de API de Firebase** visible en `js/datos.js`. Es una clave pública de cliente (no es un secreto), pero conviene limitarla. | Informativa | En Google Cloud Console → Credenciales, restringirla por referente HTTP al dominio del juego y a las API de Firestore, Identity Toolkit y Token Service. |
-| 9 | **Fragmentos de la Revista Jandiekua en la Sala 2** (`js/textos_sala2.js`): son citas breves y textuales de artículos publicados en leka.uaslp.mx, que declaran la licencia **CC BY-NC-ND 4.0** (Atribución-NoComercial-SinDerivadas). Atribución y uso no comercial se cumplen (fuente en pantalla y en `terminos.html`), pero el juego **muestra versiones alteradas** (se les quitan signos y mayúsculas para que se restituyan), lo que podría considerarse una adaptación y la cláusula SinDerivadas no la permite sin autorización. | Media | Obtener permiso escrito del equipo editorial de la Revista y de las personas autoras **[POR DEFINIR]**, o sustituir por textos propios / con licencia que permita adaptaciones. |
+| 9 | **Fragmentos de la Revista Jandiekua en la Sala 2** (`js/textos_sala2.js`): citas breves y textuales de artículos publicados en leka.uaslp.mx. La propia revista (la Agenda Ambiental UASLP, que la edita y publica) los usa como **ejemplos lúdicos y educativos** en su juego, con atribución completa a las personas autoras y al número de origen (fuente visible en pantalla y en `terminos.html`). Los artículos declaran CC BY-NC-ND 4.0; al ser la editora quien los usa, no se requiere más trámite. | Resuelto | — |
 
 Sin problemas de licencia: no hay bibliotecas JavaScript ni CDN, no hay Google Fonts, no hay sonidos, no hay íconos de terceros.
 
@@ -60,7 +60,7 @@ Los logotipos también aparecen dentro de las capturas (`preview/*`, `assets/dis
 
 ## 4b. Fragmentos de texto de la Revista Jandiekua (Sala 2)
 
-Cada partida muestra 4 de estos 10 fragmentos, **copiados sin cambios** de los resúmenes publicados en <https://leka.uaslp.mx/index.php/jandiekua/> (consultados el 2026-11-12). Los artículos declaran la licencia **CC BY-NC-ND 4.0**; los derechos son de sus autores. Se usan citas breves, con fuente visible en el juego («Fragmento de Jandiekua, vol. X, núm. Y (año)»), con fines educativos y no comerciales. En pantalla se les quitan algunos signos de puntuación o una mayúscula para el ejercicio; ver el hallazgo 9 (SinDerivadas). Verificación textual: `python3 scripts/verificar_textos_sala2.py`.
+Cada partida muestra 4 de estos 10 fragmentos, **copiados sin cambios** de los resúmenes publicados en <https://leka.uaslp.mx/index.php/jandiekua/> (consultados el 2026-11-12). Los derechos de cada texto son de sus autores. La propia revista (Agenda Ambiental UASLP, su editora) los usa como ejemplos lúdicos y educativos, con atribución completa (autoría, número y año) y con la fuente visible en el juego («Fragmento de Jandiekua, vol. X, núm. Y (año)»). En pantalla se les quitan algunos signos de puntuación o una mayúscula para el ejercicio; ver el hallazgo 9. Verificación textual: `python3 scripts/verificar_textos_sala2.py`.
 
 | Id | Artículo | Autoría | Número | URL |
 | --- | --- | --- | --- | --- |
@@ -97,13 +97,13 @@ No existe `LICENSE`. **No se eligió ni se añadió ninguna**. La propuesta, con
 Generado con `python3 scripts/inventario_licencias.py`. «OK*» = propio del proyecto, pendiente solo de declarar licencia o titularidad.
 
 <!-- INVENTARIO -->
-Archivos versionados: 159 (OK: 8 · OK*: 134 · PENDIENTE: 11 · VERIFICAR: 6).
+Archivos versionados: 159 (OK: 8 · OK*: 135 · PENDIENTE: 11 · VERIFICAR: 5).
 
 | Archivo | Tipo | Tamaño | Origen | Licencia | Estado | SHA-256 (10) |
 | --- | --- | ---: | --- | --- | --- | --- |
 | `.gitignore` | Configuración | 0 KB | Proyecto | Sin relevancia (configuración) | OK | `32dae3052f` |
-| `LICENCIAS.md` | Documento | 43 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `d4df3ca33c` |
-| `README.md` | Documento | 8 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `16e62801ac` |
+| `LICENCIAS.md` | Documento | 44 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `83d0ea5ea0` |
+| `README.md` | Documento | 9 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `90ddae7496` |
 | `assets/disenografico/NOTA_DISENO.md` | Documento | 32 KB | Proyecto | Sin licencia declarada [POR DEFINIR] | OK* | `263b3ebf64` |
 | `assets/disenografico/acuario_mar.svg` | Ilustración SVG | 3 KB | Equipo de diseño del proyecto, generada con scripts propios | Derechos reservados del proyecto [POR DEFINIR cesión] | OK* | `e513bbaccb` |
 | `assets/disenografico/barra_institucional.svg` | Barra con logotipos | 30 KB | Compuesta con los logotipos institucionales incrustados | Signo institucional: autorización interna [POR DEFINIR] | PENDIENTE | `a6bb08ad9e` |
@@ -225,7 +225,7 @@ Archivos versionados: 159 (OK: 8 · OK*: 134 · PENDIENTE: 11 · VERIFICAR: 6).
 | `js/mar_ideas.js` | Código del juego | 21 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `2fa95df225` |
 | `js/peces.js` | Código del juego | 24 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `5257e58628` |
 | `js/signos.js` | Código del juego | 4 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `2c7ffe46d1` |
-| `js/textos_sala2.js` | Datos: citas de la Revista Jandiekua | 9 KB | 10 fragmentos textuales de artículos de la Revista Jandiekua (leka.uaslp.mx), con su fuente | CC BY-NC-ND 4.0 de sus autores; el juego muestra versiones alteradas (SinDerivadas): permiso por confirmar [POR DEFINIR] | VERIFICAR | `00ce9cd772` |
+| `js/textos_sala2.js` | Datos: citas de la Revista Jandiekua | 9 KB | 10 fragmentos textuales de artículos de la Revista Jandiekua (leka.uaslp.mx), con su fuente | Derechos de sus autores; usados por la propia revista (editora) como ejemplos lúdicos y educativos, con atribución | OK* | `00ce9cd772` |
 | `js/titulo.js` | Código del juego | 8 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `26cc829b20` |
 | `preview/certificado_v3.png` | Captura | 266 KB | Del proyecto (capturas del juego; muestran los logotipos) | Derechos reservados del proyecto; logotipos: ver arriba | OK* | `57560b0a4d` |
 | `preview/cierre.png` | Captura | 551 KB | Del proyecto (capturas del juego; muestran los logotipos) | Derechos reservados del proyecto; logotipos: ver arriba | OK* | `07fdf8d60e` |
@@ -252,12 +252,12 @@ Archivos versionados: 159 (OK: 8 · OK*: 134 · PENDIENTE: 11 · VERIFICAR: 6).
 | `scripts/e2e_sala1.py` | Script de pruebas / render | 19 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `6ae77acffa` |
 | `scripts/e2e_sala2.py` | Script de pruebas / render | 14 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `c45dddbc3a` |
 | `scripts/e2e_sala2_todos.py` | Script de pruebas / render | 2 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `75f0682bfb` |
-| `scripts/inventario_licencias.py` | Script de pruebas / render | 5 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `e23db0e5a7` |
+| `scripts/inventario_licencias.py` | Script de pruebas / render | 5 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `d53e1c4de3` |
 | `scripts/render_ideas_y_viewports.py` | Script de pruebas / render | 9 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `29fa5a1d8f` |
 | `scripts/render_jk_v3_previews.py` | Script de pruebas / render | 19 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `1cbed1d925` |
 | `scripts/render_preview.py` | Script de pruebas / render | 2 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `9c7ed4d585` |
 | `scripts/render_v2.py` | Script de pruebas / render | 2 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `95b9c93542` |
 | `scripts/render_v3.py` | Script de pruebas / render | 6 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `c6757c008e` |
 | `scripts/verificar_textos_sala2.py` | Script de pruebas / render | 3 KB | Proyecto (usa Playwright y Pillow, no incluidos) | Sin licencia declarada [POR DEFINIR] | OK* | `7468e8e1e3` |
-| `terminos.html` | Código del juego | 14 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `0221f59038` |
+| `terminos.html` | Código del juego | 14 KB | Proyecto (propio; sin librerías de terceros) | Sin licencia declarada [POR DEFINIR] | OK* | `0b85b1926b` |
 <!-- /INVENTARIO -->
