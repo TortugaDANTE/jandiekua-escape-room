@@ -6,9 +6,9 @@
 const MarIdeas = (() => {
   // ---------------------------------------------------------------- parámetros
   const P = {
-    llenado: 0.34,        // fracción del área del mar que ocupan las ideas (define la escala)
-    sMin: 0.42,           // escala mínima (con muchísimas ideas)
-    holgura: 1.15,        // área extra por idea al calcular la escala (huecos del montón)
+    llenado: 1,           // ya no se usa para encoger: el tamaño lo da el texto y la fuente global
+    sMin: 1,              // no encoger por debajo de la fuente global (legible ≥12 px en pantalla)
+    holgura: 1.15,        // área extra por idea al calcular la altura de la pila
     vCaida: [110, 175],   // velocidad terminal de hundimiento, px/s (rango por idea)
     arrastreAgua: 2.2,    // 1/s: qué tan rápido alcanza la velocidad terminal
     oscilacion: [14, 34], // amplitud del vaivén horizontal, px
@@ -16,7 +16,7 @@ const MarIdeas = (() => {
     angVaiven: 7,         // grados de balanceo mientras cae
     inclinacion: 12,      // inclinación base aleatoria (±grados)
     descanso: 9,          // inclinación al asentarse (±grados)
-    jitterTam: [0.9, 1.1],// variación de tamaño por idea
+    jitterTam: [1, 1],    // misma escala en todas las tarjetas
     entradaMs: [90, 380], // separación entre apariciones (se ajusta a la cantidad)
     rueda: 170,           // px/s²: empuje lateral al apoyarse en otra idea (las hace rodar y abrir el montón)
     sueno: 0.7,           // s quieta antes de dormir
@@ -57,10 +57,12 @@ const MarIdeas = (() => {
     detener();
     const q = new URLSearchParams(location.search);
     const semilla = q.get("semilla");
+    const caja0 = op.mar.querySelector("#mar-caja");
     C = Object.assign({}, op, {
       rnd: mulberry32(semilla ? Number(semilla) : (op.foto ? 20261112 : (Math.random() * 1e9) | 0)),
       estatico: !!op.foto || reducido(),
-      W: op.mar.clientWidth, H: op.mar.clientHeight
+      W: op.mar.clientWidth,
+      H: Math.max(op.mar.clientHeight, (caja0 && caja0.offsetHeight) || 0)
     });
     asegurarCapa(op.lienzo);
     midOrigen();
@@ -95,8 +97,8 @@ const MarIdeas = (() => {
     objetivoEscala(true);
     vivos.forEach(dibujar);
     if (C.estatico) {
-      for (let i = 0; i < 60 * 16; i++) paso(1 / 60);
-      vivos.forEach((v) => { v.aparecio = true; v.el.style.opacity = ""; dibujar(v); });
+      sentar(40);
+      vivos.forEach((v) => { v.aparecio = true; v.el.style.opacity = "1"; dibujar(v); });
     } else {
       arrancar();
     }
@@ -109,7 +111,8 @@ const MarIdeas = (() => {
   }
 
   function midOrigen() {
-    const mr = C.mar.getBoundingClientRect(), lr = C.lienzo.getBoundingClientRect();
+    const caja = C.mar.querySelector("#mar-caja") || C.mar;
+    const mr = caja.getBoundingClientRect(), lr = C.lienzo.getBoundingClientRect();
     const s = lr.width / C.ANCHO;
     C.ox = (mr.left - lr.left) / s; C.oy = (mr.top - lr.top) / s;
   }
@@ -118,15 +121,17 @@ const MarIdeas = (() => {
   function objetivoEscala(inmediato) {
     const act = C.vivos.filter((v) => v.estado !== "fuera");
     if (!act.length) return;
-    const suma = act.reduce((a, v) => a + v.w * v.h * P.holgura, 0);
-    const s = clamp(Math.sqrt((P.llenado * C.W * C.H) / suma), P.sMin, 1);
-    C.sObj = s;
-    act.forEach((v) => { v.sObj = s * v.jit; if (inmediato) v.s = v.sObj; });
+    // La fuente global ya define el tamaño; no se aplica un scale extra que las vuelva ilegibles.
+    C.sObj = 1;
+    act.forEach((v) => { v.sObj = 1; v.jit = 1; if (inmediato) v.s = 1; });
   }
 
   // ---------------------------------------------------------------- física
-  const hw = (v) => v.w * v.s * 0.46;
-  const hh = (v) => v.h * v.s * 0.42;
+  // Horizontal: caja ≈ el tamaño visual, para que el texto no se corte en los lados.
+  // Vertical: un poco más baja, para que la pila se compacte solapándose.
+  const hw = (v) => v.w * v.s * 0.5 + 6;
+  const hh = (v) => v.h * v.s * 0.36 + 4;
+  const hf = (v) => v.h * v.s * 0.5 + 6;
 
   function paso(dt) {
     reloj += dt;
@@ -153,7 +158,8 @@ const MarIdeas = (() => {
       const w = hw(v), h = hh(v);
       if (v.x < w) { v.x = w; v.vx = Math.abs(v.vx); v.fase = Math.PI - v.fase; }
       if (v.x > W - w) { v.x = W - w; v.vx = -Math.abs(v.vx); v.fase = Math.PI - v.fase; }
-      if (v.y > H - h - 2) { v.y = H - h - 2; v.contacto = true; }
+      if (v.y > H - hf(v) - 2) { v.y = H - hf(v) - 2; if (H > 80) v.contacto = true; }
+      if (v.y < -v.h * 0.2) v.y = -v.h * 0.2;
     }
     // pares: se prefiere resolver en vertical para que se apilen
     for (let it = 0; it < 3; it++) {
@@ -169,11 +175,11 @@ const MarIdeas = (() => {
           if (px <= 0 || py <= 0) continue;
           if (py <= px * 1.4) {
             const arriba = dy < 0 ? a : b, abajo = dy < 0 ? b : a;
-            if (abajo.dormido) arriba.y -= py;
-            else if (arriba.dormido) abajo.y += py;
-            else { arriba.y -= py * 0.5; abajo.y += py * 0.5; }
+            // Compactar hacia el fondo: si el de abajo no está apoyado, bajarlo;
+            // no empujar hacia arriba a una ficha que aún puede caer.
+            if (abajo.dormido || abajo.contacto) arriba.y -= py;
+            else abajo.y += py;
             if (!arriba.dormido && (abajo.dormido || abajo.contacto)) {
-              arriba.contacto = true;
               arriba.vx += (arriba.x >= abajo.x ? 1 : -1) * P.rueda * dt;
             }
           } else {
@@ -202,6 +208,14 @@ const MarIdeas = (() => {
       const objetivo = lerp(v.tilt, v.rest, asent) + Math.sin(v.fase * 0.9 + 1) * P.angVaiven * v.sway;
       v.a = lerp(v.a, objetivo, Math.min(1, 5 * dt));
     }
+    // Evitar que las colisiones empujen tarjetas fuera del mar o bajo el suelo.
+    for (const v of vivos) {
+      if (v.estado !== "cae" || !v.aparecio) continue;
+      const w = hw(v), f = hf(v);
+      v.x = clamp(v.x, w, W - w);
+      if (v.y > H - f - 2) { v.y = H - f - 2; v.contacto = true; }
+      if (v.y < -v.h * 0.2) v.y = -v.h * 0.2;
+    }
     return despiertos;
   }
 
@@ -210,9 +224,9 @@ const MarIdeas = (() => {
     const y = v.y + (v.padre === "capa" ? C.oy : 0) - v.h / 2;
     v.el.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${v.a.toFixed(2)}deg) scale(${v.s.toFixed(3)})`;
     if (!v.aparecio) return;
-    // aparece suavemente al entrar por arriba del mar
-    if (v.padre === "mar" && v.y < v.h) v.el.style.opacity = clamp((v.y + v.h * 0.6) / (v.h * 1.4), 0, 1).toFixed(2);
-    else if (v.el.style.opacity) v.el.style.opacity = "";
+    // Fundido breve al aparecer; no atar la opacidad a la altura (las tarjetas
+    // paisajes son más altas y quedaban invisibles o empujadas arriba del agua).
+    if (v.el.style.opacity && v.el.style.opacity !== "1") v.el.style.opacity = "1";
   }
 
   function bucle(ahora) {
@@ -225,22 +239,41 @@ const MarIdeas = (() => {
       if (v.padre === "capa" && v.estado === "cae" && v.y > v.h * 0.6) volverAlMar(v);
       if (!v.dormido || Math.abs(v.s - v.sObj) > 0.002 || v.estado === "agarrado") dibujar(v);
     }
-    if (n > 0 || arr) raf = requestAnimationFrame(bucle); else { raf = 0; ultimo = 0; }
+    const pendientes = C.vivos.some((v) => v.estado === "cae" && (!v.aparecio || !v.dormido));
+    if (n > 0 || arr || pendientes) raf = requestAnimationFrame(bucle); else { raf = 0; ultimo = 0; }
   }
   // modo estático (foto / reduced-motion): se asienta de golpe, sin animación
+  function sentar(segundos) {
+    const tope = 60 * (segundos || 40);
+    C.vivos.forEach((v) => {
+      if (v.estado === "fuera") return;
+      v.aparecio = true;
+      v.dormido = false;
+      v.contacto = false;
+      v.quietoT = 0;
+      v.vy = Math.max(v.vy || 0, 90);
+      v.el.style.opacity = "1";
+    });
+    for (let i = 0; i < tope; i++) {
+      paso(1 / 60);
+      const pendiente = C.vivos.some((v) => v.estado === "cae" && v.aparecio && !v.dormido);
+      if (!pendiente) break;
+    }
+    C.vivos.forEach((v) => { if (v.estado !== "fuera") dibujar(v); });
+  }
   function reanudar() {
     if (!C) return;
-    if (C.estatico) { for (let i = 0; i < 60 * 8; i++) paso(1 / 60); C.vivos.forEach(dibujar); } else arrancar();
+    if (C.estatico) sentar(8); else arrancar();
   }
-  function arrancar() { if (!raf && C && !C.estatico) { ultimo = 0; raf = requestAnimationFrame(bucle); } }
+  function arrancar() { if (!C || C.estatico) return; if (!raf) { ultimo = (typeof performance !== 'undefined' && performance.now()) || Date.now(); raf = requestAnimationFrame(bucle); } }
 
   function despertar(excepto) {
     if (!C) return;
     C.vivos.forEach((v) => {
       if (v === excepto || v.estado === "fuera" || v.estado === "agarrado") return;
-      if (v.dormido) { v.dormido = false; v.quietoT = 0; v.vy = 0; }
+      if (v.dormido) { v.dormido = false; v.quietoT = 0; v.vy = 20; }
     });
-    if (C.estatico) { for (let i = 0; i < 60 * 6; i++) paso(1 / 60); C.vivos.forEach(dibujar); }
+    if (C.estatico) sentar(8);
     else arrancar();
   }
 
@@ -250,7 +283,8 @@ const MarIdeas = (() => {
     capa.appendChild(v.el); v.padre = "capa";
   }
   function volverAlMar(v) {
-    C.mar.appendChild(v.el); v.padre = "mar"; dibujar(v);
+    const caja = C.mar.querySelector("#mar-caja") || C.mar;
+    caja.appendChild(v.el); v.padre = "mar"; dibujar(v);
   }
 
   // ---------------------------------------------------------------- arrastre
@@ -430,7 +464,7 @@ const MarIdeas = (() => {
     iniciarVivo(v);
     objetivoEscala(false);
     dibujar(v);
-    reanudar();
+    if (!C.estatico) reanudar();
     return v;
   }
 
@@ -457,15 +491,20 @@ const MarIdeas = (() => {
   function recalcular() {
     if (!C) return;
     midOrigen();
-    C.W = C.mar.clientWidth; C.H = C.mar.clientHeight;
+    C.W = C.mar.clientWidth;
+    const caja = C.mar.querySelector("#mar-caja");
+    C.H = Math.max(C.mar.clientHeight, (caja && caja.offsetHeight) || 0);
     C.vivos.forEach((v) => {
       if (v.estado === "fuera") return;
       v.w = v.el.offsetWidth; v.h = v.el.offsetHeight;
+      const floor = C.H - (v.h * (v.s || 1) * 0.5 + 6) - 2;
+      if (v.y > floor) v.y = floor;
     });
     objetivoEscala(false);
     despertar();
   }
 
-  return { montar, detener, absorber, despertar, agregar, resaltar, recalcular, arrastrando: () => !!arr, parametros: P };
+  return { montar, detener, absorber, despertar, agregar, resaltar, recalcular, sentar, arrastrando: () => !!arr, parametros: P };
 
 })();
+window.MarIdeas = MarIdeas;

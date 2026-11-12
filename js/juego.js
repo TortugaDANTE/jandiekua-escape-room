@@ -1,4 +1,4 @@
-import * as DatosMod from './datos.js?v=20261112j';
+import * as DatosMod from './datos.js?v=20261112k';
 const Datos = Object.assign({}, DatosMod.default || {}, DatosMod, { normalizar: DatosMod.claveDe });
 window.Datos = Datos;
 
@@ -8,7 +8,7 @@ window.Datos = Datos;
 const ANCHO = 1080;
 const ALTO = 2022;
 const ACUARIO_SVG = '<svg class="acuario-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 605" preserveAspectRatio="none" aria-hidden="true">\n  <defs>\n    <linearGradient id="arena" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#C59B27" stop-opacity=".0"/>\n      <stop offset=".45" stop-color="#8A6A12" stop-opacity=".18"/>\n      <stop offset="1" stop-color="#5C4A18" stop-opacity=".45"/>\n    </linearGradient>\n    <linearGradient id="rayo" x1="0" y1="0" x2="0" y2="1">\n      <stop offset="0" stop-color="#D8E8DF" stop-opacity=".16"/>\n      <stop offset="1" stop-color="#D8E8DF" stop-opacity="0"/>\n    </linearGradient>\n    <linearGradient id="alga" x1="0" y1="1" x2="0" y2="0">\n      <stop offset="0" stop-color="#2E6B4E"/>\n      <stop offset="1" stop-color="#4A8B68" stop-opacity=".85"/>\n    </linearGradient>\n  </defs>\n  <!-- caustics / refraction bands -->\n  <g opacity=".22" fill="none" stroke="#D8E8DF" stroke-width="1.2">\n    <path d="M0 90 Q180 70 360 100 T720 90 T1080 110" opacity=".7"/>\n    <path d="M0 130 Q200 150 400 120 T800 140 T1080 125" opacity=".45"/>\n    <path d="M0 170 Q160 155 320 180 T640 165 T1080 185" opacity=".35"/>\n  </g>\n  <!-- light rays -->\n  <g fill="url(#rayo)">\n    <polygon points="220,-10 310,-10 260,400 170,400" opacity=".8"/>\n    <polygon points="520,-10 590,-10 560,360 490,360" opacity=".55"/>\n    <polygon points="820,-10 900,-10 870,420 790,420" opacity=".65"/>\n  </g>\n  <!-- sand bottom -->\n  <path fill="url(#arena)" d="M0 500 C80 488 160 520 260 505 C360 488 470 525 580 508 C700 490 820 528 930 510 C1000 500 1040 518 1080 508 L1080 605 L0 605 Z"/>\n  <g fill="#C59B27" opacity=".2">\n    <circle cx="90" cy="560" r="4"/><circle cx="140" cy="575" r="3"/><circle cx="320" cy="568" r="3.5"/>\n    <circle cx="510" cy="580" r="4"/><circle cx="700" cy="565" r="3"/><circle cx="880" cy="578" r="4"/>\n    <circle cx="990" cy="555" r="2.5"/>\n  </g>\n  <!-- seaweed / coral, left -->\n  <g fill="url(#alga)" opacity=".85">\n    <path d="M70 605 C60 540 90 520 70 460 C50 400 95 390 80 330 C88 400 55 420 85 480 C100 530 55 550 70 605Z"/>\n    <path d="M110 605 C125 530 95 510 120 440 C140 380 100 370 115 320 C108 380 145 400 108 470 C90 530 130 560 110 605Z"/>\n    <path d="M40 605 C30 550 55 530 38 480 C22 430 58 425 48 390 C52 440 20 455 50 510 C62 545 28 565 40 605Z"/>\n  </g>\n  <!-- right -->\n  <g fill="url(#alga)" opacity=".8">\n    <path d="M1010 605 C1022 540 990 520 1015 455 C1038 400 990 390 1008 335 C1000 400 1040 420 1000 485 C985 535 1028 555 1010 605Z"/>\n    <path d="M1050 605 C1062 550 1038 535 1055 485 C1072 435 1038 428 1050 390 C1045 440 1078 455 1048 510 C1036 545 1068 565 1050 605Z"/>\n    <path d="M970 605 C955 545 990 525 968 470 C948 415 990 410 975 360 C980 420 945 435 985 500 C1000 545 958 560 970 605Z"/>\n  </g>\n  <!-- small coral clusters -->\n  <g fill="#C59B27" opacity=".35">\n    <path d="M200 600 l8-28 8 14 7-22 7 22 8-14 8 28z"/>\n    <path d="M860 600 l6-22 7 11 6-18 6 18 7-11 6 22z"/>\n  </g>\n  <!-- two slow fish silhouettes (animated via CSS on groups) -->\n  <g class="pez pez-a" fill="#102438" opacity=".28">\n    <ellipse cx="0" cy="0" rx="22" ry="10"/>\n    <polygon points="18,0 34,-9 34,9"/>\n    <circle cx="-8" cy="-2" r="1.4" fill="#D8E8DF" opacity=".8"/>\n  </g>\n  <g class="pez pez-b" fill="#102438" opacity=".2">\n    <ellipse cx="0" cy="0" rx="16" ry="7"/>\n    <polygon points="-14,0 -26,-7 -26,7"/>\n    <circle cx="6" cy="-1.5" r="1.1" fill="#D8E8DF" opacity=".8"/>\n  </g>\n</svg>\n';
-const VERSION = "20261112j";
+const VERSION = "20261112k";
 
 const NOM_LLAVE = ["pertinencia", "estructura", "validacion", "definitiva"];
 
@@ -427,7 +427,7 @@ async function renderSala() {
           <div class="acuario-burbujas"><span></span><span></span><span></span><span></span><span></span><span></span></div>
         </div>
         <p class="instruccion">${s.instruccion}</p>
-        <div id="mar"></div>
+        <div id="mar"><div id="mar-caja"></div></div>
         <div class="acciones-sala" id="acciones-sala" hidden>
           <button type="button" class="btn-seguir" id="btn-seguir">Continuar</button>
         </div>
@@ -550,49 +550,137 @@ function totalIdeasSesion() {
   return Math.max(vivos, estado.conceptosUnicos || 0);
 }
 
+function anchoMarIdeas() {
+  const caja = $("#mar-caja") || $("#mar");
+  return (caja && caja.clientWidth) || (($("#mar") && $("#mar").clientWidth) || 1000);
+}
 function medidaIdeas(n) {
   const r = lienzo.getBoundingClientRect();
   const sL = (r.width / ANCHO) || 1;
   const minFont = Math.ceil(12 / Math.max(sL, 0.15));
-  const t = Math.max(0, Math.min(1, (n - 6) / (200 - 6)));
+  const t = Math.max(0, Math.min(1, ((n || 0) - 6) / (80 - 6)));
   const e = t * t * (3 - 2 * t);
-  return {
-    font: Math.max(minFont, Math.round(64 - e * (64 - minFont))),
-    lado: Math.round(240 - e * 140),
-    max: Math.round(300 - e * 160),
-    min: Math.round(140 - e * 70),
-    pad: Math.round(18 - e * 10)
-  };
+  let font = Math.max(minFont, Math.round(64 - e * (64 - minFont)));
+  // Tope para que una idea típica quepa en 3 líneas al 45 % del mar.
+  const maxW = Math.max(80, Math.floor(anchoMarIdeas() * 0.45));
+  const padGuess = Math.max(10, Math.round(font * 0.35));
+  const cap = Math.floor((maxW - 2 * padGuess) / (0.72 * 16));
+  font = Math.max(minFont, Math.min(font, cap || font, 42));
+  return { font, pad: Math.max(10, Math.round(font * 0.38)), minFont, sL };
 }
 
+let _medidaCtx = null;
+function medidaAnchoTexto(texto, fontPx) {
+  if (!_medidaCtx) _medidaCtx = document.createElement("canvas").getContext("2d");
+  _medidaCtx.font = "650 " + fontPx + 'px Montserrat, "Segoe UI", system-ui, sans-serif';
+  return _medidaCtx.measureText(texto).width;
+}
+function partirLineas(texto, fontPx, ancho) {
+  const words = String(texto || "").trim().split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = "";
+  for (const w of words) {
+    const test = line ? line + " " + w : w;
+    if (line && medidaAnchoTexto(test, fontPx) > ancho) {
+      lines.push(line);
+      line = w;
+    } else line = test;
+  }
+  if (line) lines.push(line);
+  return lines.length ? lines : [""];
+}
+function dimensionarTarjeta(el, texto, m) {
+  const maxW = Math.max(80, Math.floor(anchoMarIdeas() * 0.45));
+  const font = m.font, pad = m.pad, lineH = font * 1.25;
+  const innerMax = Math.max(32, maxW - pad * 2);
+  const raw = String(texto || "").trim();
+  const full = medidaAnchoTexto(raw, font);
+  let width;
+  if (full + pad * 2 + 8 <= maxW) {
+    width = Math.ceil(full + pad * 2 + 8);
+  } else {
+    width = Math.min(maxW, Math.ceil(full / 2 + pad * 2 + 8));
+    if (partirLineas(raw, font, Math.max(32, width - pad * 2)).length > 3) width = maxW;
+  }
+  let lines = partirLineas(raw, font, Math.max(32, width - pad * 2));
+  if (lines.length > 3) {
+    width = maxW;
+    lines = partirLineas(raw, font, innerMax);
+  }
+  let height = Math.ceil(pad * 2 + Math.max(1, lines.length) * lineH);
+  if (width < 2.2 * height) {
+    width = Math.min(maxW, Math.ceil(2.2 * height));
+    lines = partirLineas(raw, font, Math.max(32, width - pad * 2));
+    height = Math.ceil(pad * 2 + Math.max(1, lines.length) * lineH);
+  }
+  el.style.fontSize = font + "px";
+  el.style.padding = pad + "px";
+  el.style.width = width + "px";
+  el.style.height = height + "px";
+  el.style.maxWidth = maxW + "px";
+  return { width, height, lines: lines.length };
+}
+function actualizarSueloMar() {
+  const mar = $("#mar");
+  const caja = $("#mar-caja");
+  if (!mar || !caja) return;
+  const vivos = nodosVivos.filter((v) => v.estado !== "fuera");
+  let maxW = 80, maxH = 40;
+  vivos.forEach((v) => {
+    maxW = Math.max(maxW, v.w || 0);
+    maxH = Math.max(maxH, v.h || 0);
+  });
+  const marW = Math.max(mar.clientWidth, 1);
+  const perRow = Math.max(1, Math.floor(marW / Math.max(maxW * 0.42, 70)));
+  const rows = Math.ceil(Math.max(vivos.length, 1) / perRow);
+  // Apilado compacto (se solapan) y scroll si no caben; no inflar un pozo vacío.
+  const packH = Math.ceil(rows * maxH * 0.36 + 48);
+  caja.style.minHeight = Math.max(mar.clientHeight, packH) + "px";
+  mar.scrollTop = Math.max(0, mar.scrollHeight - mar.clientHeight);
+}
+
+function fuenteQueCabe(textos, minFont, fontIni) {
+  const maxW = Math.max(80, Math.floor(anchoMarIdeas() * 0.45));
+  let font = fontIni;
+  while (font > minFont) {
+    const pad = Math.max(10, Math.round(font * 0.38));
+    const inner = Math.max(32, maxW - pad * 2);
+    const cabe = textos.every((t) => partirLineas(String(t || "").trim(), font, inner).length <= 3);
+    if (cabe) break;
+    font -= 1;
+  }
+  return font;
+}
 function aplicarEscalaIdeas(inmediato) {
   const mar = $("#mar");
   if (!mar) return;
-  const m = medidaIdeas(totalIdeasSesion());
+  let m = medidaIdeas(totalIdeasSesion());
+  const textos = nodosVivos.filter((v) => v.estado !== "fuera").map((v) =>
+    (v.data && v.data.texto) || (v.el.querySelector(".nodo-texto") && v.el.querySelector(".nodo-texto").textContent) || ""
+  );
+  const font = fuenteQueCabe(textos, m.minFont, m.font);
+  m = Object.assign({}, m, { font, pad: Math.max(10, Math.round(font * 0.38)) });
   mar.style.setProperty("--idea-fonte", m.font + "px");
-  mar.style.setProperty("--idea-lado", m.lado + "px");
-  mar.style.setProperty("--idea-max", m.max + "px");
-  mar.style.setProperty("--idea-min", m.min + "px");
   mar.style.setProperty("--idea-pad", m.pad + "px");
   const capa = $("#capa-arrastre");
   if (capa) {
     capa.style.setProperty("--idea-fonte", m.font + "px");
-    capa.style.setProperty("--idea-lado", m.lado + "px");
-    capa.style.setProperty("--idea-max", m.max + "px");
-    capa.style.setProperty("--idea-min", m.min + "px");
     capa.style.setProperty("--idea-pad", m.pad + "px");
   }
   nodosVivos.forEach((v) => {
     if (v.estado === "fuera") return;
+    const texto = (v.data && v.data.texto) || (v.el.querySelector(".nodo-texto") && v.el.querySelector(".nodo-texto").textContent) || "";
+    dimensionarTarjeta(v.el, texto, m);
     medirIdea(v);
+    const badge = v.el.querySelector(".insignia-personas");
+    if (badge) badge.style.fontSize = m.minFont + "px";
     if (!inmediato) {
       v.dormido = false;
       v.contacto = false;
       v.quietoT = 0;
     }
   });
-  const marEl = $("#mar");
-  if (marEl) marEl.style.overflowY = totalIdeasSesion() > 40 ? "auto" : "visible";
+  actualizarSueloMar();
   if (!inmediato && window.MarIdeas && MarIdeas.recalcular) MarIdeas.recalcular();
 }
 
@@ -614,16 +702,20 @@ function insigniaPersonas(el, n) {
 }
 
 function crearNodoMar(data, concepto) {
-  const mar = $("#mar");
+  const caja = $("#mar-caja") || $("#mar");
   const el = document.createElement("button");
   el.type = "button";
   el.className = "nodo";
   el.id = data.id;
-  el.appendChild(document.createTextNode(data.texto));
+  const txt = document.createElement("span");
+  txt.className = "nodo-texto";
+  txt.textContent = data.texto;
+  el.appendChild(txt);
   el.setAttribute("aria-label", "Idea: " + data.texto);
   const personas = concepto && concepto.personas ? concepto.personas : 1;
   insigniaPersonas(el, personas);
-  mar.appendChild(el);
+  caja.appendChild(el);
+  dimensionarTarjeta(el, data.texto, medidaIdeas(totalIdeasSesion() + 1));
   return {
     data,
     el,
@@ -756,16 +848,18 @@ async function agregarIdea(texto, op = {}) {
   const v = crearNodoMar(data, { clave, personas: res.personas || 1, texto: t });
   nodosVivos.push(v);
   estado.conceptosUnicos = Math.max(estado.conceptosUnicos || 0, nodosVivos.filter((n) => n.estado !== "fuera").length);
-  aplicarEscalaIdeas(false);
-  if (window.MarIdeas) MarIdeas.agregar(v);
+  if (window.MarIdeas && MarIdeas.agregar) MarIdeas.agregar(v);
+  if (!op.sinEscala) aplicarEscalaIdeas(false);
   return v;
 }
 
 async function agregarIdeasLote(textos, op = {}) {
   const lista = Array.isArray(textos) ? textos : [];
   for (const texto of lista) {
-    await agregarIdea(texto, { local: op.local !== false });
+    await agregarIdea(texto, { local: op.local !== false, sinEscala: true });
   }
+  aplicarEscalaIdeas(false);
+  if (window.MarIdeas && MarIdeas.sentar) MarIdeas.sentar(45);
 }
 
 
@@ -941,7 +1035,7 @@ function renderFormulario() {
         </label>
         <label class="aviso">
           <input name="aviso" type="checkbox" ${estado.registro.aviso ? "checked" : ""} required>
-          <span>Aviso de privacidad: tu nombre, procedencia y título de investigación serían recabados por la Revista Jandiekua (Agenda Ambiental – UASLP) con la única finalidad de emitir este reconocimiento. El aviso integral está [POR DEFINIR]. En esta versión del juego los datos solo se guardan en este dispositivo y no se envían a ningún servidor.</span>
+          <span>Aviso de privacidad: tu nombre, procedencia y título de investigación se almacenan con fines académicos de la Revista Jandiekua (Agenda Ambiental – UASLP). El aviso integral está [POR DEFINIR].</span>
         </label>
         <button type="submit" class="btn-principal">Generar reconocimiento</button>
         <p class="nota-local">El envío real está [POR DEFINIR].</p>
@@ -1070,59 +1164,62 @@ async function dibujarCertificado() {
   ctx.fillText("Reconocimiento", W / 2, 318);
   ctx.font = "italic 44px Fraunces";
   ctx.fillText("Mar de las Ideas · Revista Jandiekua", W / 2, 372);
-  ctx.font = "600 20px Montserrat";
-  ctx.fillStyle = "#2E6B4E";
-  ctx.fillText("ESCAPE ROOM VIRTUAL", W / 2, 408);
   ctx.font = "700 22px Montserrat";
   ctx.fillStyle = "#2E6B4E";
-  ctx.fillText("Juego formativo", W / 2, 442);
-  ctx.font = "500 20px Montserrat";
-  ctx.fillStyle = "#102438";
-  ctx.fillText("Revista Mexicana de Educación Ambiental", W / 2, 492);
-  ctx.fillText("Agenda Ambiental · Universidad Autónoma de San Luis Potosí", W / 2, 520);
+  ctx.fillText("Juego formativo", W / 2, 418);
 
   // logo revista pendiente
   ctx.setLineDash([6, 6]);
   ctx.strokeStyle = "#4A8B68";
-  ctx.strokeRect(W / 2 - 150, 540, 300, 80);
+  ctx.strokeRect(W / 2 - 150, 448, 300, 80);
   ctx.setLineDash([]);
   ctx.font = "650 16px Montserrat";
   ctx.fillStyle = "#4A8B68";
-  ctx.fillText("[LOGO JANDIEKUA]  [POR DEFINIR]", W / 2, 586);
-
-  ctx.font = "500 22px Montserrat";
-  ctx.fillStyle = "#102438";
-  ctx.fillText("Otorga el presente reconocimiento a", W / 2, 650);
+  ctx.fillText("[LOGO JANDIEKUA]  [POR DEFINIR]", W / 2, 494);
 
   const nombre = estado.registro.nombre || "Nombre de la persona participante";
-  ctx.font = "italic 48px Fraunces";
-  ctx.fillStyle = "#003B71";
-  wrapText(ctx, nombre, W / 2, 710, W - 180, 54);
-
-  ctx.font = "500 22px Montserrat";
+  const procedencia = (estado.registro && estado.registro.institucion) ? String(estado.registro.institucion).trim() : "";
+  const titulo = (estado.tema || "").trim();
+  let y = 560;
   ctx.fillStyle = "#102438";
-  ctx.fillText("por completar el recorrido formativo del escape room virtual.", W / 2, 800);
-
-  ctx.drawImage(sello, W / 2 - 62, 806, 124, 124);
-  ctx.font = "700 16px Montserrat";
-  ctx.fillStyle = "#4A8B68";
-  ctx.fillText("[POR DEFINIR]", W / 2, 948);
-
-  if (estado.tema) {
+  ctx.font = "500 24px Montserrat";
+  y = wrapTextTop(
+    ctx,
+    "Se reconoce a " + nombre + " por recorrer las cuatro salas del Mar de las Ideas y mostrar un perfil y competencias metodológicas iniciales para la investigación en educación ambiental.",
+    W / 2, y, W - 180, 32
+  ) + 28;
+  if (procedencia) {
     ctx.font = "500 20px Montserrat";
     ctx.fillStyle = "#2E6B4E";
-    wrapText(ctx, "Título: " + estado.tema, W / 2, 970, W - 200, 28);
+    y = wrapTextTop(ctx, "Procedencia: " + procedencia, W / 2, y, W - 200, 28) + 24;
+  }
+  if (titulo) {
+    ctx.font = "500 22px Montserrat";
+    ctx.fillStyle = "#003B71";
+    y = wrapTextTop(
+      ctx,
+      "Te animamos a preparar tu trabajo «" + titulo + "» y a compartirlo con la Revista Jandiekua.",
+      W / 2, y, W - 200, 30
+    ) + 24;
   }
 
-  ctx.font = "400 17px Montserrat";
+  ctx.drawImage(sello, W / 2 - 62, y, 124, 124);
+  ctx.font = "700 16px Montserrat";
+  ctx.fillStyle = "#4A8B68";
+  ctx.fillText("[POR DEFINIR]", W / 2, y + 142);
+  y += 170;
+
+  ctx.font = "400 16px Montserrat";
   ctx.fillStyle = "#102438";
-  wrapText(ctx,
+  y = wrapTextTop(
+    ctx,
     "Mar de las Ideas es un juego; este reconocimiento es un aliento formativo; no constituye aceptación ni autorización de publicación, que depende de la dictaminación académica por pares.",
-    W / 2, 1050, W - 200, 24);
+    W / 2, y, W - 200, 22
+  ) + 32;
 
   ctx.font = "500 18px Montserrat";
   ctx.fillStyle = "#003B71";
-  ctx.fillText("Fecha de emisión: " + fechaEmision(), W / 2, 1140);
+  ctx.fillText("Fecha de emisión: " + fechaEmision(), W / 2, Math.min(y, H - 110));
 
   ctx.fillStyle = "#003B71";
   ctx.fillRect(0, H - 70, W, 70);
@@ -1136,7 +1233,7 @@ async function dibujarCertificado() {
 }
 
 function wrapText(ctx, text, x, y, maxW, lineH) {
-  const words = text.split(" ");
+  const words = String(text || "").split(" ");
   let line = "";
   const lines = [];
   for (const w of words) {
@@ -1149,6 +1246,22 @@ function wrapText(ctx, text, x, y, maxW, lineH) {
   if (line) lines.push(line);
   const start = y - ((lines.length - 1) * lineH) / 2;
   lines.forEach((ln, i) => ctx.fillText(ln, x, start + i * lineH));
+  return start + Math.max(0, lines.length - 1) * lineH;
+}
+function wrapTextTop(ctx, text, x, y, maxW, lineH) {
+  const words = String(text || "").split(" ");
+  let line = "";
+  const lines = [];
+  for (const w of words) {
+    const test = line ? line + " " + w : w;
+    if (ctx.measureText(test).width > maxW) {
+      if (line) lines.push(line);
+      line = w;
+    } else line = test;
+  }
+  if (line) lines.push(line);
+  lines.forEach((ln, i) => ctx.fillText(ln, x, y + i * lineH));
+  return y + Math.max(0, lines.length - 1) * lineH;
 }
 
 function abrirGlosario() {

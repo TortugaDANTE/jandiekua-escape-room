@@ -1,5 +1,5 @@
 /* Mar de ideas: hundimiento, tamaño y arrastre. Se carga después de css/juego.css. */
-#mar { overflow: visible; }
+#mar { overflow-x: hidden; overflow-y: auto; }
 .nodo { transform-origin: 50% 50%; will-change: transform; }
 .nodo:focus-visible { outline: 3px solid var(--oro-2); outline-offset: 6px; border-radius: 28px; }
 

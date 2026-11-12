@@ -580,7 +580,14 @@ img { display: block; max-width: 100%; height: auto; }
 #mar {
   position: absolute;
   inset: 56px 16px 8px;
-  overflow: visible;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#mar-caja {
+  position: relative;
+  width: 100%;
+  min-height: 100%;
 }
 #capa-arrastre {
   position: absolute;
@@ -596,10 +603,11 @@ img { display: block; max-width: 100%; height: auto; }
 .nodo {
   position: absolute;
   left: 0; top: 0;
-  width: var(--idea-lado, 200px);
-  max-width: var(--idea-max, 280px);
-  min-width: var(--idea-min, 120px);
-  min-height: var(--idea-min, 120px);
+  width: auto;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
   padding: var(--idea-pad, 16px);
   border-radius: 22px;
   background: linear-gradient(180deg, #fff, var(--papel));
@@ -608,7 +616,7 @@ img { display: block; max-width: 100%; height: auto; }
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
   font-size: var(--idea-fonte, 26px);
   font-weight: 650;
-  line-height: 1.2;
+  line-height: 1.25;
   text-align: center;
   cursor: grab;
   touch-action: none;
@@ -616,9 +624,20 @@ img { display: block; max-width: 100%; height: auto; }
   will-change: transform;
   transform-origin: center center;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
+  box-sizing: border-box;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+.nodo .nodo-texto {
+  display: block;
+  width: 100%;
+  overflow: visible;
 }
 .nodo:active { cursor: grabbing; }
 .nodo.arrastre {

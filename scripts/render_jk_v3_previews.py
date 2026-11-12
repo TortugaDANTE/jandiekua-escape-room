@@ -13,7 +13,7 @@ from playwright.sync_api import sync_playwright
 ROOT = Path("/workspace/jandiekua-escape-room")
 OUT = Path("/workspace/jk_v3_previews")
 PORT = 8910
-Q = "sinred=1&v=20261112j&semilla=20261112"
+Q = "sinred=1&v=20261112k&semilla=20261112"
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *a, **k):
@@ -159,20 +159,62 @@ def main():
         page.locator("#btn-registrar-titulo").click()
         page.wait_for_selector("#mar[data-listo='1'] #s1-a", state="attached", timeout=20000)
         page.wait_for_function(
-            "() => { const e = document.getElementById('s1-a'); return e && parseFloat(getComputedStyle(e).opacity||0) >= 0.4; }",
-            timeout=10000,
+            """() => {
+              const nodos = [...document.querySelectorAll('#mar .nodo')];
+              if (nodos.length < 8) return false;
+              const visibles = nodos.filter(e => parseFloat(getComputedStyle(e).opacity||0) >= 0.85);
+              return visibles.length >= Math.min(6, nodos.length);
+            }""",
+            timeout=15000,
         )
-        page.wait_for_timeout(800)
+        page.wait_for_timeout(1800)
 
         # drop a typed idea into the sea from the top-zone form
         page.wait_for_selector("#form-idea")
         page.fill("#nueva-idea", "Una idea escrita en la zona superior")
         page.locator("#form-idea .btn-idea").click()
-        page.wait_for_timeout(400)
-        # dedupe
+        try:
+            page.wait_for_function(
+                """() => {
+                  const el = [...document.querySelectorAll('#mar .nodo, #capa-arrastre .nodo')].find(n => (n.textContent||'').includes('Una idea escrita en la zona superior'));
+                  const mar = document.getElementById('mar');
+                  if (!el || !mar) return false;
+                  const r = el.getBoundingClientRect(), m = mar.getBoundingClientRect();
+                  const cy = (r.top + r.bottom) / 2;
+                  return parseFloat(getComputedStyle(el).opacity||0) >= 0.85 && cy > m.top + 12 && cy < m.bottom - 8;
+                }""",
+                timeout=12000,
+            )
+        except Exception:
+            page.wait_for_timeout(2500)
+        page.evaluate(
+            """() => {
+              if (window.MarIdeas && MarIdeas.sentar) MarIdeas.sentar(8);
+              const t = document.getElementById('toast');
+              if (t) t.hidden = true;
+            }"""
+        )
+        page.wait_for_timeout(200)
+        shot(page, "sala1_ideas.png")
+        # dedupe (resaltar echa la tarjeta hacia arriba; la foto ya se tomó)
         page.fill("#nueva-idea", "Una idea escrita en la zona superior")
         page.locator("#form-idea .btn-idea").click()
-        page.wait_for_timeout(500)
+        try:
+            page.wait_for_function(
+                """() => {
+                  const el = [...document.querySelectorAll('#mar .nodo, #capa-arrastre .nodo')].find(n => (n.textContent||'').includes('Una idea escrita en la zona superior'));
+                  const mar = document.getElementById('mar');
+                  if (!el || !mar) return false;
+                  const r = el.getBoundingClientRect(), m = mar.getBoundingClientRect();
+                  const cy = (r.top + r.bottom) / 2;
+                  const instr = document.querySelector('.zona-mar .instruccion, #mar') && null;
+                  return parseFloat(getComputedStyle(el).opacity||0) >= 0.85 && cy > m.top + 40 && cy < m.bottom - 8;
+                }""",
+                timeout=12000,
+            )
+        except Exception:
+            page.wait_for_timeout(2500)
+        page.wait_for_timeout(800)
         page.evaluate("() => { const t=document.getElementById('toast'); if (t) t.hidden = true; }")
         sea = page.evaluate(
             """() => {
@@ -194,7 +236,6 @@ def main():
             }"""
         )
         report["checks"]["sala1_ideas"] = sea
-        shot(page, "sala1_ideas.png")
 
         # drag in progress: dispatch on #s1-a so overlapping cards do not steal the hit
         page.evaluate("() => { const t=document.getElementById('toast'); if (t) t.hidden = true; }")
@@ -314,8 +355,15 @@ def main():
             }"""
         )
         page.wait_for_function("() => document.querySelectorAll('#mar .nodo').length >= 200", timeout=30000)
-        page.wait_for_timeout(600)
-        page.evaluate("() => { const t=document.getElementById('toast'); if (t) t.hidden = true; }")
+        page.evaluate(
+            """() => {
+              const mar = document.getElementById('mar');
+              if (mar) mar.scrollTop = Math.max(0, mar.scrollHeight - mar.clientHeight);
+              const t = document.getElementById('toast');
+              if (t) t.hidden = true;
+            }"""
+        )
+        page.wait_for_timeout(800)
         stress = page.evaluate(
             """() => {
               const el = document.querySelector('#mar .nodo');

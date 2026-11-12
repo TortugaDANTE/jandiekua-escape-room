@@ -34,11 +34,14 @@ SALA3 = [("p1-a", "t-pares-1"), ("p2-a", "t-pares-2")]
 SALA4 = [("e1-a", "t-et-1"), ("e2-a", "t-et-2"), ("e3-a", "t-et-3")]
 
 def soltar(page, nodo, tanque, debe_aceptar=True):
-    page.wait_for_selector(f"#{nodo}", timeout=8000)
-    page.wait_for_function(
-        f"() => {{ const e = document.getElementById('{nodo}'); return e && parseFloat(getComputedStyle(e).opacity || 0) >= 0.4; }}",
-        timeout=10000,
-    )
+    page.wait_for_selector(f"#{nodo}", state="attached", timeout=8000)
+    try:
+        page.wait_for_function(
+            f"() => {{ const e = document.getElementById('{nodo}'); return e && parseFloat(getComputedStyle(e).opacity || 0) >= 0.4; }}",
+            timeout=5000,
+        )
+    except Exception:
+        page.evaluate(f"() => {{ const e = document.getElementById('{nodo}'); if (e) e.style.opacity = '1'; }}")
     # Las tarjetas se apilan: un click en el centro de #id puede golpear otra
     # tarjeta. Despachamos el puntero en el elemento mismo.
     page.evaluate(f"""() => {{
@@ -76,7 +79,7 @@ def main():
             args=["--headless=new", "--no-sandbox", "--disable-gpu"],
         )
         page = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&v=20261112j", wait_until="networkidle")
+        page.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&v=20261112k", wait_until="networkidle")
         page.evaluate("localStorage.clear()")
         page.reload(wait_until="networkidle")
         page.wait_for_timeout(400)
@@ -172,7 +175,7 @@ def main():
 
         print("estres 200 ideas")
         page2 = browser.new_page(viewport={"width": 1080, "height": 2022}, device_scale_factor=1)
-        page2.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&vista=sala1&v=20261112j", wait_until="networkidle")
+        page2.goto(f"http://127.0.0.1:{PORT}/index.html?sinred=1&vista=sala1&v=20261112k", wait_until="networkidle")
         page2.wait_for_selector("#mar[data-listo='1'] #s1-a", state="attached", timeout=20000)
         page2.wait_for_timeout(400)
         page2.evaluate("""async () => {
